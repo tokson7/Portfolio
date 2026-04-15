@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tornike Zaridze — Fullstack Developer</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    /* ─── SCROLL ANIMATION HOOK ─────────────────────────────── */
+    function useScrollAnimation(threshold = 0.1) {
+      const ref = useRef(null);
+      const [isVisible, setIsVisible] = useState(false);
+      useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+        const obs = new IntersectionObserver(
+          ([e]) => { if (e.isIntersecting) setIsVisible(true); },
+          { threshold, rootMargin: "0px 0px -40px 0px" }
+        );
+        obs.observe(el);
+        return () => obs.disconnect();
+      }, [threshold]);
+      return [ref, isVisible];
+    }
+
+    /* ─── ANIM ──────────────────────────────────────────────── */
+    function Anim({ children, delay = 0, className = "", style = {} }) {
+      const [ref, vis] = useScrollAnimation();
+      return (
+        <div ref={ref} className={className} style={{
+          opacity: vis ? 1 : 0,
+          transform: vis ? "translateY(0)" : "translateY(32px)",
+          transition: `opacity 0.85s cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 0.85s cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
+          ...style,
+        }}>{children}</div>
+      );
+    }
+
+    /* ─── FAQ ITEM ──────────────────────────────────────────── */
+    function FAQItem({ question, answer, defaultOpen = false }) {
+      const [open, setOpen] = useState(defaultOpen);
+      return (
+        <div style={{ borderBottom: "1px solid rgba(255,255,255,0.07)", cursor: "pointer" }} onClick={() => setOpen(!open)}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 0" }}>
+            <span style={{ color: "rgba(255,255,255,0.75)", fontSize: "15px", fontFamily: "var(--f-body)" }}>{question}</span>
+            <span style={{
+              color: "rgba(255,255,255,0.4)", fontSize: "22px", flexShrink: 0, marginLeft: 16,
+              transition: "transform 0.35s ease", transform: open ? "rotate(45deg)" : "rotate(0)",
+              display: "inline-block",
+            }}>+</span>
+          </div>
+          <div style={{
+            maxHeight: open ? "220px" : "0", overflow: "hidden", opacity: open ? 1 : 0,
+            transition: "max-height 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.4s ease",
+          }}>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px", lineHeight: 1.75, paddingBottom: 20, fontFamily: "var(--f-body)" }}>{answer}</p>
+          </div>
+        </div>
+      );
+    }
+
+    /* ─── TZ LOGO ─────────────────────────────────────────── */
+    function TerminalLogo({ size = 64 }) {
+      return (
+        <svg width={size} height={size} viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style={{display:"block",flexShrink:0}}>
+          <rect x="8" y="8" width="84" height="84" rx="18" ry="18" fill="none" stroke="#FFFFFF" strokeWidth="2.5" />
+          <path d="M 32 38 L 48 50 L 32 62" fill="none" stroke="#FFFFFF" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+          <rect x="54" y="60" width="16" height="4" rx="1" fill="#FFFFFF">
+            <animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;0.5;0.5;1;1" dur="1.2s" repeatCount="indefinite" />
+          </rect>
+        </svg>
+      );
+    }
+
+    /* ─── POLO CARD ─────────────────────────────────────────── */
+    /* ─── LIQUID REVEAL PHOTO ────────────────────────────── */
+    function LiquidRevealPhoto({ baseImage, revealImage }) {
+      const containerRef = useRef(null);
+      const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+      const [isHovering, setIsHovering] = useState(false);
+      const [revealOpacity, setRevealOpacity] = useState(0);
+
+      function handleMouseMove(e) {
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        setMousePos({
+          x: ((e.clientX - rect.left) / rect.width) * 100,
+          y: ((e.clientY - rect.top)  / rect.height) * 100,
+        });
+      }
+
+      return (
+        <div
+          ref={containerRef}
+          onMouseMove={handleMouseMove}
+          onMouseEnter={() => { setIsHovering(true);  setRevealOpacity(1); }}
+          onMouseLeave={() => { setIsHovering(false); setRevealOpacity(0); }}
+          style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", borderRadius: "inherit", cursor: "crosshair" }}
+        >
+          {/* SVG turbulence filter for liquid edges */}
+          <svg style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}>
+            <defs>
+              <filter id="lwf" x="-12%" y="-12%" width="124%" height="124%" colorInterpolationFilters="sRGB">
+                <feTurbulence type="fractalNoise" baseFrequency="0.022 0.032" numOctaves="3" seed="5">
+                  <animate attributeName="baseFrequency" dur="6s"
+                    values="0.022 0.032;0.032 0.018;0.022 0.032" repeatCount="indefinite" />
+                </feTurbulence>
+                <feDisplacementMap in="SourceGraphic" scale="10" xChannelSelector="R" yChannelSelector="G" />
+              </filter>
+            </defs>
+          </svg>
+
+          {/* Base portrait — always visible */}
+          <img src={baseImage} alt="" style={{
+            position: "absolute", top: 0, left: 0,
+            width: "118%", height: "112%",
+            objectFit: "cover", objectPosition: "left top", display: "block",
+          }} />
+
+          {/* Radial reveal overlay — follows cursor */}
+          <div style={{
+            position: "absolute", top: 0, left: 0,
+            width: "100%", height: "100%",
+            opacity: revealOpacity,
+            transition: "opacity 1.5s cubic-bezier(0.4,0,0.2,1)",
+            maskImage: `radial-gradient(circle 200px at ${mousePos.x}% ${mousePos.y}%, black 0%, black 60%, transparent 95%)`,
+            WebkitMaskImage: `radial-gradient(circle 200px at ${mousePos.x}% ${mousePos.y}%, black 0%, black 60%, transparent 95%)`,
+            filter: isHovering ? "url(#lwf)" : "none",
+            willChange: "mask-image, opacity",
+          }}>
+            <img src={revealImage} alt="" style={{
+              position: "absolute", top: 0, left: 0,
+              width: "118%", height: "112%",
+              objectFit: "cover", objectPosition: "left top", display: "block",
+              opacity: 1,
+            }} />
+          </div>
+        </div>
+      );
+    }
+
+    function PoloCard({ children, className = "", innerStyle = {}, showArrow = false, onClick, hoverable = true, minHeight }) {
+      const [hovered, setHovered] = useState(false);
+      return (
+        <div
+          className={"polo-card-wrap " + className}
+          onMouseEnter={() => hoverable && setHovered(true)}
+          onMouseLeave={() => hoverable && setHovered(false)}
+          onClick={onClick}
+          style={{
+            background: "#060606",
+            borderRadius: 20,
+            padding: 10,
+            border: `1px solid ${hovered ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.04)"}`,
+            boxShadow: hovered
+              ? "0 0 0 1px rgba(255,255,255,0.05), 0 40px 100px rgba(0,0,0,0.8)"
+              : "0 0 0 1px rgba(255,255,255,0.03), 0 30px 80px rgba(0,0,0,0.6)",
+            transform: hovered ? "translateY(-6px)" : "translateY(0)",
+            transition: "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+            cursor: onClick ? "pointer" : "default",
+            position: "relative",
+          }}
+        >
+          <div
+            className="polo-card-inner"
+            style={{
+              background: "linear-gradient(180deg, #0d0d0d 0%, #0a0a0a 100%)",
+              borderRadius: 14,
+              border: `1px solid ${hovered ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)"}`,
+              overflow: "hidden",
+              position: "relative",
+              minHeight: minHeight || "auto",
+              transition: "border-color 0.5s ease",
+              ...innerStyle,
+            }}
+          >
+            {children}
+            {showArrow && (
+              <div
+                className="polo-arrow"
+                style={{
+                  position: "absolute",
+                  bottom: 20,
+                  left: 20,
+                  width: 44,
+                  height: 44,
+                  borderRadius: "50%",
+                  background: "rgba(15,15,15,0.9)",
+                  backdropFilter: "blur(10px)",
+                  WebkitBackdropFilter: "blur(10px)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 16,
+                  color: hovered ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.55)",
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+                  transform: hovered ? "rotate(-15deg) scale(1.05)" : "rotate(0) scale(1)",
+                  transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+                }}
+              >
+                ↗
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    /* ─── SECTION FRAME ─────────────────────────────────────── */
+    function SectionFrame({ id, children, style = {}, innerStyle = {} }) {
+      return (
+        <section
+          id={id}
+          className="polo-section"
+          style={{
+            width: "100%",
+            padding: "0",
+            marginTop: 0,
+            display: "flex",
+            justifyContent: "center",
+            position: "relative",
+            ...style,
+          }}
+        >
+          <div
+            className="polo-panel"
+            style={{
+              width: "100%",
+              maxWidth: "none",
+              padding: "100px 80px 140px",
+              position: "relative",
+              borderTopLeftRadius: 36,
+              borderTopRightRadius: 36,
+              background: `linear-gradient(
+                180deg,
+                rgba(16,16,16,1) 0%,
+                rgba(14,14,14,1) 35%,
+                rgba(12,12,12,0.8) 65%,
+                rgba(10,10,10,0.35) 85%,
+                rgba(10,10,10,0) 100%
+              )`,
+              WebkitMaskImage: "linear-gradient(180deg, #000 0%, #000 55%, rgba(0,0,0,0.55) 80%, transparent 100%)",
+              maskImage: "linear-gradient(180deg, #000 0%, #000 55%, rgba(0,0,0,0.55) 80%, transparent 100%)",
+              ...innerStyle,
+            }}
+          >
+            {/* Border layer — separately masked so it fades independently */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                inset: 0,
+                borderTopLeftRadius: 36,
+                borderTopRightRadius: 36,
+                border: "1px solid rgba(255,255,255,0.07)",
+                borderBottom: "none",
+                pointerEvents: "none",
+                WebkitMaskImage: "linear-gradient(180deg, #000 0%, #000 45%, rgba(0,0,0,0.45) 75%, transparent 100%)",
+                maskImage: "linear-gradient(180deg, #000 0%, #000 45%, rgba(0,0,0,0.45) 75%, transparent 100%)",
+              }}
+            />
+            {/* Soft top highlight glow */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                top: 0,
+                left: "10%",
+                right: "10%",
+                height: 1,
+                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)",
+                pointerEvents: "none",
+              }}
+            />
+            {/* Inner content constrained for readability */}
+            <div style={{ position: "relative", maxWidth: 1280, margin: "0 auto", width: "100%" }}>
+              {children}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ─── SERVICE CARD ──────────────────────────────────────── */
+    function ServiceCard({ icon, title, desc, delay = 0 }) {
+      return (
+        <Anim delay={delay}>
+          <PoloCard hoverable={true}>
+            <div style={{ padding: "36px 32px" }}>
+              <div style={{ fontSize: 26, marginBottom: 18 }}>{icon}</div>
+              <h3 style={{ color: "#fff", fontSize: 19, fontWeight: 600, marginBottom: 12, fontFamily: "var(--f-body)" }}>{title}</h3>
+              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 14, lineHeight: 1.7, fontFamily: "var(--f-body)" }}>{desc}</p>
+            </div>
+          </PoloCard>
+        </Anim>
+      );
+    }
+
+    /* ─── COMPARE CARD ──────────────────────────────────────── */
+    function CompareCard({ positive, title, desc, delay = 0 }) {
+      return (
+        <Anim delay={delay}>
+          <PoloCard hoverable={true}>
+            <div style={{ padding: "32px 28px" }}>
+              <div style={{
+                width: 34, height: 34, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+                marginBottom: 22, fontSize: 15,
+                color: positive ? "rgba(100,255,150,0.9)" : "rgba(255,255,255,0.35)",
+                background: positive ? "rgba(100,255,150,0.07)" : "rgba(255,255,255,0.04)",
+                border: `1px solid ${positive ? "rgba(100,255,150,0.12)" : "rgba(255,255,255,0.07)"}`,
+              }}>{positive ? "✓" : "✕"}</div>
+              <h3 style={{ color: "#fff", fontSize: 19, fontWeight: 600, marginBottom: 10, fontFamily: "var(--f-body)" }}>{title}</h3>
+              <p style={{ color: "rgba(255,255,255,0.38)", fontSize: 14, lineHeight: 1.7, fontFamily: "var(--f-body)" }}>{desc}</p>
+            </div>
+          </PoloCard>
+        </Anim>
+      );
+    }
+
+    /* ─── TURBULENT BACKGROUND ──────────────────────────────── */
+    function TurbulentBackground() {
+      const canvasRef = useRef(null);
+      useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (!gl) return;
+
+        const VS = `
+          attribute vec2 a_position;
+          void main() { gl_Position = vec4(a_position, 0.0, 1.0); }
+        `;
+        const FS = `
+          precision highp float;
+          uniform float iTime;
+          uniform vec2 iResolution;
+          #define TURB_NUM 10.0
+          #define TURB_AMP 0.7
+          #define TURB_SPEED 0.3
+          #define TURB_FREQ 2.0
+          #define TURB_EXP 1.4
+          vec2 turbulence(vec2 p) {
+            float freq = TURB_FREQ;
+            mat2 rot = mat2(0.6, -0.8, 0.8, 0.6);
+            for(float i=0.0; i<TURB_NUM; i++) {
+              float phase = freq * (p * rot).y + TURB_SPEED*iTime + i;
+              p += TURB_AMP * rot[0] * sin(phase) / freq;
+              rot *= mat2(0.6, -0.8, 0.8, 0.6);
+              freq *= TURB_EXP;
+            }
+            return p;
+          }
+          void main() {
+            vec2 p = 2.0*(gl_FragCoord.xy*2.0-iResolution.xy)/iResolution.y;
+            p = turbulence(p);
+            vec3 col = 0.5*exp(0.1*p.x*vec3(-1.0, 0.0, 2.0));
+            col /= dot(cos(p*3.0), sin(-p.yx*3.0*0.618)) + 2.0;
+            col = 1.0 - exp(-col);
+            col *= 0.45;
+            gl_FragColor = vec4(col, 1.0);
+          }
+        `;
+
+        function compileShader(type, src) {
+          const s = gl.createShader(type);
+          gl.shaderSource(s, src);
+          gl.compileShader(s);
+          return s;
+        }
+        const prog = gl.createProgram();
+        gl.attachShader(prog, compileShader(gl.VERTEX_SHADER, VS));
+        gl.attachShader(prog, compileShader(gl.FRAGMENT_SHADER, FS));
+        gl.linkProgram(prog);
+        gl.useProgram(prog);
+
+        const buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+          -1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1
+        ]), gl.STATIC_DRAW);
+        const loc = gl.getAttribLocation(prog, 'a_position');
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+        const uTime = gl.getUniformLocation(prog, 'iTime');
+        const uRes  = gl.getUniformLocation(prog, 'iResolution');
+
+        function resize() {
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          const w = canvas.clientWidth  * dpr;
+          const h = canvas.clientHeight * dpr;
+          if (canvas.width !== w || canvas.height !== h) {
+            canvas.width  = w;
+            canvas.height = h;
+          }
+          gl.viewport(0, 0, canvas.width, canvas.height);
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        const start = performance.now();
+        let raf;
+        function render() {
+          raf = requestAnimationFrame(render);
+          resize();
+          const t = (performance.now() - start) / 1000;
+          gl.uniform1f(uTime, t);
+          gl.uniform2f(uRes, canvas.width, canvas.height);
+          gl.drawArrays(gl.TRIANGLES, 0, 6);
+        }
+        render();
+
+        return () => {
+          cancelAnimationFrame(raf);
+          window.removeEventListener('resize', resize);
+          gl.deleteProgram(prog);
+          gl.deleteBuffer(buf);
+        };
+      }, []);
+
+      return (
+        <canvas
+          ref={canvasRef}
+          style={{
+            position: 'absolute',
+            top: 0, left: 0,
+            width: '100%', height: '100%',
+            pointerEvents: 'none', zIndex: 0,
+            opacity: 0.7,
+            display: 'block',
+          }}
+        />
+      );
+    }
+
+    /* ─── HERO ARROW BUTTON ─────────────────────────────────── */
+    function HeroArrowButton() {
+      const [hovered, setHovered] = React.useState(false);
+
+      function handleEnter() { setHovered(true); }
+      function handleLeave() { setHovered(false); }
+
+      return (
+        <span
+          onMouseEnter={handleEnter}
+          onMouseLeave={handleLeave}
+          onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
+          style={{
+            display: "inline-flex",
+            position: "relative",
+            marginLeft: 18,
+            verticalAlign: "middle",
+            cursor: "pointer",
+            overflow: "visible",
+          }}
+        >
+          {/* Circle button */}
+          <span
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: "50%",
+              background: "#0F0F0F",
+              border: `1px solid ${hovered ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.12)"}`,
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 20px rgba(0,0,0,0.4)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              position: "relative",
+              overflow: "hidden",
+              transition: "border-color 0.4s ease, transform 0.4s ease",
+              transform: hovered ? "scale(1.05)" : "scale(1)",
+            }}
+          >
+            {/* Arrow that shoots out on hover */}
+            <span
+              style={{
+                position: "absolute",
+                fontSize: 22,
+                color: "rgba(255,255,255,0.9)",
+                transition: "transform 0.45s cubic-bezier(0.65,0,0.35,1), opacity 0.45s cubic-bezier(0.65,0,0.35,1)",
+                transform: hovered ? "translate(22px,-22px)" : "translate(0,0)",
+                opacity: hovered ? 0 : 1,
+              }}
+            >↗</span>
+            {/* Replacement arrow that slides in from bottom-left */}
+            <span
+              style={{
+                position: "absolute",
+                fontSize: 22,
+                color: "rgba(255,255,255,0.9)",
+                transition: "transform 0.45s cubic-bezier(0.65,0,0.35,1) 0.08s, opacity 0.45s cubic-bezier(0.65,0,0.35,1) 0.08s",
+                transform: hovered ? "translate(0,0)" : "translate(-22px,22px)",
+                opacity: hovered ? 1 : 0,
+              }}
+            >↗</span>
+          </span>
+          {/* "(about me)" label — tilted, snappy spring */}
+          <span
+            style={{
+              position: "absolute",
+              left: "100%",
+              top: "70%",
+              fontFamily: "var(--f-display)",
+              fontStyle: "italic",
+              fontSize: 17,
+              fontWeight: 400,
+              color: "rgba(255,255,255,0.85)",
+              whiteSpace: "nowrap",
+              pointerEvents: "none",
+              zIndex: 10,
+              transformOrigin: "left center",
+              transition: "all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
+              transform: hovered
+                ? "translate(12px, 8px) rotate(-12deg) scale(1)"
+                : "translate(-30px, -10px) rotate(-12deg) scale(0.6)",
+              opacity: hovered ? 1 : 0,
+              textShadow: "0 2px 12px rgba(0,0,0,0.8)",
+              letterSpacing: "0.01em",
+            }}
+          >(about me)</span>
+        </span>
+      );
+    }
+
+    /* ─── PORTFOLIO ─────────────────────────────────────────── */
+    function Portfolio() {
+      const [loaded, setLoaded] = useState(false);
+      const [mobileNav, setMobileNav] = useState(false);
+
+      useEffect(() => { setLoaded(true); }, []);
+
+      const go = useCallback((id) => {
+        document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+        setMobileNav(false);
+      }, []);
+
+      const pill = {
+        display: "inline-flex", alignItems: "center", gap: 8,
+        padding: "8px 20px", borderRadius: 999,
+        border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.03)",
+        fontSize: 13, color: "rgba(255,255,255,0.55)", fontFamily: "var(--f-body)", marginBottom: 20,
+      };
+
+      const heading = {
+        fontFamily: "var(--f-display)", fontSize: "clamp(2.2rem,5vw,3.8rem)",
+        fontWeight: 400, color: "#fff", lineHeight: 1.12, marginBottom: 14,
+      };
+
+      return (
+        <div style={{
+          background: "#0A0A0A", color: "#fff", minHeight: "100vh",
+          width: "100%", minWidth: "100%", margin: 0, padding: 0,
+          boxSizing: "border-box", fontFamily: "var(--f-body)",
+          overflowX: "hidden",
+          opacity: loaded ? 1 : 0, transition: "opacity 0.8s ease",
+          paddingBottom: 80,
+        }}>
+          <style>{`
+            @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
+            :root { --f-display:'Playfair Display',Georgia,serif; --f-body:'DM Sans',system-ui,sans-serif; }
+            *{margin:0;padding:0;box-sizing:border-box;}
+            html{scroll-behavior:smooth;}
+            html, body, #root, #__next, [data-reactroot] {
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 100vw !important;
+              overflow-x: hidden !important;
+              box-sizing: border-box !important;
+            }
+            body{background:#0A0A0A;}
+            ::-webkit-scrollbar{width:5px;}
+            ::-webkit-scrollbar-track{background:#0A0A0A;}
+            ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px;}
+            @keyframes float1{0%,100%{transform:translateY(0px) rotate(-7deg);}50%{transform:translateY(-16px) rotate(-5deg);}}
+            @keyframes float2{0%,100%{transform:translateY(0px) rotate(5deg);}50%{transform:translateY(-12px) rotate(7deg);}}
+            @keyframes float3{0%,100%{transform:translateY(0px) rotate(2deg);}50%{transform:translateY(-10px) rotate(-1deg);}}
+            @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.45}}
+            @keyframes arcInLabel{
+              0%  { transform: translate(-50%,-50%) scale(0.4) rotate(-25deg); opacity:0; }
+              40% { transform: translate(-6px,-6px)  scale(0.7)  rotate(-12deg); opacity:0.5; }
+              70% { transform: translate(12px,22px)  scale(0.95) rotate(-3deg);  opacity:0.9; }
+              100%{ transform: translate(22px,32px)  scale(1)    rotate(0deg);   opacity:1; }
+            }
+            @keyframes arcOutLabel{
+              0%  { transform: translate(22px,32px)  scale(1)    rotate(0deg);   opacity:1; }
+              100%{ transform: translate(-50%,-50%) scale(0.4) rotate(-25deg); opacity:0; }
+            }
+            .arc-label-in  { animation: arcInLabel  0.6s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+            .arc-label-out { animation: arcOutLabel 0.45s cubic-bezier(0.65,0,0.35,1)     forwards; }
+
+            /* ── Hero inner container ──────────────── */
+            .sec-inner {
+              max-width: 1280px;
+              margin: 0 auto;
+              width: 100%;
+              padding: 0 40px;
+            }
+            @media(max-width:1023px){ .sec-inner{ padding: 0 32px; } }
+            @media(max-width:767px){  .sec-inner{ padding: 0 20px; } }
+
+            /* ── Polo Panel responsive ────────────── */
+            @media(max-width:1279px){
+              .polo-panel{ padding: 100px 60px 140px !important; }
+            }
+            @media(max-width:1023px){
+              .polo-section{ padding: 0 !important; margin-top: 0 !important; }
+              .polo-panel{ padding: 80px 48px 110px !important; border-top-left-radius: 32px !important; border-top-right-radius: 32px !important; }
+            }
+            @media(max-width:767px){
+              .polo-section{ padding: 0 !important; margin-top: 0 !important; }
+              .polo-panel{ padding: 60px 24px 90px !important; border-top-left-radius: 28px !important; border-top-right-radius: 28px !important; }
+            }
+            @media(max-width:479px){
+              .polo-section{ padding: 0 !important; }
+              .polo-panel{ padding: 50px 18px 70px !important; border-top-left-radius: 24px !important; border-top-right-radius: 24px !important; }
+            }
+
+            /* ── Nav ──────────────────────────────── */
+            .nav-pill{
+              position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:1000;
+              display:flex;align-items:center;gap:0;padding:10px 20px 10px 20px;
+              border-radius:999px;background:rgba(18,18,18,0.55);
+              backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+              border:1px solid rgba(255,255,255,0.05);box-shadow:0 4px 32px rgba(0,0,0,0.5);
+              max-width:95vw;min-width:700px;overflow:visible;
+            }
+            .nav-links{flex:1;display:flex;justify-content:center;gap:8px;margin:0 24px;}
+            .nav-link{
+              color:rgba(255,255,255,0.55);text-decoration:none;font-size:14px;
+              padding:8px 18px;border-radius:999px;cursor:pointer;
+              transition:all 0.3s ease;font-family:var(--f-body);
+              background:none;border:none;white-space:nowrap;
+            }
+            .nav-link:hover{color:#fff;background:rgba(255,255,255,0.06);}
+            .nav-cta{
+              background:#fff;color:#000;border:none;padding:9px 20px;
+              border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;
+              transition:all 0.3s ease;font-family:var(--f-body);
+              display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
+            }
+            .nav-cta:hover{transform:scale(1.04);box-shadow:0 4px 20px rgba(255,255,255,0.14);}
+
+            /* ── Buttons ──────────────────────────── */
+            .btn-primary{
+              background:#fff;color:#000;border:none;padding:13px 30px;
+              border-radius:999px;font-size:14px;font-weight:600;cursor:pointer;
+              transition:all 0.3s ease;font-family:var(--f-body);
+              display:inline-flex;align-items:center;gap:8px;
+            }
+            .btn-primary:hover{transform:scale(1.03);box-shadow:0 4px 24px rgba(255,255,255,0.16);}
+            .btn-secondary{
+              background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.15);
+              padding:13px 30px;border-radius:999px;font-size:14px;font-weight:500;
+              cursor:pointer;transition:all 0.3s ease;font-family:var(--f-body);
+            }
+            .btn-secondary:hover{border-color:rgba(255,255,255,0.35);transform:scale(1.02);}
+
+            /* ── Floating testimonial cards ───────── */
+            .tcard{
+              background:rgba(18,18,18,0.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+              border:1px solid rgba(255,255,255,0.09);border-radius:14px;
+              padding:22px 26px;position:absolute;
+            }
+
+            /* ── Misc ─────────────────────────────── */
+            .skill-tag{
+              padding:8px 18px;border-radius:999px;border:1px solid rgba(255,255,255,0.1);
+              background:rgba(255,255,255,0.02);font-size:13px;color:rgba(255,255,255,0.6);
+              font-family:var(--f-body);transition:border-color 0.3s,color 0.3s;
+            }
+            .skill-tag:hover{border-color:rgba(255,255,255,0.22);color:rgba(255,255,255,0.85);}
+            .icon-circle{
+              width:36px;height:36px;border-radius:50%;
+              border:1px solid rgba(255,255,255,0.1);display:flex;
+              align-items:center;justify-content:center;cursor:pointer;
+              font-size:14px;color:rgba(255,255,255,0.4);
+              transition:border-color 0.3s,color 0.3s,background 0.3s;
+            }
+            .icon-circle:hover{border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.7);background:rgba(255,255,255,0.05);}
+            .social-btn{
+              width:40px;height:40px;border-radius:10px;
+              border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;
+              justify-content:center;font-size:13px;color:rgba(255,255,255,0.45);
+              cursor:pointer;transition:border-color 0.3s,color 0.3s,background 0.3s;
+            }
+            .social-btn:hover{border-color:rgba(255,255,255,0.25);color:#fff;background:rgba(255,255,255,0.05);}
+            .footer-link{
+              color:rgba(255,255,255,0.45);font-size:14px;cursor:pointer;
+              transition:color 0.3s;font-family:var(--f-body);background:none;border:none;
+            }
+            .footer-link:hover{color:#fff;}
+            .mob-toggle{display:none !important;}
+            .mob-menu{display:none !important;}
+
+            /* ── Polo Card responsive ─────────────── */
+            @media(max-width:767px){
+              .polo-card-wrap{ padding:6px !important; border-radius:16px !important; }
+              .polo-card-inner{ border-radius:11px !important; }
+              .polo-arrow{ width:38px !important; height:38px !important; bottom:14px !important; left:14px !important; font-size:14px !important; }
+            }
+
+            /* ── Grid / layout breakpoints ────────── */
+            @media(max-width:1023px){
+              .hero-grid{flex-direction:column !important;gap:60px !important;}
+              .hero-right{min-height:380px !important;display:block !important;}
+              .two-col{grid-template-columns:1fr !important;}
+              .about-grid{grid-template-columns:1fr !important;}
+            }
+            @media(max-width:767px){
+              .nav-links{display:none !important;}
+              .mob-toggle{display:flex !important;}
+              .hero-right{display:none !important;}
+              .two-col{grid-template-columns:1fr !important;}
+              .about-grid{grid-template-columns:1fr !important;}
+              .footer-big{font-size:clamp(2.4rem,9vw,4.5rem) !important;}
+              .btn-primary,.btn-secondary{padding:11px 24px !important;font-size:13px !important;}
+              section{ padding: 0 16px !important; margin-top: 40px !important; }
+            }
+            @media(max-width:479px){
+              .nav-pill{padding:8px 8px 8px 16px !important;}
+              section{ padding: 0 12px !important; }
+            }
+          `}</style>
+
+          {/* ── NAV ──────────────────────────────────────────────── */}
+          <nav className="nav-pill">
+            <div style={{display:"flex",alignItems:"center",cursor:"pointer",flexShrink:0}}
+              onClick={()=>window.scrollTo({top:0,behavior:"smooth"})}>
+              <TerminalLogo size={36} />
+            </div>
+            <div className="nav-links">
+              <button className="nav-link" onClick={()=>go("about")}>About Me</button>
+              <button className="nav-link" onClick={()=>go("services")}>Services</button>
+              <button className="nav-link" onClick={()=>go("projects")}>Projects</button>
+              <button className="nav-link" onClick={()=>go("contact")}>Contact</button>
+            </div>
+            <button className="mob-toggle" onClick={()=>setMobileNav(!mobileNav)}
+              style={{display:"none",background:"none",border:"none",color:"#fff",fontSize:22,cursor:"pointer",padding:"4px 8px",marginLeft:12}}>
+              {mobileNav?"✕":"☰"}
+            </button>
+          </nav>
+
+          {mobileNav&&(
+            <div className="mob-menu" style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(10,10,10,0.97)",backdropFilter:"blur(20px)",zIndex:999,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:28}}>
+              <button style={{position:"absolute",top:22,right:24,background:"none",border:"none",color:"rgba(255,255,255,0.6)",fontSize:26,cursor:"pointer"}} onClick={()=>setMobileNav(false)}>✕</button>
+              {["about","services","projects","contact"].map(s=>(
+                <button key={s} className="nav-link" onClick={()=>go(s)} style={{fontSize:22,textTransform:"capitalize"}}>{s==="about"?"About Me":s}</button>
+              ))}
+            </div>
+          )}
+
+          {/* ── HERO — full-width, no frame ───────────────────────── */}
+          <section style={{width:"100%",paddingTop:150,paddingBottom:80,position:"relative",overflow:"hidden",marginBottom:0}}>
+            <TurbulentBackground />
+            <div style={{position:"absolute",inset:0,zIndex:1,pointerEvents:"none",background:"radial-gradient(ellipse at center, transparent 0%, rgba(10,10,10,0.6) 70%, rgba(10,10,10,0.9) 100%)"}}/>
+            <div className="sec-inner" style={{position:"relative",zIndex:2}}>
+              <div className="hero-grid" style={{display:"flex",gap:40,alignItems:"flex-start",width:"100%"}}>
+                <div style={{flex:"1 1 55%",minWidth:0}}>
+                  <Anim delay={100}>
+                    <div style={{...pill,fontSize:12,letterSpacing:"0.09em",textTransform:"uppercase",fontWeight:600}}>
+                      <span style={{width:7,height:7,borderRadius:"50%",background:"rgba(255,255,255,0.45)",display:"inline-block"}}/>
+                      FULLSTACK DEVELOPER
+                    </div>
+                  </Anim>
+                  <Anim delay={250}>
+                    <h1 style={{fontFamily:"var(--f-display)",fontSize:"clamp(3.2rem,8vw,6.8rem)",fontWeight:400,lineHeight:1.02,marginBottom:8,letterSpacing:"-0.025em"}}>
+                      <span style={{fontWeight:700}}>Tornike</span>{" "}
+                      <span style={{fontWeight:300,color:"rgba(255,255,255,0.7)"}}>Zaridze</span>
+                      <HeroArrowButton />
+                    </h1>
+                  </Anim>
+                  <Anim delay={400}>
+                    <p style={{color:"rgba(255,255,255,0.42)",fontSize:16,lineHeight:1.8,maxWidth:520,marginBottom:36,marginTop:22}}>
+                      I'm a versatile fullstack developer specializing in frontend, backend,
+                      and product development to help grow your business. Let's build something great!
+                    </p>
+                  </Anim>
+                  <Anim delay={550}>
+                    <div style={{display:"flex",gap:14,flexWrap:"wrap"}}>
+                      <button className="btn-secondary" onClick={()=>go("projects")}>See All Projects</button>
+                      <button className="btn-primary" onClick={()=>go("contact")}>Contact Now</button>
+                    </div>
+                  </Anim>
+                </div>
+                <div className="hero-right" style={{flex:"1 1 45%",position:"relative",minHeight:440,minWidth:0}}>
+                  <div className="tcard" style={{top:0,right:0,width:264,animation:"float1 4.5s ease-in-out infinite"}}>
+                    <div style={{display:"flex",gap:2,marginBottom:12}}>
+                      {[...Array(5)].map((_,i)=><span key={i} style={{color:"#c9a84c",fontSize:13}}>★</span>)}
+                    </div>
+                    <p style={{fontFamily:"var(--f-display)",fontStyle:"italic",fontSize:15,color:"rgba(255,255,255,0.8)",lineHeight:1.55,marginBottom:14}}>"Working with him was a game changer — delivered beyond expectations!"</p>
+                    <span style={{color:"rgba(255,255,255,0.3)",fontSize:13}}>— pranavnb</span>
+                  </div>
+                  <div className="tcard" style={{top:170,left:0,width:244,animation:"float2 5s ease-in-out infinite",zIndex:2}}>
+                    <div style={{display:"flex",gap:2,marginBottom:12,alignItems:"center"}}>
+                      {[...Array(5)].map((_,i)=><span key={i} style={{color:"#c9a84c",fontSize:13}}>★</span>)}
+                      <span className="icon-circle" style={{marginLeft:"auto"}}>↗</span>
+                    </div>
+                    <p style={{fontFamily:"var(--f-display)",fontStyle:"italic",fontSize:15,color:"rgba(255,255,255,0.8)",lineHeight:1.55,marginBottom:14}}>"Exceptional quality &amp; communication throughout."</p>
+                    <span style={{color:"rgba(255,255,255,0.3)",fontSize:13}}>— alexdev</span>
+                  </div>
+                  <div className="tcard" style={{bottom:0,right:16,width:254,animation:"float3 4s ease-in-out infinite"}}>
+                    <div style={{display:"flex",gap:2,marginBottom:12,alignItems:"center"}}>
+                      {[...Array(5)].map((_,i)=><span key={i} style={{color:"#c9a84c",fontSize:13}}>★</span>)}
+                    </div>
+                    <p style={{fontFamily:"var(--f-display)",fontStyle:"italic",fontSize:15,color:"rgba(255,255,255,0.8)",lineHeight:1.55,marginBottom:14}}>"We increased our conversions by 200% after the new site launched."</p>
+                    <span style={{color:"rgba(255,255,255,0.3)",fontSize:13}}>— vijaynb</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Hero preview cards */}
+              <div className="two-col" style={{display:"grid",gridTemplateColumns:"1.4fr 1fr",gap:24,marginTop:72}}>
+                <Anim delay={200}>
+                  <PoloCard showArrow={true} minHeight={340} hoverable={true}>
+                    <div style={{minHeight:340,background:"linear-gradient(135deg,#0f0f0f,#191919,#0a0a0a)",display:"flex",alignItems:"flex-end",padding:32}}>
+                      <div>
+                        <p style={{fontSize:11,color:"rgba(255,255,255,0.25)",marginBottom:8,letterSpacing:"0.1em",textTransform:"uppercase"}}>Featured Project</p>
+                        <h3 style={{fontFamily:"var(--f-display)",fontSize:26,fontWeight:400,lineHeight:1.2}}>
+                          Building platforms to drive <em style={{color:"rgba(255,255,255,0.4)"}}>Results</em>
+                        </h3>
+                      </div>
+                    </div>
+                  </PoloCard>
+                </Anim>
+                <Anim delay={350}>
+                  <PoloCard showArrow={true} minHeight={340} hoverable={true}>
+                    <div style={{minHeight:340,background:"linear-gradient(160deg,#0d0d0d,#161616,#0f0f0f)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                      <h3 style={{fontFamily:"var(--f-display)",fontSize:30,fontWeight:600,lineHeight:1.15,letterSpacing:"0.05em",textAlign:"center"}}>ONE DAY,<br/>WE MET</h3>
+                    </div>
+                  </PoloCard>
+                </Anim>
+              </div>
+            </div>
+          </section>
+
+          {/* ── ABOUT ────────────────────────────────────────────── */}
+          <SectionFrame id="about">
+            <Anim>
+              <div style={{textAlign:"center",marginBottom:56}}>
+                <div style={{...pill,margin:"0 auto 20px",display:"inline-flex"}}><span style={{color:"rgba(100,255,150,0.7)",fontSize:10}}>◉</span> Expert Developer</div>
+                <h2 style={heading}>Tornike Zaridze, <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>Your Developer</em></h2>
+                <p style={{color:"rgba(255,255,255,0.36)",fontSize:15}}>Brief initial presentation of myself and my previous experiences.</p>
+              </div>
+            </Anim>
+            <div className="about-grid" style={{display:"grid",gridTemplateColumns:"1fr 1.3fr",gap:40}}>
+              <Anim delay={150}>
+                <div style={{background:"rgba(255,255,255,0.01)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:20,padding:20,display:"flex",flexDirection:"column",gap:20}}>
+                  {/* Photo */}
+                  <div style={{width:"100%",aspectRatio:"4/3.5",borderRadius:14,overflow:"hidden",position:"relative",border:"1px solid rgba(255,255,255,0.05)"}}>
+                    <LiquidRevealPhoto baseImage="/Tornike.PNG" revealImage="/baiker2.png" />
+                    <div style={{position:"absolute",bottom:16,left:"50%",transform:"translateX(-50%)",display:"inline-flex",alignItems:"center",gap:8,background:"rgba(0,0,0,0.7)",backdropFilter:"blur(8px)",padding:"7px 16px",borderRadius:999,fontSize:13,whiteSpace:"nowrap",zIndex:10}}>
+                      <span style={{width:8,height:8,borderRadius:"50%",background:"#4ade80",animation:"pulse 2s infinite",display:"inline-block"}}/>
+                      Available for work
+                    </div>
+                  </div>
+                  {/* Divider */}
+                  <div style={{height:1,background:"rgba(255,255,255,0.06)",width:"100%"}} />
+                  {/* Name & title */}
+                  <div style={{padding:"0 4px"}}>
+                    <h3 style={{fontSize:19,fontWeight:600,marginBottom:6,color:"#fff"}}>Hello I am <span style={{fontFamily:"var(--f-display)",fontWeight:400}}>Tornike Zaridze</span></h3>
+                    <p style={{color:"#fff",fontSize:14,marginBottom:0}}>Fullstack Developer Based in Vienna.</p>
+                  </div>
+                  {/* Social icons */}
+                  <div style={{display:"flex",gap:0,alignItems:"center",padding:"0 4px"}}>
+                    {[
+                      { title:"Instagram", path: <><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></> },
+                      { title:"LinkedIn",  path: <><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></> },
+                      { title:"GitHub",    path: <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/> },
+                    ].map((ic, i, arr) => (
+                      <React.Fragment key={ic.title}>
+                        <a href="#" title={ic.title} style={{width:42,height:42,borderRadius:"50%",border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.02)",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all 0.3s ease",textDecoration:"none",flexShrink:0}}
+                          onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.25)";e.currentTarget.style.background="rgba(255,255,255,0.05)";}}
+                          onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.1)";e.currentTarget.style.background="rgba(255,255,255,0.02)";}}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{ic.path}</svg>
+                        </a>
+                        {i < arr.length - 1 && <div style={{width:1,height:24,background:"rgba(255,255,255,0.1)",margin:"0 14px",flexShrink:0}} />}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                  {/* Divider before button */}
+                  <div style={{height:1,background:"rgba(255,255,255,0.06)",width:"100%",margin:"4px 0"}} />
+                  {/* Contact button */}
+                  <button onClick={()=>document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}
+                    style={{alignSelf:"flex-start",padding:"14px 28px",borderRadius:999,background:"rgba(18,18,18,0.55)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",border:"1px solid rgba(255,255,255,0.08)",color:"#ffffff",opacity:1,fontSize:14,fontWeight:600,fontFamily:"var(--f-body)",cursor:"pointer",transition:"all 0.3s ease",marginLeft:4}}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.2)";e.currentTarget.style.background="rgba(28,28,28,0.7)";e.currentTarget.style.color="#fff";}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.08)";e.currentTarget.style.background="rgba(18,18,18,0.55)";e.currentTarget.style.color="#fff";}}>
+                    Contact with me
+                  </button>
+                </div>
+              </Anim>
+              <div>
+                <Anim delay={200}>
+                  <div style={{marginBottom:20}}>
+                    <PoloCard hoverable={true}>
+                      <div style={{padding:30}}>
+                        <p style={{color:"rgba(255,255,255,0.52)",fontSize:15,lineHeight:1.85}}>I'm Tornike Zaridze, a dedicated Fullstack Developer based in the vibrant city of Tbilisi, Georgia. I specialize in creative frontend development with seamless backend execution to craft exceptional digital experiences.</p>
+                        <div style={{display:"flex",flexWrap:"wrap",gap:10,marginTop:24}}>
+                          {["React","Node.js","TypeScript","Next.js","Python","PostgreSQL"].map(s=>(<span key={s} className="skill-tag">{s}</span>))}
+                        </div>
+                      </div>
+                    </PoloCard>
+                  </div>
+                </Anim>
+                <Anim delay={350}>
+                  <PoloCard hoverable={true}>
+                    <div style={{padding:"8px 0"}}>
+                      {[{role:"Frontend Developer",co:"TechCorp",yr:"2021"},{role:"Fullstack Developer",co:"DevStudio",yr:"2022"},{role:"Senior Developer",co:"CodeCraft Studios",yr:"2023"}].map((e,i)=>(
+                        <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"17px 26px",borderBottom:i<2?"1px solid rgba(255,255,255,0.05)":"none",alignItems:"center"}}>
+                          <span style={{color:"rgba(255,255,255,0.55)",fontSize:14,flex:1}}>{e.role}</span>
+                          <span style={{color:"rgba(255,255,255,0.28)",fontSize:14,flex:1,textAlign:"center"}}>{e.co}</span>
+                          <span style={{color:"rgba(255,255,255,0.2)",fontSize:14}}>{e.yr}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </PoloCard>
+                </Anim>
+              </div>
+            </div>
+          </SectionFrame>
+
+          {/* ── SERVICES ─────────────────────────────────────────── */}
+          <SectionFrame id="services">
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:24,marginBottom:56}}>
+              <div>
+                <Anim><div style={{...pill,display:"inline-flex"}}><span style={{color:"rgba(100,255,150,0.7)",fontSize:10}}>◉</span> Development Services</div></Anim>
+                <Anim delay={150}><h2 style={heading}>Development <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>Services</em></h2></Anim>
+                <Anim delay={250}><p style={{color:"rgba(255,255,255,0.36)",fontSize:15}}>Explore a suite of development services to elevate your product.</p></Anim>
+              </div>
+              <Anim delay={300}><button className="btn-primary" onClick={()=>go("contact")}>Contact Now</button></Anim>
+            </div>
+            <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
+              <ServiceCard icon="🖥" title="Frontend Development" desc="Building breathtaking, user-centric web applications that boost engagement, conversions, and growth, perfectly aligned with your brand." delay={100}/>
+              <ServiceCard icon="⚙️" title="Backend Development" desc="Architecting robust, scalable, and secure server-side solutions that power your applications reliably and efficiently at any scale." delay={200}/>
+              <ServiceCard icon="🔗" title="API Development" desc="Designing and building clean, well-documented APIs that connect your services and enable seamless integrations with third-party tools." delay={300}/>
+              <ServiceCard icon="🗄" title="Database Design" desc="Crafting optimized database architectures and queries for fast, reliable data management at scale across your entire platform." delay={400}/>
+            </div>
+          </SectionFrame>
+
+          {/* ── WHY ME ───────────────────────────────────────────── */}
+          <SectionFrame>
+            <div style={{textAlign:"center",marginBottom:56}}>
+              <Anim><div style={{...pill,margin:"0 auto 20px",display:"inline-flex"}}><span style={{color:"rgba(100,255,150,0.7)",fontSize:10}}>◉</span> Why choose me</div></Anim>
+              <Anim delay={150}><h2 style={heading}>Why me as <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>Development Partner</em></h2></Anim>
+              <Anim delay={250}><p style={{color:"rgba(255,255,255,0.36)",fontSize:15}}>Why Partner with Me for Development Excellence</p></Anim>
+            </div>
+            <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
+              <CompareCard positive title="Skilled Professional" desc="Gain access to top-tier talent with years of experience, ensuring high-quality, production-ready code." delay={100}/>
+              <CompareCard positive={false} title="Amateur Developer" desc="Lack of experience may result in code inconsistencies and mounting technical debt over time." delay={200}/>
+              <CompareCard positive title="Future-Ready Solutions" desc="Crafting modern, scalable applications that grow with your business and stay ahead of trends." delay={300}/>
+              <CompareCard positive={false} title="Outdated Concepts" desc="Stale approaches that don't reflect current best practices or your evolving technical needs." delay={400}/>
+              <CompareCard positive title="Client-Centric Collaboration" desc="Transparent communication, regular updates, and a true partnership approach to every project." delay={500}/>
+              <CompareCard positive={false} title="Detached Communication" desc="Poor responsiveness and lack of collaboration that leads to misaligned outcomes and frustration." delay={600}/>
+            </div>
+          </SectionFrame>
+
+          {/* ── PROJECTS ─────────────────────────────────────────── */}
+          <SectionFrame id="projects">
+            <div style={{textAlign:"center",marginBottom:56}}>
+              <Anim><div style={{...pill,margin:"0 auto 20px",display:"inline-flex"}}><span style={{color:"rgba(100,255,150,0.7)",fontSize:10}}>◉</span> Recent Projects</div></Anim>
+              <Anim delay={150}><h2 style={heading}>Elevating Brands <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>to Drive<br/>Success and Impact</em></h2></Anim>
+              <Anim delay={300}><button className="btn-primary" onClick={()=>go("contact")} style={{marginTop:20}}>Contact Now</button></Anim>
+            </div>
+            <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
+              {[
+                {title:"E-Commerce Platform",sub:"React · Node.js · PostgreSQL",bg:"linear-gradient(135deg,#0f0f0f,#1a1a1a,#111)"},
+                {title:"SaaS Dashboard",sub:"Next.js · TypeScript · Prisma",bg:"linear-gradient(135deg,#0d0d0d,#181818,#0f0f0f)"},
+                {title:"Real-time Chat App",sub:"Socket.io · Express · MongoDB",bg:"linear-gradient(160deg,#111,#151520,#0d0d0d)"},
+                {title:"Portfolio Generator",sub:"React · Tailwind · Vercel",bg:"linear-gradient(135deg,#101010,#191919,#0c0c0c)"},
+              ].map((p,i)=>(
+                <Anim key={i} delay={i*120}>
+                  <PoloCard showArrow={true} minHeight={320} hoverable={true}>
+                    <div style={{minHeight:320,background:p.bg,display:"flex",flexDirection:"column",justifyContent:"flex-end",padding:32}}>
+                      <p style={{fontSize:11,color:"rgba(255,255,255,0.25)",marginBottom:8,letterSpacing:"0.08em",textTransform:"uppercase"}}>{p.sub}</p>
+                      <h3 style={{fontFamily:"var(--f-display)",fontSize:24,fontWeight:400}}>{p.title}</h3>
+                    </div>
+                  </PoloCard>
+                </Anim>
+              ))}
+            </div>
+          </SectionFrame>
+
+          {/* ── TESTIMONIALS + FAQ ────────────────────────────────── */}
+          <SectionFrame id="testimonials">
+            <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 1.2fr",gap:60,alignItems:"flex-start"}}>
+              <div>
+                <Anim><div style={{...pill,display:"inline-flex"}}><span style={{color:"rgba(100,255,150,0.7)",fontSize:10}}>◉</span> FAQ Section</div></Anim>
+                <Anim delay={100}><h2 style={{...heading,marginBottom:12}}>Questions, <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>Answers</em></h2></Anim>
+                <Anim delay={200}><p style={{color:"rgba(255,255,255,0.36)",fontSize:15,marginBottom:40}}>Get quick answers to your most pressing questions</p></Anim>
+                <Anim delay={300}>
+                  <div style={{marginBottom:28}}>
+                    <PoloCard hoverable={true}>
+                      <div style={{padding:28}}>
+                        <div style={{display:"flex",gap:14,alignItems:"center",marginBottom:16}}>
+                          <div style={{width:46,height:46,borderRadius:"50%",background:"linear-gradient(135deg,#2a2a2a,#444)",border:"1px solid rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,color:"rgba(255,255,255,0.5)",fontFamily:"var(--f-display)"}}>R</div>
+                          <div>
+                            <h4 style={{fontSize:15,fontWeight:600}}>Ryan Harper</h4>
+                            <p style={{color:"rgba(255,255,255,0.3)",fontSize:12,marginTop:2}}>Harper Education</p>
+                          </div>
+                        </div>
+                        <div style={{display:"flex",gap:3,marginBottom:14,alignItems:"center"}}>
+                          <span style={{fontSize:12,color:"rgba(255,255,255,0.3)",marginRight:6,fontWeight:600}}>5.0</span>
+                          {[...Array(5)].map((_,i)=><span key={i} style={{color:"#c9a84c",fontSize:13}}>★</span>)}
+                        </div>
+                        <p style={{color:"rgba(255,255,255,0.5)",fontSize:14,lineHeight:1.75,fontStyle:"italic",fontFamily:"var(--f-display)"}}>
+                          "Exceptional creativity and attention to detail! The final product not only looks great but also enhances user engagement."
+                        </p>
+                      </div>
+                    </PoloCard>
+                  </div>
+                </Anim>
+                <Anim delay={400}>
+                  <div style={{display:"flex",gap:14,flexWrap:"wrap"}}>
+                    <button className="btn-secondary" onClick={()=>go("projects")}>See All Projects</button>
+                    <button className="btn-primary" onClick={()=>go("contact")}>Contact Now</button>
+                  </div>
+                </Anim>
+              </div>
+              <Anim delay={200}>
+                <div>
+                  {[
+                    {q:"What services do you offer?",a:"I specialize in frontend development, backend systems, API design, and fullstack application development, creating modern, user-friendly experiences tailored to your needs.",open:true},
+                    {q:"How do I start working with you?",a:"Simply reach out via the contact form or email. We'll discuss your project requirements, timeline, and budget, then I'll prepare a detailed proposal to get things started."},
+                    {q:"What tech stack do you use?",a:"I primarily work with React, Next.js, TypeScript on the frontend; Node.js, Python, and Express on the backend; and PostgreSQL, MongoDB for databases."},
+                    {q:"How long does a project take?",a:"Timelines vary based on complexity. A simple landing page takes 1–2 weeks, while a full-featured application can take 2–3 months. I provide a detailed timeline after our discovery call."},
+                    {q:"Do you provide revisions?",a:"Absolutely. I include revision rounds in every project to ensure the final product meets your expectations perfectly before final delivery."},
+                    {q:"What industries do you work with?",a:"I work across industries — tech startups, education, e-commerce, healthcare, fintech, and more. My broad experience lets me adapt quickly to any domain."},
+                    {q:"Do you offer maintenance services?",a:"Yes, I offer ongoing maintenance and support packages to keep your applications running smoothly, securely, and up-to-date after launch."},
+                    {q:"What is your pricing structure?",a:"Pricing depends on project scope and complexity. I offer both fixed-price projects and hourly rates, with full transparency in every proposal."},
+                    {q:"Can you rebuild my existing application?",a:"Definitely. I can audit your existing codebase, identify improvements, and rebuild or modernize it with current technologies without disrupting your operations."},
+                  ].map((f,i)=>(<FAQItem key={i} question={f.q} answer={f.a} defaultOpen={!!f.open}/>))}
+                </div>
+              </Anim>
+            </div>
+          </SectionFrame>
+
+          {/* ── CONTACT / FOOTER ─────────────────────────────────── */}
+          <SectionFrame id="contact" innerStyle={{overflow:"visible"}}>
+            <Anim>
+              <div style={{display:"flex",justifyContent:"center",gap:40,flexWrap:"wrap",borderBottom:"1px solid rgba(255,255,255,0.06)",paddingBottom:60,marginBottom:0}}>
+                {["Twitter (X)","LinkedIn","Instagram","GitHub"].map(s=>(
+                  <button key={s} className="footer-link">{s} →</button>
+                ))}
+              </div>
+            </Anim>
+            <Anim delay={200}>
+              <div style={{textAlign:"center",padding:"20px 0 80px",position:"relative"}}>
+                <h2 className="footer-big" style={{fontFamily:"var(--f-display)",fontSize:"clamp(3.5rem,8vw,8rem)",fontWeight:400,lineHeight:1,color:"#fff",letterSpacing:"-0.03em"}}>Get in touch</h2>
+                <div
+                  style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",width:60,height:60,borderRadius:"50%",background:"rgba(255,255,255,0.06)",backdropFilter:"blur(8px)",display:"flex",alignItems:"center",justifyContent:"center",border:"1px solid rgba(255,255,255,0.1)",fontSize:22,color:"rgba(255,255,255,0.55)",cursor:"pointer",zIndex:2,transition:"all 0.3s"}}
+                  onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,0.12)";e.currentTarget.style.color="#fff";}}
+                  onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,0.06)";e.currentTarget.style.color="rgba(255,255,255,0.55)";}}
+                >↗</div>
+              </div>
+            </Anim>
+            <div style={{borderTop:"1px solid rgba(255,255,255,0.06)"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:14,padding:"22px 0"}}>
+                <span style={{color:"rgba(255,255,255,0.28)",fontSize:13}}>Tbilisi, Georgia</span>
+                <button onClick={()=>window.scrollTo({top:0,behavior:"smooth"})} style={{background:"none",border:"none",color:"rgba(255,255,255,0.28)",fontSize:13,cursor:"pointer",fontFamily:"var(--f-body)"}}>↑ Back to top</button>
+                <span style={{color:"rgba(255,255,255,0.28)",fontSize:13}}>©2025 Tornike Zaridze. All rights reserved.</span>
+              </div>
+            </div>
+          </SectionFrame>
+
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<Portfolio />);
+  </script>
+</body>
+</html>
