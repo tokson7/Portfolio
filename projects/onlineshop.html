@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Süßes aus der Pfanne — Tornike Zaridze</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --f-display: 'Instrument Serif', serif;
+      --f-body: 'DM Sans', sans-serif;
+      --bg: #080808;
+      --border: rgba(255,255,255,0.07);
+      --muted: rgba(255,255,255,0.38);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: #fff;
+      font-family: var(--f-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 60px;
+      background: rgba(8,8,8,0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-back {
+      display: inline-flex; align-items: center; gap: 10px;
+      color: rgba(255,255,255,0.6); font-size: 14px; text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: #fff; }
+    .nav-back svg { width: 16px; height: 16px; }
+    .nav-logo {
+      font-family: var(--f-display); font-size: 18px; font-weight: 400;
+      color: rgba(255,255,255,0.85); text-decoration: none;
+    }
+    .nav-link-ext {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 20px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.7); font-size: 13px; font-family: var(--f-body);
+      text-decoration: none; transition: all 0.2s;
+    }
+    .nav-link-ext:hover { background: rgba(255,255,255,0.09); color: #fff; border-color: rgba(255,255,255,0.22); }
+    .nav-link-ext svg { width: 13px; height: 13px; }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 120px 60px 0;
+      max-width: 1280px; margin: 0 auto;
+    }
+    .hero-meta {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 28px; flex-wrap: wrap;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.03);
+      font-size: 12px; color: var(--muted);
+    }
+    .pill-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(100,255,160,0.7); }
+    .hero h1 {
+      font-family: var(--f-display);
+      font-size: clamp(2.6rem, 6vw, 5rem);
+      font-weight: 400; line-height: 1.08;
+      letter-spacing: -0.02em;
+      margin-bottom: 22px;
+    }
+    .hero h1 em { color: rgba(255,255,255,0.28); font-weight: 300; font-style: normal; }
+    .hero-desc {
+      font-size: 16px; color: rgba(255,255,255,0.45);
+      max-width: 640px; line-height: 1.75; margin-bottom: 36px;
+    }
+    .hero-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 56px; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px; border-radius: 999px;
+      background: #fff; color: #000;
+      font-size: 14px; font-weight: 600; font-family: var(--f-body);
+      text-decoration: none; border: none; cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px; border-radius: 999px;
+      background: transparent; color: rgba(255,255,255,0.7);
+      font-size: 14px; font-weight: 500; font-family: var(--f-body);
+      text-decoration: none; border: 1px solid rgba(255,255,255,0.12); cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.06); color: #fff; border-color: rgba(255,255,255,0.22); }
+
+    /* ── SCREENSHOT ── */
+    .screenshot-wrap {
+      max-width: 1280px; margin: 0 auto;
+      padding: 0 60px 80px;
+    }
+    .screenshot-frame {
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: #0d0d0d;
+      box-shadow: 0 40px 120px rgba(0,0,0,0.7);
+    }
+    .screenshot-frame img {
+      width: 100%; display: block;
+      object-fit: cover; object-position: top;
+    }
+
+    /* ── SECTIONS ── */
+    .section {
+      max-width: 1280px; margin: 0 auto;
+      padding: 0 60px 80px;
+    }
+    .section-label {
+      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 32px;
+      padding-bottom: 16px; border-bottom: 1px solid var(--border);
+    }
+
+    /* ── OVERVIEW GRID ── */
+    .overview-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+    }
+    .overview-cell {
+      background: #0d0d0d; padding: 28px 32px;
+    }
+    .overview-cell h4 {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 12px;
+    }
+    .overview-cell p {
+      font-size: 15px; color: rgba(255,255,255,0.85); line-height: 1.55;
+    }
+    .overview-cell p.big {
+      font-family: var(--f-display); font-size: 22px; font-weight: 400;
+    }
+
+    /* ── TECH STACK ── */
+    .stack-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;
+    }
+    .stack-item {
+      background: #0d0d0d; border: 1px solid var(--border); border-radius: 12px;
+      padding: 18px 20px;
+    }
+    .stack-item .layer {
+      font-size: 10px; letter-spacing: 0.09em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 6px;
+    }
+    .stack-item .value {
+      font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.85);
+    }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    .feature-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: #0d0d0d; border: 1px solid var(--border); border-radius: 12px;
+      padding: 16px 20px;
+    }
+    .feature-check {
+      flex-shrink: 0; width: 20px; height: 20px; margin-top: 1px;
+      border-radius: 50%; background: rgba(100,255,160,0.1);
+      border: 1px solid rgba(100,255,160,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: rgba(100,255,160,0.8);
+    }
+    .feature-text { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.5; }
+
+    /* ── CHALLENGES ── */
+    .challenges-list { display: flex; flex-direction: column; gap: 16px; }
+    .challenge-item {
+      background: #0d0d0d; border: 1px solid var(--border); border-radius: 16px;
+      padding: 28px 32px;
+    }
+    .challenge-item h3 {
+      font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 10px;
+    }
+    .challenge-item p {
+      font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.7;
+    }
+
+    /* ── CODE TABS ── */
+    .code-section { }
+    .tab-bar {
+      display: flex; gap: 4px; margin-bottom: 0;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 10px 18px; border-radius: 8px 8px 0 0;
+      background: transparent; border: 1px solid transparent;
+      border-bottom: none; color: var(--muted);
+      font-size: 12px; font-family: var(--f-body); font-weight: 500;
+      cursor: pointer; transition: all 0.15s;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      position: relative; bottom: -1px;
+    }
+    .tab-btn:hover { color: rgba(255,255,255,0.7); }
+    .tab-btn.active {
+      background: #0d0d0d; color: #fff;
+      border-color: var(--border); border-bottom-color: #0d0d0d;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .code-block {
+      background: #0d0d0d; border: 1px solid var(--border);
+      border-top: none; border-radius: 0 0 16px 16px;
+      overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+    .code-filename {
+      font-size: 12px; color: var(--muted); font-family: monospace;
+    }
+    .code-lang-badge {
+      font-size: 10px; padding: 3px 9px; border-radius: 999px;
+      background: rgba(255,255,255,0.06); color: var(--muted);
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    pre {
+      padding: 24px; overflow-x: auto; font-size: 13px;
+      line-height: 1.65; font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+    }
+    pre + .code-header { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .code-block pre + .code-header { margin-top: 0; }
+
+    /* Syntax theme */
+    .kw { color: #c792ea; }
+    .fn { color: #82aaff; }
+    .str { color: #c3e88d; }
+    .num { color: #f78c6c; }
+    .cm { color: #546e7a; font-style: italic; }
+    .ty { color: #ffcb6b; }
+    .op { color: rgba(255,255,255,0.5); }
+    .prop { color: #89ddff; }
+    .dec { color: #f07178; }
+
+    .multi-code { display: flex; flex-direction: column; }
+    .multi-code .code-header + pre { margin-top: 0; }
+
+    /* ── FOOTER ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 60px;
+      max-width: 1280px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer p { font-size: 13px; color: var(--muted); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .nav { padding: 16px 24px; }
+      .hero, .screenshot-wrap, .section { padding-left: 24px; padding-right: 24px; }
+      .overview-grid { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: clamp(2rem, 9vw, 3rem); }
+      .footer { padding: 32px 24px; }
+    }
+    @media (max-width: 600px) {
+      .stack-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="../index.html" class="nav-back">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="19" y1="12" x2="5" y2="12"></line>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+    Back to Portfolio
+  </a>
+  <a href="../index.html" class="nav-logo">Tornike Zaridze</a>
+  <a href="https://suessesausderpfanne.at" target="_blank" rel="noopener noreferrer" class="nav-link-ext">
+    Visit Live Site
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline>
+    </svg>
+  </a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-meta">
+    <span class="pill"><span class="pill-dot"></span> Live in Production</span>
+    <span class="pill">Vienna, Austria</span>
+    <span class="pill">Solo Developer · 4 Weeks</span>
+  </div>
+  <h1>Süßes aus der Pfanne<br/><em>Full-Stack Delivery Platform</em></h1>
+  <p class="hero-desc">
+    A complete food delivery platform for a dessert & snack business in Vienna — fresh pancakes, churros, sweets, soft drinks, and alcoholic beverages delivered to customers' doors. Built entirely solo: database architecture, backend APIs, frontend UI, payment integration, real-time notifications, admin panel, email system, and deployment.
+  </p>
+  <div class="hero-actions">
+    <a href="https://suessesausderpfanne.at" target="_blank" rel="noopener noreferrer" class="btn-primary">
+      Visit Live Site ↗
+    </a>
+    <a href="../index.html" class="btn-secondary">← Back to Portfolio</a>
+  </div>
+</div>
+
+<!-- SCREENSHOT -->
+<div class="screenshot-wrap">
+  <div class="screenshot-frame">
+    <img src="../assets/projects/onlineshop.png" alt="Süßes aus der Pfanne screenshot" />
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="section">
+  <div class="section-label">Project Overview</div>
+  <div class="overview-grid">
+    <div class="overview-cell">
+      <h4>Timeline</h4>
+      <p class="big">4 Weeks</p>
+      <p style="margin-top:8px;font-size:13px;color:var(--muted);">Early 2025 → Early 2026<br/>Live in production since launch</p>
+    </div>
+    <div class="overview-cell">
+      <h4>Role</h4>
+      <p class="big">Solo Developer</p>
+      <p style="margin-top:8px;font-size:13px;color:var(--muted);">Full-stack, UI/UX design, DevOps, payments, deployment, maintenance</p>
+    </div>
+    <div class="overview-cell">
+      <h4>Business Type</h4>
+      <p class="big">Food Delivery</p>
+      <p style="margin-top:8px;font-size:13px;color:var(--muted);">Real-time orders, Stripe + PayPal payments, live customer notifications</p>
+    </div>
+  </div>
+</div>
+
+<!-- TECH STACK -->
+<div class="section">
+  <div class="section-label">Technical Stack</div>
+  <div class="stack-grid">
+    <div class="stack-item"><div class="layer">Frontend</div><div class="value">Next.js 15 · React 18 · TypeScript · Tailwind CSS</div></div>
+    <div class="stack-item"><div class="layer">Backend</div><div class="value">Next.js API Routes (Serverless)</div></div>
+    <div class="stack-item"><div class="layer">Database</div><div class="value">PostgreSQL on Supabase · Prisma ORM</div></div>
+    <div class="stack-item"><div class="layer">Payments</div><div class="value">Stripe · PayPal (manual capture flow)</div></div>
+    <div class="stack-item"><div class="layer">Real-time</div><div class="value">Pusher WebSocket · Sound notifications</div></div>
+    <div class="stack-item"><div class="layer">Email</div><div class="value">Resend — transactional + bulk campaigns</div></div>
+    <div class="stack-item"><div class="layer">Images</div><div class="value">Cloudinary</div></div>
+    <div class="stack-item"><div class="layer">Auth</div><div class="value">Custom · bcrypt · HTTP-only cookies</div></div>
+    <div class="stack-item"><div class="layer">Monitoring</div><div class="value">Sentry</div></div>
+    <div class="stack-item"><div class="layer">Hosting</div><div class="value">Vercel Pro</div></div>
+    <div class="stack-item"><div class="layer">i18n</div><div class="value">Custom bilingual system (DE/EN)</div></div>
+    <div class="stack-item"><div class="layer">Domain</div><div class="value">suessesausderpfanne.at</div></div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div class="section">
+  <div class="section-label">Features Delivered</div>
+  <div class="features-grid">
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Online menu — categories, search, filtering</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Delivery + pickup ordering</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Stripe, PayPal, cash on delivery</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Admin dashboard — orders, products, analytics</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Real-time order notifications with looping sound</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Customer accounts, order history, saved addresses</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Customer reviews & star ratings system</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Combo products with bundled discounts</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Email — welcome, review requests, bulk campaigns</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Scalable email queue (10,000+ recipients)</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Floating order tracker widget</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Two-step cancel request flow</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Auto-schedule (open/close by business hours)</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">District-based delivery zones (Vienna postal codes)</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Full bilingual UI (German + English)</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">GDPR + Austrian e-commerce legal compliance</div></div>
+  </div>
+</div>
+
+<!-- TECHNICAL CHALLENGES -->
+<div class="section">
+  <div class="section-label">Technical Challenges Solved</div>
+  <div class="challenges-list">
+    <div class="challenge-item">
+      <h3>Real-Time Notification Engine with Looping Sound</h3>
+      <p>Built a dual-channel engine — Pusher WebSocket for instant alerts with a looping doorbell sound, polling as fallback. Admin hears persistent audio until the order is accepted. A separate cancel notification sound system handles cancellation requests. Critical requirement: missed order = lost revenue.</p>
+    </div>
+    <div class="challenge-item">
+      <h3>Dual Payment Gateway — Manual Capture Flow (Stripe + PayPal)</h3>
+      <p>Card is authorized (held) at checkout, funds only captured when admin accepts. If declined, the hold releases automatically. Required handling webhooks, authorization expiry (7 days Stripe / 3 days PayPal), and edge cases like already-captured payments.</p>
+    </div>
+    <div class="challenge-item">
+      <h3>Vercel CPU Exhaustion — 95.6% Polling Reduction</h3>
+      <p>Production exceeded Vercel's 4h/month CPU limit due to 2-second polling (1,800 API calls/hour). Diagnosed via log analysis, switched to Pusher events for real-time updates, reduced polling to 5-minute intervals (12 calls/hour). Zero user experience impact.</p>
+    </div>
+    <div class="challenge-item">
+      <h3>Guest → Registered Customer Migration Bug</h3>
+      <p>Returning customers couldn't place orders — Prisma unique constraint violation on email. Fixed with a 4-step customer lookup: by accountId → by email → link existing guest record → create new. Handles seamless guest-to-registered migration.</p>
+    </div>
+    <div class="challenge-item">
+      <h3>Scalable Bulk Email Queue</h3>
+      <p>Resend's free tier: 2 emails/second. Initial implementation sent 10 simultaneously → 80% failure rate. Redesigned as a background queue — admin triggers send, API returns instantly, cron processes 400 emails/minute with retry logic and progress tracking.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CODE EXAMPLES -->
+<div class="section code-section">
+  <div class="section-label">Code Examples</div>
+
+  <div class="tab-bar" id="tabBar">
+    <button class="tab-btn active" data-tab="ts">TypeScript</button>
+    <button class="tab-btn" data-tab="prisma">Prisma / SQL</button>
+    <button class="tab-btn" data-tab="css">CSS / Tailwind</button>
+  </div>
+
+  <!-- TypeScript Panel -->
+  <div class="tab-panel active" id="tab-ts">
+    <div class="code-block multi-code">
+
+      <div class="code-header">
+        <span class="code-filename">src/lib/notification-engine.ts — Audio loop system</span>
+        <span class="code-lang-badge">TypeScript</span>
+      </div>
+      <pre><span class="cm">// Real-time order notification — looping sound engine</span>
+<span class="kw">export function</span> <span class="fn">startSoundLoop</span>(<span class="prop">soundName</span>: <span class="ty">string</span>, <span class="prop">volume</span>: <span class="ty">number</span>): <span class="ty">void</span> {
+  <span class="kw">if</span> (audioContext?.state === <span class="str">'suspended'</span>) {
+    audioContext.<span class="fn">resume</span>();
+  }
+
+  <span class="kw">const</span> audio = <span class="kw">new</span> <span class="ty">Audio</span>(<span class="str">`/sounds/<span class="prop">${soundName}</span>.mp3`</span>);
+  audio.volume = <span class="ty">Math</span>.<span class="fn">min</span>(<span class="ty">Math</span>.<span class="fn">max</span>(volume / <span class="num">100</span>, <span class="num">0</span>), <span class="num">1</span>);
+  audio.loop = <span class="kw">true</span>;
+
+  audio.<span class="fn">play</span>().<span class="fn">then</span>(() => {
+    currentLoopingAudio = audio;
+    isLooping = <span class="kw">true</span>;
+  }).<span class="fn">catch</span>(err => {
+    console.<span class="fn">error</span>(<span class="str">'[NotificationEngine] Playback failed:'</span>, err);
+  });
+}
+
+<span class="kw">export function</span> <span class="fn">stopSoundLoop</span>(): <span class="ty">void</span> {
+  <span class="kw">if</span> (currentLoopingAudio) {
+    currentLoopingAudio.<span class="fn">pause</span>();
+    currentLoopingAudio.currentTime = <span class="num">0</span>;
+    currentLoopingAudio = <span class="kw">null</span>;
+    isLooping = <span class="kw">false</span>;
+  }
+}</pre>
+
+      <div class="code-header" style="border-top:1px solid var(--border)">
+        <span class="code-filename">src/app/api/orders/route.ts — Guest-to-registered customer migration</span>
+        <span class="code-lang-badge">TypeScript</span>
+      </div>
+      <pre><span class="cm">// 4-step customer lookup — prevents unique constraint violations</span>
+<span class="kw">let</span> customerRecord = <span class="kw">await</span> prisma.customer.<span class="fn">findFirst</span>({
+  <span class="prop">where</span>: { <span class="prop">customerAccountId</span>: customer.id },
+});
+
+<span class="kw">if</span> (!customerRecord &amp;&amp; customer.email) {
+  customerRecord = <span class="kw">await</span> prisma.customer.<span class="fn">findFirst</span>({
+    <span class="prop">where</span>: { <span class="prop">email</span>: customer.email },
+  });
+
+  <span class="cm">// Link existing guest customer to registered account</span>
+  <span class="kw">if</span> (customerRecord &amp;&amp; !customerRecord.customerAccountId) {
+    <span class="kw">await</span> prisma.customer.<span class="fn">update</span>({
+      <span class="prop">where</span>: { <span class="prop">id</span>: customerRecord.id },
+      <span class="prop">data</span>: { <span class="prop">customerAccountId</span>: customer.id },
+    });
+  }
+}
+
+<span class="kw">if</span> (!customerRecord) {
+  customerRecord = <span class="kw">await</span> prisma.customer.<span class="fn">create</span>({
+    <span class="prop">data</span>: {
+      <span class="prop">name</span>: customerName,
+      <span class="prop">email</span>: customer.email,
+      <span class="prop">customerAccountId</span>: customer.id,
+    },
+  });
+}</pre>
+
+      <div class="code-header" style="border-top:1px solid var(--border)">
+        <span class="code-filename">src/app/api/admin/orders/[orderId]/accept/route.ts — Stripe manual capture</span>
+        <span class="code-lang-badge">TypeScript</span>
+      </div>
+      <pre><span class="cm">// Capture authorized payment only when admin accepts the order</span>
+<span class="kw">const</span> stripe = <span class="fn">getStripe</span>();
+<span class="kw">const</span> paymentIntent = <span class="kw">await</span> stripe.paymentIntents.<span class="fn">capture</span>(
+  existingOrder.stripePaymentIntentId!
+);
+
+<span class="kw">await</span> prisma.order.<span class="fn">update</span>({
+  <span class="prop">where</span>: { <span class="prop">id</span>: orderId },
+  <span class="prop">data</span>: {
+    <span class="prop">status</span>: <span class="str">"ACCEPTED"</span>,
+    <span class="prop">paymentStatus</span>: PaymentStatus.PAID,
+    <span class="prop">paymentCapturedAt</span>: <span class="kw">new</span> <span class="ty">Date</span>(),
+    <span class="prop">adminAcceptedAt</span>: <span class="kw">new</span> <span class="ty">Date</span>(),
+    <span class="prop">adminAcceptedBy</span>: adminSession.email,
+  },
+});
+
+<span class="cm">// Notify customer in real-time via Pusher</span>
+<span class="kw">await</span> <span class="fn">triggerOrderUpdate</span>(<span class="kw">null</span>, customerAccountId, {
+  <span class="prop">id</span>: orderId,
+  <span class="prop">orderNumber</span>: existingOrder.orderNumber,
+  <span class="prop">status</span>: <span class="str">"ACCEPTED"</span>,
+});</pre>
+
+      <div class="code-header" style="border-top:1px solid var(--border)">
+        <span class="code-filename">src/contexts/shop-branding-context.tsx — CPU polling optimization</span>
+        <span class="code-lang-badge">TypeScript</span>
+      </div>
+      <pre><span class="cm">// BEFORE: 2-second polling = 1,800 calls/hour → CPU exhaustion on Vercel</span>
+<span class="kw">const</span> interval = <span class="fn">setInterval</span>(fetchStatus, <span class="num">2000</span>);
+
+<span class="cm">// AFTER: 5-minute polling = 12 calls/hour = 99.3% reduction
+// Real-time updates still instant via Pusher WebSocket</span>
+<span class="kw">const</span> interval = <span class="fn">setInterval</span>(fetchStatus, <span class="num">300000</span>);</pre>
+
+    </div>
+  </div>
+
+  <!-- Prisma Panel -->
+  <div class="tab-panel" id="tab-prisma">
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">prisma/schema.prisma — Order model</span>
+        <span class="code-lang-badge">Prisma</span>
+      </div>
+      <pre><span class="kw">model</span> <span class="ty">Order</span> {
+  <span class="prop">id</span>           <span class="ty">String</span>      <span class="dec">@id</span> <span class="dec">@default</span>(cuid())
+  <span class="prop">orderNumber</span>  <span class="ty">String</span>      <span class="dec">@unique</span>
+  <span class="prop">status</span>       <span class="ty">OrderStatus</span> <span class="dec">@default</span>(PENDING)
+  <span class="prop">type</span>         <span class="ty">OrderType</span>   <span class="dec">@default</span>(TAKEAWAY)
+
+  <span class="cm">// Payment — supports Stripe + PayPal + Cash</span>
+  <span class="prop">paymentMethod</span>           <span class="ty">PaymentMethod</span>?
+  <span class="prop">paymentStatus</span>           <span class="ty">PaymentStatus</span>  <span class="dec">@default</span>(PENDING)
+  <span class="prop">stripePaymentIntentId</span>   <span class="ty">String</span>?   <span class="dec">@unique</span>
+  <span class="prop">paypalOrderId</span>           <span class="ty">String</span>?   <span class="dec">@unique</span>
+  <span class="prop">paypalAuthorizationId</span>   <span class="ty">String</span>?
+  <span class="prop">paymentAuthorizedAt</span>     <span class="ty">DateTime</span>?
+  <span class="prop">paymentCapturedAt</span>       <span class="ty">DateTime</span>?
+  <span class="prop">authorizationExpiry</span>     <span class="ty">DateTime</span>?
+
+  <span class="cm">// Vienna district-based minimum order enforcement</span>
+  <span class="prop">minimumOrderAdjustment</span>  <span class="ty">Float</span>     <span class="dec">@default</span>(<span class="num">0</span>)
+  <span class="prop">minimumOrderThreshold</span>   <span class="ty">Float</span>?
+  <span class="prop">deliveryPostalCode</span>      <span class="ty">String</span>?
+  <span class="prop">deliveryDistrict</span>        <span class="ty">String</span>?
+
+  <span class="cm">// Two-step customer cancel request</span>
+  <span class="prop">cancelRequestStatus</span>  <span class="ty">String</span>?  <span class="cm">// "REQUESTED" → "APPROVED" / "REJECTED"</span>
+
+  <span class="cm">// Timestamps</span>
+  <span class="prop">createdAt</span>   <span class="ty">DateTime</span>  <span class="dec">@default</span>(now())
+  <span class="prop">completedAt</span> <span class="ty">DateTime</span>?
+
+  <span class="dec">@@index</span>([status])
+  <span class="dec">@@index</span>([paymentStatus])
+}</pre>
+    </div>
+  </div>
+
+  <!-- CSS Panel -->
+  <div class="tab-panel" id="tab-css">
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">src/components/customer/product-star-rating.tsx — Partial star fill</span>
+        <span class="code-lang-badge">TSX / Tailwind</span>
+      </div>
+      <pre><span class="cm">// CSS clip technique: two overlapping Star icons for fractional ratings
+// e.g. 3.7 stars fills 74% of the foreground star</span>
+&lt;<span class="fn">div</span> <span class="prop">className</span>=<span class="str">"relative"</span>&gt;
+  <span class="cm">{/* Background star — empty state */}</span>
+  &lt;<span class="ty">Star</span> <span class="prop">className</span>=<span class="str">"w-5 h-5 text-gray-300"</span> /&gt;
+
+  <span class="cm">{/* Foreground star — clipped to average rating percentage */}</span>
+  &lt;<span class="fn">div</span>
+    <span class="prop">className</span>=<span class="str">"absolute inset-0 overflow-hidden"</span>
+    <span class="prop">style</span>={{ <span class="prop">width</span>: <span class="str">`<span class="dec">${(avgRating / 5) * 100}</span>%`</span> }}
+  &gt;
+    &lt;<span class="ty">Star</span> <span class="prop">className</span>=<span class="str">"w-5 h-5 text-amber-400 fill-amber-400"</span> /&gt;
+  &lt;/<span class="fn">div</span>&gt;
+&lt;/<span class="fn">div</span>&gt;</pre>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p>Süßes aus der Pfanne — Built solo by Tornike Zaridze, 2025–2026</p>
+  <a href="https://suessesausderpfanne.at" target="_blank" rel="noopener noreferrer" class="nav-link-ext">
+    suessesausderpfanne.at ↗
+  </a>
+</div>
+
+<script>
+  // Tab switching
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabPanels = document.querySelectorAll('.tab-panel');
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      tabBtns.forEach(b => b.classList.remove('active'));
+      tabPanels.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + target).classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>

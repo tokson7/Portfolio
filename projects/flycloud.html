@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FLY.CLOUD — Tornike Zaridze</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --f-display: 'Instrument Serif', serif;
+      --f-body: 'DM Sans', sans-serif;
+      --bg: #080808;
+      --border: rgba(255,255,255,0.07);
+      --muted: rgba(255,255,255,0.38);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: #fff;
+      font-family: var(--f-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 60px;
+      background: rgba(8,8,8,0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-back {
+      display: inline-flex; align-items: center; gap: 10px;
+      color: rgba(255,255,255,0.6); font-size: 14px; text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: #fff; }
+    .nav-back svg { width: 16px; height: 16px; }
+    .nav-logo {
+      font-family: var(--f-display); font-size: 18px; font-weight: 400;
+      color: rgba(255,255,255,0.85); text-decoration: none;
+    }
+    .nav-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 20px; border-radius: 999px;
+      border: 1px solid rgba(255,165,0,0.25);
+      background: rgba(255,165,0,0.06);
+      color: rgba(255,200,80,0.85); font-size: 13px; font-family: var(--f-body);
+    }
+    .nav-badge::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(255,200,80,0.8);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 120px 60px 0;
+      max-width: 1280px; margin: 0 auto;
+    }
+    .hero-meta {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 28px; flex-wrap: wrap;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.03);
+      font-size: 12px; color: var(--muted);
+    }
+    .pill-dot-dev { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,200,80,0.9); animation: pulse 2s ease-in-out infinite; }
+    .hero h1 {
+      font-family: var(--f-display);
+      font-size: clamp(2.6rem, 6vw, 5rem);
+      font-weight: 400; line-height: 1.08;
+      letter-spacing: -0.02em;
+      margin-bottom: 22px;
+    }
+    .hero h1 em { color: rgba(255,255,255,0.28); font-weight: 300; font-style: normal; }
+    .hero-desc {
+      font-size: 16px; color: rgba(255,255,255,0.45);
+      max-width: 640px; line-height: 1.75; margin-bottom: 36px;
+    }
+    .hero-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 56px; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px; border-radius: 999px;
+      background: #fff; color: #000;
+      font-size: 14px; font-weight: 600; font-family: var(--f-body);
+      text-decoration: none; border: none; cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px; border-radius: 999px;
+      background: transparent; color: rgba(255,255,255,0.7);
+      font-size: 14px; font-weight: 500; font-family: var(--f-body);
+      text-decoration: none; border: 1px solid rgba(255,255,255,0.12); cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.06); color: #fff; border-color: rgba(255,255,255,0.22); }
+
+    /* ── SCREENSHOTS LAYOUT ── */
+    .screenshots-wrap {
+      max-width: 1280px; margin: 0 auto;
+      padding: 0 60px 80px;
+    }
+    .screenshots-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .shot-detail {
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: #0d0d0d;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    }
+    .shot-detail img {
+      width: 100%; display: block;
+      object-fit: cover; object-position: top;
+    }
+
+    /* ── SECTIONS ── */
+    .section {
+      max-width: 1280px; margin: 0 auto;
+      padding: 0 60px 80px;
+    }
+    .section-label {
+      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 32px;
+      padding-bottom: 16px; border-bottom: 1px solid var(--border);
+    }
+
+    /* ── OVERVIEW GRID ── */
+    .overview-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+    }
+    .overview-cell { background: #0d0d0d; padding: 28px 32px; }
+    .overview-cell h4 {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 12px;
+    }
+    .overview-cell p { font-size: 15px; color: rgba(255,255,255,0.85); line-height: 1.55; }
+    .overview-cell p.big { font-family: var(--f-display); font-size: 22px; font-weight: 400; }
+
+    /* ── STATS ROW ── */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 60px;
+    }
+    .stat-card {
+      background: #0d0d0d; border: 1px solid var(--border); border-radius: 14px;
+      padding: 22px 24px; text-align: center;
+    }
+    .stat-num {
+      font-family: var(--f-display); font-size: 2.2rem; font-weight: 400;
+      color: #fff; line-height: 1;
+    }
+    .stat-label {
+      font-size: 12px; color: var(--muted); margin-top: 8px;
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+
+    /* ── MODULES GRID ── */
+    .modules-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px;
+    }
+    .module-item {
+      background: #0d0d0d; border: 1px solid var(--border); border-radius: 12px;
+      padding: 18px 20px; display: flex; align-items: flex-start; gap: 12px;
+    }
+    .module-num {
+      flex-shrink: 0; width: 24px; height: 24px; border-radius: 6px;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: var(--muted); font-weight: 600; margin-top: 1px;
+    }
+    .module-text { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.5; }
+    .module-text strong { color: #fff; font-weight: 500; display: block; margin-bottom: 2px; }
+
+    /* ── TECH STACK ── */
+    .stack-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;
+    }
+    .stack-item { background: #0d0d0d; border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+    .stack-item .layer { font-size: 10px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .stack-item .value { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.85); }
+
+    /* ── CHALLENGES ── */
+    .challenges-list { display: flex; flex-direction: column; gap: 16px; }
+    .challenge-item {
+      background: #0d0d0d; border: 1px solid var(--border); border-radius: 16px;
+      padding: 28px 32px;
+    }
+    .challenge-item h3 { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 10px; }
+    .challenge-item p { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.7; }
+
+    /* ── CODE TABS ── */
+    .tab-bar {
+      display: flex; gap: 4px; border-bottom: 1px solid var(--border); flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 10px 18px; border-radius: 8px 8px 0 0;
+      background: transparent; border: 1px solid transparent; border-bottom: none;
+      color: var(--muted); font-size: 12px; font-family: var(--f-body); font-weight: 500;
+      cursor: pointer; transition: all 0.15s; letter-spacing: 0.04em; text-transform: uppercase;
+      position: relative; bottom: -1px;
+    }
+    .tab-btn:hover { color: rgba(255,255,255,0.7); }
+    .tab-btn.active { background: #0d0d0d; color: #fff; border-color: var(--border); border-bottom-color: #0d0d0d; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .code-block {
+      background: #0d0d0d; border: 1px solid var(--border);
+      border-top: none; border-radius: 0 0 16px 16px; overflow: hidden;
+    }
+    .multi-code { display: flex; flex-direction: column; }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+    .code-filename { font-size: 12px; color: var(--muted); font-family: monospace; }
+    .code-lang-badge {
+      font-size: 10px; padding: 3px 9px; border-radius: 999px;
+      background: rgba(255,255,255,0.06); color: var(--muted);
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    pre {
+      padding: 24px; overflow-x: auto; font-size: 13px;
+      line-height: 1.65; font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+    }
+    .kw { color: #c792ea; } .fn { color: #82aaff; } .str { color: #c3e88d; }
+    .num { color: #f78c6c; } .cm { color: #546e7a; font-style: italic; }
+    .ty { color: #ffcb6b; } .op { color: rgba(255,255,255,0.5); }
+    .prop { color: #89ddff; } .dec { color: #f07178; }
+
+    /* ── FOOTER ── */
+    .footer {
+      border-top: 1px solid var(--border); padding: 40px 60px;
+      max-width: 1280px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer p { font-size: 13px; color: var(--muted); }
+    .nav-link-ext {
+      display: inline-flex; align-items: center; gap: 7px; padding: 9px 20px;
+      border-radius: 999px; border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.7);
+      font-size: 13px; font-family: var(--f-body); text-decoration: none; transition: all 0.2s;
+    }
+    .nav-link-ext:hover { background: rgba(255,255,255,0.09); color: #fff; }
+    .nav-link-ext svg { width: 13px; height: 13px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .nav { padding: 16px 24px; }
+      .hero, .screenshots-wrap, .section { padding-left: 24px; padding-right: 24px; }
+      .overview-grid, .stats-row { grid-template-columns: 1fr 1fr; }
+      .hero h1 { font-size: clamp(2rem, 9vw, 3rem); }
+      .footer { padding: 32px 24px; }
+      .screenshots-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .stack-grid { grid-template-columns: 1fr 1fr; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="../index.html" class="nav-back">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="19" y1="12" x2="5" y2="12"></line>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+    Back to Portfolio
+  </a>
+  <a href="../index.html" class="nav-logo">Tornike Zaridze</a>
+  <span class="nav-badge">In Active Development</span>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-meta">
+    <span class="pill"><span class="pill-dot-dev"></span> In Active Development</span>
+    <span class="pill">Personal Project</span>
+    <span class="pill">27 Feature Modules</span>
+    <span class="pill">Solo Developer</span>
+  </div>
+  <h1>FLY.CLOUD<br/><em>Travel Super-App</em></h1>
+  <p class="hero-desc">
+    A full-stack travel super-app that combines social networking, airport intelligence, AI assistance, entertainment, marketplace, and real-time communication into one platform. 27 feature modules, 50+ database models, 35+ API routes — currently in active development.
+  </p>
+  <div class="hero-actions">
+    <a href="../index.html" class="btn-secondary">← Back to Portfolio</a>
+  </div>
+</div>
+
+<!-- SCREENSHOTS — 1 main (smaller) left + 3 detail shots right -->
+<div class="screenshots-wrap">
+  <div class="screenshots-grid">
+    <div class="shot-detail">
+      <img src="../assets/projects/flycloud.png" alt="FLY.CLOUD — overview" />
+    </div>
+    <div class="shot-detail">
+      <img src="../assets/projects/flycloud-2.png" alt="FLY.CLOUD — entertainment" />
+    </div>
+    <div class="shot-detail">
+      <img src="../assets/projects/flycloud-3.png" alt="FLY.CLOUD — travel map" />
+    </div>
+    <div class="shot-detail">
+      <img src="../assets/projects/flycloud-4.png" alt="FLY.CLOUD — FLY AI" />
+    </div>
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="section">
+  <div class="section-label">Project Overview</div>
+  <div class="overview-grid">
+    <div class="overview-cell">
+      <h4>Status</h4>
+      <p class="big">In Development</p>
+      <p style="margin-top:8px;font-size:13px;color:var(--muted);">Active personal project — architecture, modules, and data model continuously growing</p>
+    </div>
+    <div class="overview-cell">
+      <h4>Role</h4>
+      <p class="big">Solo Developer</p>
+      <p style="margin-top:8px;font-size:13px;color:var(--muted);">Full-stack, database architecture, AI integration, real-time systems, mobile PWA</p>
+    </div>
+    <div class="overview-cell">
+      <h4>Product Type</h4>
+      <p class="big">Travel Super-App</p>
+      <p style="margin-top:8px;font-size:13px;color:var(--muted);">Social + entertainment + marketplace + AI + airport intelligence — one platform</p>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="section">
+  <div class="section-label">Platform Scale</div>
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num">27</div>
+      <div class="stat-label">Feature Modules</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">50+</div>
+      <div class="stat-label">Database Models</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">35+</div>
+      <div class="stat-label">API Routes</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">11</div>
+      <div class="stat-label">Zustand Stores</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODULES -->
+<div class="section">
+  <div class="section-label">Feature Modules</div>
+  <div class="modules-grid">
+    <div class="module-item"><div class="module-num">01</div><div class="module-text"><strong>Airport Intelligence</strong>Restaurants, nearby places, GPS data from OpenStreetMap + Wikipedia, community ratings</div></div>
+    <div class="module-item"><div class="module-num">02</div><div class="module-text"><strong>FLY AI Assistant</strong>Multi-turn AI with journals, packing lists, itineraries, Translation Packs, Travel Wrapped</div></div>
+    <div class="module-item"><div class="module-num">03</div><div class="module-text"><strong>Live Flight Tracker</strong>Real-time flight status: BOARDING → IN_AIR → LANDING → LANDED</div></div>
+    <div class="module-item"><div class="module-num">04</div><div class="module-text"><strong>Flight Buddy Matching</strong>Connect travelers on the same flight — layover companion, photo buddy, travel partner</div></div>
+    <div class="module-item"><div class="module-num">05</div><div class="module-text"><strong>Airport Chat Rooms</strong>Per-airport Socket.io group chat with reactions, threading, GIFs, image uploads</div></div>
+    <div class="module-item"><div class="module-num">06</div><div class="module-text"><strong>Direct Messaging</strong>P2P chat with read receipts, optimistic UI, role badges, verified indicators</div></div>
+    <div class="module-item"><div class="module-num">07</div><div class="module-text"><strong>Trips & Itinerary Planner</strong>Full trip lifecycle from DRAFT to COMPLETED — multi-stop GPS routes, visibility control</div></div>
+    <div class="module-item"><div class="module-num">08</div><div class="module-text"><strong>Travel Map</strong>Interactive world map tracking visited countries with visual highlighting</div></div>
+    <div class="module-item"><div class="module-num">09</div><div class="module-text"><strong>Social Feed</strong>Posts, nested comments, likes, follow/unfollow social graph</div></div>
+    <div class="module-item"><div class="module-num">10</div><div class="module-text"><strong>Stories</strong>24-hour ephemeral stories with views, reactions, highlights, airport tags</div></div>
+    <div class="module-item"><div class="module-num">11</div><div class="module-text"><strong>Reels</strong>Short video content linked to airports and music tracks</div></div>
+    <div class="module-item"><div class="module-num">12</div><div class="module-text"><strong>Entertainment Hub</strong>Movies, music (Jamendo CC), books — all with offline download support</div></div>
+    <div class="module-item"><div class="module-num">13</div><div class="module-text"><strong>Games</strong>Trivia, puzzle, word, card, arcade — multiplayer in airport waiting lounges</div></div>
+    <div class="module-item"><div class="module-num">14</div><div class="module-text"><strong>Travel News</strong>Categorized news feed: World, Tech, Travel, Business, Science, Sports</div></div>
+    <div class="module-item"><div class="module-num">15</div><div class="module-text"><strong>Memories</strong>Personal travel album — images, videos, mood tags, airport links, visibility control</div></div>
+    <div class="module-item"><div class="module-num">16</div><div class="module-text"><strong>AI Recommendations</strong>Destination, restaurant, activity, and itinerary suggestions per user</div></div>
+    <div class="module-item"><div class="module-num">17</div><div class="module-text"><strong>Driver & Guide Marketplace</strong>Verified drivers and guides with vehicle types, tour specialties, and rating system</div></div>
+    <div class="module-item"><div class="module-num">18</div><div class="module-text"><strong>Community Crowdsourcing</strong>User-submitted airport restaurant and place suggestions — admin moderation queue</div></div>
+    <div class="module-item"><div class="module-num">19</div><div class="module-text"><strong>Airport Reviews</strong>Structured ratings, aggregated scores, helpful votes, moderation/reporting</div></div>
+    <div class="module-item"><div class="module-num">20</div><div class="module-text"><strong>Marketplace</strong>Airport-scoped peer exchange — sell, give, lend, exchange, request</div></div>
+    <div class="module-item"><div class="module-num">21</div><div class="module-text"><strong>Lost & Found</strong>Airport-scoped lost/found board with OPEN → CLAIMED → RESOLVED flow</div></div>
+    <div class="module-item"><div class="module-num">22</div><div class="module-text"><strong>Travel Wrapped</strong>Personalized annual travel summary — AI-generated narrative from user data</div></div>
+    <div class="module-item"><div class="module-num">23</div><div class="module-text"><strong>Currency Converter</strong>Real-time exchange rate endpoint</div></div>
+    <div class="module-item"><div class="module-num">24</div><div class="module-text"><strong>User Profiles</strong>Full profile fields — nationality, travel style, languages, home airport, interests</div></div>
+    <div class="module-item"><div class="module-num">25</div><div class="module-text"><strong>Notifications</strong>In-app notification system with type, payload, read/unread state</div></div>
+    <div class="module-item"><div class="module-num">26</div><div class="module-text"><strong>Favorites</strong>Cross-content favorites — movies, music, books, places in one unified model</div></div>
+    <div class="module-item"><div class="module-num">27</div><div class="module-text"><strong>PWA + Offline</strong>Service Worker, manifest, iOS safe-area-inset handling, offline download tracking</div></div>
+  </div>
+</div>
+
+<!-- TECH STACK -->
+<div class="section">
+  <div class="section-label">Technical Stack</div>
+  <div class="stack-grid">
+    <div class="stack-item"><div class="layer">Frontend</div><div class="value">Next.js 15 · React 19 · TypeScript</div></div>
+    <div class="stack-item"><div class="layer">Styling</div><div class="value">Tailwind CSS · shadcn/ui · Framer Motion</div></div>
+    <div class="stack-item"><div class="layer">Backend</div><div class="value">Next.js API Routes · Server Actions</div></div>
+    <div class="stack-item"><div class="layer">Database</div><div class="value">PostgreSQL · Prisma ORM · 50+ models</div></div>
+    <div class="stack-item"><div class="layer">Auth</div><div class="value">NextAuth.js — session + role-based middleware</div></div>
+    <div class="stack-item"><div class="layer">Real-Time</div><div class="value">Socket.io — per-airport group chat rooms</div></div>
+    <div class="stack-item"><div class="layer">AI</div><div class="value">OpenAI — conversations, itineraries, packing lists, Travel Wrapped</div></div>
+    <div class="stack-item"><div class="layer">State</div><div class="value">Zustand — 11 stores across all modules</div></div>
+    <div class="stack-item"><div class="layer">Data Enrichment</div><div class="value">OpenStreetMap · Wikipedia · Unsplash · Google Places · TMDB · Jamendo</div></div>
+    <div class="stack-item"><div class="layer">Mobile / PWA</div><div class="value">Service Worker · manifest.json · iOS safe-area · offline support</div></div>
+    <div class="stack-item"><div class="layer">DevOps</div><div class="value">Docker · Nginx · PostgreSQL 15 · multi-service compose</div></div>
+    <div class="stack-item"><div class="layer">Hosting</div><div class="value">Docker Compose (production) · Nginx reverse proxy</div></div>
+  </div>
+</div>
+
+<!-- TECHNICAL CHALLENGES -->
+<div class="section">
+  <div class="section-label">Technical Challenges</div>
+  <div class="challenges-list">
+
+    <div class="challenge-item">
+      <h3>Self-Referential Relational Models — Threading at Unlimited Depth</h3>
+      <p>Both <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">ChatMessage</code> and <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">Comment</code> use self-referential Prisma relations — a message or comment can reply to another of the same type, creating trees of arbitrary depth. <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">ChatMessage</code> also has a composite index on <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">[chatRoomId, createdAt]</code> specifically for paginated room history queries. Getting these to work correctly with Prisma's include syntax without N+1 queries required careful eager loading at known nesting levels.</p>
+    </div>
+
+    <div class="challenge-item">
+      <h3>Optimistic UI with Atomic Rollback in Direct Messaging</h3>
+      <p>When a user sends a direct message, the message appears in the UI instantly — before the server confirms it. A temporary ID (<code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">temp-${Date.now()}</code>) is used as a placeholder. On success, the confirmed server message seamlessly replaces the temp entry. On any failure, the optimistic message is atomically removed via filter. This eliminates the jarring "sent → disappeared" UX that comes from naive rollback approaches.</p>
+    </div>
+
+    <div class="challenge-item">
+      <h3>Multi-Source Data Enrichment Pipeline for Airport Intelligence</h3>
+      <p>Airport restaurant and place data is enriched through a cascade: Unsplash first, then Google Places, then Wikipedia. Each source is tried in order — if one returns nothing, the next is queried automatically. This enrichment runs via standalone Node.js scripts (<code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">deep-image-enrich.mjs</code>, <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">enrich-tmdb.mjs</code>, <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">import-jamendo.mjs</code>) that populate the database independently from the app. The result is a rich, offline-first data layer for airports that doesn't depend on live API calls during the user session.</p>
+    </div>
+
+    <div class="challenge-item">
+      <h3>iOS Safe-Area-Inset Handling Throughout the Full UI</h3>
+      <p>Every bottom-fixed element — the input bar in DMs, the tab navigation, the media player — uses <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">env(safe-area-inset-bottom)</code> in its padding to avoid the iPhone home bar. Heights use <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">100dvh</code> (dynamic viewport height) instead of <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">100vh</code> to account for the browser chrome that appears and disappears on scroll. This must be applied consistently across all 27 modules — missing it in even one place causes visible content clipping on iOS.</p>
+    </div>
+
+    <div class="challenge-item">
+      <h3>Bidirectional Social Graph with Two Named Relations</h3>
+      <p>The <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">User</code> model has two separate relations to the same <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">Follow</code> model — <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">followers</code> and <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">following</code> — using Prisma named relation syntax. The same pattern applies to <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">DirectMessage</code> (MessageSender / MessageReceiver). Without explicit relation names, Prisma cannot disambiguate which FK maps to which side. Getting the migration correct the first time required understanding how Prisma resolves ambiguous self-referential and bidirectional relations.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- CODE EXAMPLES -->
+<div class="section code-section">
+  <div class="section-label">Code Examples</div>
+
+  <div class="tab-bar" id="tabBar">
+    <button class="tab-btn active" data-tab="prisma">Prisma Schema</button>
+    <button class="tab-btn" data-tab="tsx">TypeScript / React</button>
+    <button class="tab-btn" data-tab="infra">Docker / Infra</button>
+  </div>
+
+  <!-- Prisma Panel -->
+  <div class="tab-panel active" id="tab-prisma">
+    <div class="code-block multi-code">
+
+      <div class="code-header">
+        <span class="code-filename">packages/database/prisma/schema.prisma — Bidirectional social graph + self-referential threading</span>
+        <span class="code-lang-badge">Prisma</span>
+      </div>
+      <pre><span class="kw">model</span> <span class="ty">User</span> {
+  <span class="prop">role</span>               <span class="ty">UserRole</span>           <span class="dec">@default</span>(TRAVELER)
+  <span class="prop">verificationStatus</span> <span class="ty">VerificationStatus</span> <span class="dec">@default</span>(NONE)
+
+  <span class="cm">// Role-specific profiles — only one can be active</span>
+  <span class="prop">driverProfile</span>  <span class="ty">DriverProfile</span>?
+  <span class="prop">guideProfile</span>   <span class="ty">GuideProfile</span>?
+
+  <span class="cm">// Bidirectional follow graph — two named relations to same model</span>
+  <span class="prop">followers</span> <span class="ty">Follow</span>[] <span class="dec">@relation</span>(<span class="str">"UserFollowers"</span>)
+  <span class="prop">following</span> <span class="ty">Follow</span>[] <span class="dec">@relation</span>(<span class="str">"UserFollowing"</span>)
+
+  <span class="cm">// Bidirectional DMs — two named relations to DirectMessage</span>
+  <span class="prop">sentMessages</span>     <span class="ty">DirectMessage</span>[] <span class="dec">@relation</span>(<span class="str">"MessageSender"</span>)
+  <span class="prop">receivedMessages</span> <span class="ty">DirectMessage</span>[] <span class="dec">@relation</span>(<span class="str">"MessageReceiver"</span>)
+
+  <span class="dec">@@index</span>([<span class="prop">email</span>])
+  <span class="dec">@@index</span>([<span class="prop">username</span>])
+  <span class="dec">@@index</span>([<span class="prop">country</span>])
+  <span class="dec">@@map</span>(<span class="str">"users"</span>)
+}
+
+<span class="kw">model</span> <span class="ty">ChatMessage</span> {
+  <span class="cm">// Self-referential reply threading — unlimited depth</span>
+  <span class="prop">replyToId</span> <span class="ty">String</span>?       <span class="dec">@map</span>(<span class="str">"reply_to_id"</span>)
+  <span class="prop">replyTo</span>   <span class="ty">ChatMessage</span>?  <span class="dec">@relation</span>(<span class="str">"MessageReplies"</span>, <span class="prop">fields</span>: [<span class="prop">replyToId</span>], <span class="prop">references</span>: [<span class="prop">id</span>])
+  <span class="prop">replies</span>   <span class="ty">ChatMessage</span>[] <span class="dec">@relation</span>(<span class="str">"MessageReplies"</span>)
+
+  <span class="cm">// Composite index for paginated room history (critical for performance)</span>
+  <span class="dec">@@index</span>([<span class="prop">chatRoomId</span>, <span class="prop">createdAt</span>])
+}
+
+<span class="kw">model</span> <span class="ty">Comment</span> {
+  <span class="cm">// Same self-referential pattern for post/memory comment trees</span>
+  <span class="prop">parentId</span> <span class="ty">String</span>?   <span class="dec">@map</span>(<span class="str">"parent_id"</span>)
+  <span class="prop">parent</span>   <span class="ty">Comment</span>?  <span class="dec">@relation</span>(<span class="str">"CommentReplies"</span>, <span class="prop">fields</span>: [<span class="prop">parentId</span>], <span class="prop">references</span>: [<span class="prop">id</span>])
+  <span class="prop">replies</span>  <span class="ty">Comment</span>[] <span class="dec">@relation</span>(<span class="str">"CommentReplies"</span>)
+}</pre>
+
+    </div>
+  </div>
+
+  <!-- TSX Panel -->
+  <div class="tab-panel" id="tab-tsx">
+    <div class="code-block multi-code">
+
+      <div class="code-header">
+        <span class="code-filename">apps/web/app/(main)/messages/[userId]/page.tsx — Optimistic UI with atomic rollback</span>
+        <span class="code-lang-badge">TypeScript / React</span>
+      </div>
+      <pre><span class="kw">const</span> <span class="fn">handleSend</span> = <span class="kw">async</span> () => {
+  <span class="kw">const</span> text = input.<span class="fn">trim</span>();
+  <span class="fn">setInput</span>(<span class="str">''</span>);
+  <span class="fn">setSending</span>(<span class="kw">true</span>);
+
+  <span class="cm">// Optimistic — message appears instantly before server confirms</span>
+  <span class="kw">const</span> optimisticMsg = {
+    <span class="prop">id</span>: <span class="str">`temp-<span class="prop">${Date.now()}</span>`</span>,
+    <span class="prop">senderId</span>: session?.user?.id,
+    <span class="prop">content</span>: text,
+    <span class="prop">createdAt</span>: <span class="kw">new</span> <span class="ty">Date</span>().<span class="fn">toISOString</span>(),
+    <span class="prop">sender</span>: { <span class="prop">id</span>: session?.user?.id, <span class="prop">name</span>: session?.user?.name },
+  };
+  <span class="fn">setMessages</span>((<span class="prop">prev</span>) => [...prev, optimisticMsg]);
+
+  <span class="kw">try</span> {
+    <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'/api/messages'</span>, {
+      <span class="prop">method</span>: <span class="str">'POST'</span>,
+      <span class="prop">headers</span>: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },
+      <span class="prop">body</span>: <span class="ty">JSON</span>.<span class="fn">stringify</span>({ <span class="prop">receiverId</span>: partnerId, <span class="prop">content</span>: text }),
+    });
+    <span class="kw">if</span> (res.<span class="fn">ok</span>()) {
+      <span class="kw">const</span> data = <span class="kw">await</span> res.<span class="fn">json</span>();
+      <span class="cm">// Seamlessly swap temp message with confirmed server message</span>
+      <span class="fn">setMessages</span>((<span class="prop">prev</span>) =>
+        prev.<span class="fn">map</span>((<span class="prop">m</span>) => (m.id === optimisticMsg.id ? data.message : m))
+      );
+    }
+  } <span class="kw">catch</span> {
+    <span class="cm">// Atomic rollback — temp message removed entirely on failure</span>
+    <span class="fn">setMessages</span>((<span class="prop">prev</span>) => prev.<span class="fn">filter</span>((<span class="prop">m</span>) => m.id !== optimisticMsg.id));
+  } <span class="kw">finally</span> {
+    <span class="fn">setSending</span>(<span class="kw">false</span>);
+  }
+};</pre>
+
+      <div class="code-header" style="border-top:1px solid var(--border)">
+        <span class="code-filename">apps/web/middleware.ts — Edge middleware, role-based route protection</span>
+        <span class="code-lang-badge">TypeScript</span>
+      </div>
+      <pre><span class="cm">// Scoped matcher — middleware only runs on routes that actually need auth
+// Public pages (airport explorer, news, entertainment browse) skip it entirely</span>
+<span class="kw">export</span> { <span class="kw">default</span> } <span class="kw">from</span> <span class="str">'next-auth/middleware'</span>;
+
+<span class="kw">export const</span> config = {
+  <span class="prop">matcher</span>: [
+    <span class="str">'/dashboard/:path*'</span>,
+    <span class="str">'/trips/:path*'</span>,
+    <span class="str">'/messages/:path*'</span>,
+    <span class="str">'/profile/:path*'</span>,
+    <span class="str">'/settings/:path*'</span>,
+  ],
+};</pre>
+
+    </div>
+  </div>
+
+  <!-- Infra Panel -->
+  <div class="tab-panel" id="tab-infra">
+    <div class="code-block multi-code">
+
+      <div class="code-header">
+        <span class="code-filename">docker-compose.prod.yml — Multi-service production stack</span>
+        <span class="code-lang-badge">Docker</span>
+      </div>
+      <pre><span class="prop">services</span>:
+  <span class="prop">web</span>:
+    <span class="prop">build</span>:
+      <span class="prop">context</span>: <span class="str">.</span>
+      <span class="prop">dockerfile</span>: <span class="str">apps/web/Dockerfile</span>
+    <span class="prop">depends_on</span>: [postgres, redis]
+    <span class="prop">environment</span>:
+      - <span class="str">DATABASE_URL=${DATABASE_URL}</span>
+      - <span class="str">NEXTAUTH_SECRET=${NEXTAUTH_SECRET}</span>
+
+  <span class="prop">nginx</span>:
+    <span class="prop">image</span>: <span class="str">nginx:alpine</span>
+    <span class="prop">volumes</span>:
+      - <span class="str">./nginx/nginx.conf:/etc/nginx/nginx.conf</span>
+    <span class="prop">ports</span>:
+      - <span class="str">"80:80"</span>
+      - <span class="str">"443:443"</span>
+    <span class="prop">depends_on</span>: [web]
+
+  <span class="prop">postgres</span>:
+    <span class="prop">image</span>: <span class="str">postgres:15-alpine</span>
+    <span class="prop">volumes</span>:
+      - <span class="str">postgres_data:/var/lib/postgresql/data</span></pre>
+
+      <div class="code-header" style="border-top:1px solid var(--border)">
+        <span class="code-filename">scripts/deep-image-enrich.mjs — Cascading data enrichment pipeline</span>
+        <span class="code-lang-badge">Node.js</span>
+      </div>
+      <pre><span class="cm">// Unsplash → Google Places → Wikipedia cascade
+// Each source tried in order; next queried only if previous returns nothing</span>
+<span class="kw">import</span> { <span class="fn">fetchUnsplashImage</span> }      <span class="kw">from</span> <span class="str">'./lib/unsplash-images.mjs'</span>;
+<span class="kw">import</span> { <span class="fn">fetchGooglePlacesImage</span> } <span class="kw">from</span> <span class="str">'./lib/google-places-fetcher.mjs'</span>;
+<span class="kw">import</span> { <span class="fn">fetchWikipediaImage</span> }    <span class="kw">from</span> <span class="str">'./lib/wikipedia-images.mjs'</span>;
+
+<span class="kw">async function</span> <span class="fn">enrichEntityImage</span>(entity) {
+  <span class="kw">let</span> result = <span class="kw">await</span> <span class="fn">fetchUnsplashImage</span>(entity.name, entity.city);
+  <span class="kw">if</span> (!result) result = <span class="kw">await</span> <span class="fn">fetchGooglePlacesImage</span>(entity.name);
+  <span class="kw">if</span> (!result) result = <span class="kw">await</span> <span class="fn">fetchWikipediaImage</span>(entity.name);
+  <span class="kw">return</span> result;
+}
+<span class="cm">// Runs as standalone script — enriches the database independently from the app
+// Same pattern used for TMDB movie metadata and Jamendo music track import</span></pre>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p>FLY.CLOUD — Personal project by Tornike Zaridze, 2026 · In active development</p>
+  <span style="font-size:13px;color:var(--muted);">No public URL yet</span>
+</div>
+
+<script>
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabPanels = document.querySelectorAll('.tab-panel');
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      tabBtns.forEach(b => b.classList.remove('active'));
+      tabPanels.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + target).classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -44,23 +44,398 @@
     }
 
     /* ─── FAQ ITEM ──────────────────────────────────────────── */
-    function FAQItem({ question, answer, defaultOpen = false }) {
-      const [open, setOpen] = useState(defaultOpen);
+    const FAQItem = React.memo(function FAQItem({ id, question, answer, isOpen, onToggle }) {
+      const [hovered, setHovered] = useState(false);
+      const answerId = "faq-answer-" + id;
+      const btnId = "faq-btn-" + id;
       return (
-        <div style={{ borderBottom: "1px solid rgba(255,255,255,0.07)", cursor: "pointer" }} onClick={() => setOpen(!open)}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 0" }}>
-            <span style={{ color: "rgba(255,255,255,0.75)", fontSize: "15px", fontFamily: "var(--f-body)" }}>{question}</span>
+        <div
+          style={{
+            borderRadius: 16,
+            background: hovered && !isOpen ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.025)",
+            border: "1px solid rgba(255,255,255,0.06)",
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+            transition: "background 0.2s ease",
+            overflow: "hidden",
+          }}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+        >
+          <button
+            id={btnId}
+            aria-expanded={isOpen}
+            aria-controls={answerId}
+            onClick={onToggle}
+            style={{
+              width: "100%", display: "flex", justifyContent: "space-between",
+              alignItems: "center", padding: "16px 28px",
+              background: "none", border: "none", cursor: "pointer", textAlign: "left", gap: 16,
+            }}
+          >
+            <span style={{ color: "rgba(255,255,255,0.88)", fontSize: 16, fontWeight: 500, fontFamily: "var(--f-body)", lineHeight: 1.4 }}>{question}</span>
             <span style={{
-              color: "rgba(255,255,255,0.4)", fontSize: "22px", flexShrink: 0, marginLeft: 16,
-              transition: "transform 0.35s ease", transform: open ? "rotate(45deg)" : "rotate(0)",
-              display: "inline-block",
+              color: "rgba(255,255,255,0.45)", fontSize: 22, flexShrink: 0,
+              display: "inline-block", lineHeight: 1,
+              transition: "transform 0.2s ease-out",
+              transform: isOpen ? "rotate(45deg)" : "rotate(0deg)",
             }}>+</span>
+          </button>
+          <div
+            id={answerId}
+            role="region"
+            aria-labelledby={btnId}
+            style={{
+              display: "grid",
+              gridTemplateRows: isOpen ? "1fr" : "0fr",
+              opacity: isOpen ? 1 : 0,
+              transition: "grid-template-rows 300ms cubic-bezier(0.04,0.62,0.23,0.98), opacity 250ms ease-out",
+            }}
+          >
+            <div style={{ overflow: "hidden" }}>
+              <p style={{
+                color: "rgba(255,255,255,0.55)", fontSize: 15, lineHeight: 1.65,
+                padding: "0 28px 16px", fontFamily: "var(--f-body)", margin: 0,
+              }}>{answer}</p>
+            </div>
           </div>
-          <div style={{
-            maxHeight: open ? "220px" : "0", overflow: "hidden", opacity: open ? 1 : 0,
-            transition: "max-height 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.4s ease",
-          }}>
-            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px", lineHeight: 1.75, paddingBottom: 20, fontFamily: "var(--f-body)" }}>{answer}</p>
+        </div>
+      );
+    });
+
+    function FAQList({ items }) {
+      const defaultIdx = items.findIndex(f => f.open);
+      const [openIndex, setOpenIndex] = useState(defaultIdx >= 0 ? defaultIdx : null);
+      const handleToggle = useCallback((i) => {
+        setOpenIndex(prev => prev === i ? null : i);
+      }, []);
+      return (
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {items.map((f, i) => (
+            <FAQItem
+              key={i}
+              id={i}
+              question={f.q}
+              answer={f.a}
+              isOpen={openIndex === i}
+              onToggle={() => handleToggle(i)}
+            />
+          ))}
+        </div>
+      );
+    }
+
+    /* ─── TESTIMONIAL CODE BLOCK ────────────────────────────── */
+    function TestimonialCodeBlock() {
+      const scrollRef = useRef(null);
+      const containerRef = useRef(null);
+      const [started, setStarted] = useState(false);
+      const [charsTyped, setCharsTyped] = useState(0);
+      const [done, setDone] = useState(false);
+
+      // Full Python code as a single string — 130+ lines
+      const CODE = `"""
+client_engagement_analyzer.py
+
+Analyzes client testimonial data and engagement
+metrics for portfolio optimization.
+
+Author: Tornike Zaridze
+"""
+
+from __future__ import annotations
+
+import asyncio
+import logging
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any, Optional
+
+import aiohttp
+from pydantic import BaseModel, Field, validator
+
+logger = logging.getLogger(__name__)
+
+
+class EngagementLevel(str, Enum):
+    LOW = "low"
+    MODERATE = "moderate"
+    HIGH = "high"
+    EXCEPTIONAL = "exceptional"
+
+
+class TestimonialSource(str, Enum):
+    DIRECT = "direct"
+    LINKEDIN = "linkedin"
+    EMAIL = "email"
+    REFERRAL = "referral"
+
+
+@dataclass(frozen=True)
+class ClientProfile:
+    name: str
+    company: str
+    industry: str
+    project_count: int = 0
+    total_revenue: float = 0.0
+    relationship_start: datetime = field(
+        default_factory=datetime.utcnow
+    )
+
+    @property
+    def lifetime_value(self) -> float:
+        years = (
+            datetime.utcnow() - self.relationship_start
+        ).days / 365
+        return self.total_revenue * max(years, 1.0)
+
+
+class Testimonial(BaseModel):
+    client: ClientProfile
+    rating: float = Field(..., ge=0.0, le=5.0)
+    feedback: str = Field(..., min_length=20)
+    source: TestimonialSource
+    submitted_at: datetime
+    verified: bool = False
+    tags: list[str] = Field(default_factory=list)
+
+    @validator("feedback")
+    def feedback_not_generic(cls, v: str) -> str:
+        generic = {"great work", "good job", "nice"}
+        if v.lower().strip() in generic:
+            raise ValueError("Feedback too generic")
+        return v.strip()
+
+    def engagement_level(self) -> EngagementLevel:
+        if self.rating >= 4.8 and len(self.feedback) > 100:
+            return EngagementLevel.EXCEPTIONAL
+        if self.rating >= 4.5:
+            return EngagementLevel.HIGH
+        if self.rating >= 3.5:
+            return EngagementLevel.MODERATE
+        return EngagementLevel.LOW
+
+
+class EngagementAnalyzer:
+    def __init__(
+        self, api_endpoint: str, api_key: str
+    ) -> None:
+        self._endpoint = api_endpoint
+        self._api_key = api_key
+        self._session: Optional[aiohttp.ClientSession] = None
+        self._cache: dict[str, Any] = {}
+
+    async def __aenter__(self) -> EngagementAnalyzer:
+        self._session = aiohttp.ClientSession(
+            headers={
+                "Authorization": f"Bearer {self._api_key}"
+            },
+            timeout=aiohttp.ClientTimeout(total=30),
+        )
+        return self
+
+    async def __aexit__(
+        self, exc_type, exc, tb
+    ) -> None:
+        if self._session:
+            await self._session.close()
+
+    async def fetch_testimonials(
+        self,
+        since: datetime,
+        limit: int = 100,
+    ) -> list[Testimonial]:
+        key = f"testimonials:{since.isoformat()}:{limit}"
+        if key in self._cache:
+            logger.debug("Cache hit: %s", key)
+            return self._cache[key]
+        if not self._session:
+            raise RuntimeError("Session not initialized")
+        async with self._session.get(
+            f"{self._endpoint}/testimonials",
+            params={"since": since.isoformat(), "limit": limit},
+        ) as resp:
+            resp.raise_for_status()
+            payload = await resp.json()
+        result = [Testimonial(**i) for i in payload["data"]]
+        self._cache[key] = result
+        return result
+
+    def aggregate_by_engagement(
+        self, items: list[Testimonial]
+    ) -> dict[EngagementLevel, int]:
+        buckets = {lvl: 0 for lvl in EngagementLevel}
+        for t in items:
+            buckets[t.engagement_level()] += 1
+        return buckets
+
+    def compute_satisfaction_score(
+        self, items: list[Testimonial]
+    ) -> float:
+        if not items:
+            return 0.0
+        weighted = sum(
+            t.rating * (2.0 if t.verified else 1.0)
+            for t in items
+        )
+        weights = sum(
+            2.0 if t.verified else 1.0 for t in items
+        )
+        return round(weighted / weights, 2)
+
+
+async def main() -> None:
+    async with EngagementAnalyzer(
+        api_endpoint="https://api.portfolio.dev/v2",
+        api_key="sk_live_***",
+    ) as analyzer:
+        since = datetime.utcnow() - timedelta(days=90)
+        items = await analyzer.fetch_testimonials(since)
+        score = analyzer.compute_satisfaction_score(items)
+        breakdown = analyzer.aggregate_by_engagement(items)
+        logger.info("Satisfaction score: %.2f", score)
+        for level, count in breakdown.items():
+            logger.info("  %s: %d", level.value, count)
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    asyncio.run(main())
+`;
+
+      // Simple token-based Python highlighter
+      function highlightPython(line) {
+        const KEYWORDS = /\b(from|import|class|def|async|await|return|if|for|in|with|as|None|True|False|self|raise|not|and|or|is)\b/g;
+        const DECORATORS = /^(\s*)(@\w+)/;
+        const STRINGS = /("""[\s\S]*?"""|"[^"]*"|'[^']*'|f"[^"]*")/g;
+        const NUMBERS = /\b(\d+\.?\d*)\b/g;
+        const COMMENTS = /(#.*)$/;
+        const parts = [];
+        let rest = line;
+        // docstring lines (start with spaces then """)
+        if (/^\s*"""/.test(rest) || /^\s*"""/.test(rest)) {
+          return [<span key="doc" style={{color:"#64748b",fontStyle:"italic"}}>{rest}</span>];
+        }
+        // comments
+        const cmIdx = rest.indexOf("#");
+        let commentPart = null;
+        if (cmIdx !== -1) {
+          commentPart = rest.slice(cmIdx);
+          rest = rest.slice(0, cmIdx);
+        }
+        // decorators
+        const decMatch = rest.match(/^(\s*)(@\w+)(.*)/);
+        if (decMatch) {
+          return [
+            <span key="ws">{decMatch[1]}</span>,
+            <span key="dec" style={{color:"#fbbf24"}}>{decMatch[2]}</span>,
+            <span key="rest">{decMatch[3]}</span>,
+          ];
+        }
+        // tokenize strings first
+        const strRanges = [];
+        let m;
+        const strRe = /("""[\s\S]*?"""|"[^"\n]*"|'[^'\n]*'|f"[^"\n]*")/g;
+        while ((m = strRe.exec(rest)) !== null) {
+          strRanges.push({start: m.index, end: m.index + m[0].length, val: m[0]});
+        }
+        let cursor = 0;
+        strRanges.forEach((sr, si) => {
+          if (sr.start > cursor) {
+            const seg = rest.slice(cursor, sr.start);
+            parts.push(<span key={"s"+si} dangerouslySetInnerHTML={{__html:
+              seg.replace(KEYWORDS, '<span style="color:#c084fc">$1</span>')
+                 .replace(NUMBERS, '<span style="color:#fb923c">$1</span>')
+            }}/>);
+          }
+          parts.push(<span key={"str"+si} style={{color:"#86efac"}}>{sr.val}</span>);
+          cursor = sr.end;
+        });
+        if (cursor < rest.length) {
+          const seg = rest.slice(cursor);
+          parts.push(<span key="tail" dangerouslySetInnerHTML={{__html:
+            seg.replace(KEYWORDS, '<span style="color:#c084fc">$1</span>')
+               .replace(NUMBERS, '<span style="color:#fb923c">$1</span>')
+          }}/>);
+        }
+        if (commentPart) parts.push(<span key="cm" style={{color:"#64748b",fontStyle:"italic"}}>{commentPart}</span>);
+        return parts;
+      }
+
+      const totalChars = CODE.length;
+
+      useEffect(() => {
+        const obs = new IntersectionObserver(([entry]) => {
+          if (entry.isIntersecting) { setStarted(true); obs.disconnect(); }
+        }, { threshold: 0.2 });
+        if (containerRef.current) obs.observe(containerRef.current);
+        return () => obs.disconnect();
+      }, []);
+
+      useEffect(() => {
+        if (!started) return;
+        let count = 0;
+        const timer = setInterval(() => {
+          count += 4; // 4 chars per tick = fast
+          const clamped = Math.min(count, totalChars);
+          setCharsTyped(clamped);
+          // auto-scroll to bottom while typing
+          if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+          if (count >= totalChars) {
+            clearInterval(timer);
+            setDone(true);
+            // scroll back to top after short delay
+            setTimeout(() => {
+              if (scrollRef.current) scrollRef.current.scrollTo({top:0, behavior:"smooth"});
+            }, 600);
+          }
+        }, 16);
+        return () => clearInterval(timer);
+      }, [started]);
+
+      const visibleCode = CODE.slice(0, charsTyped);
+      const lines = visibleCode.split("\n");
+
+      return (
+        <div
+          ref={containerRef}
+          style={{
+            background: "#060606",
+            borderRadius: 20,
+            border: "1px solid rgba(255,255,255,0.06)",
+            boxShadow: "0 0 0 1px rgba(255,255,255,0.03), 0 30px 80px rgba(0,0,0,0.6)",
+            overflow: "hidden",
+            fontFamily: "'JetBrains Mono','Fira Code','Courier New',monospace",
+          }}
+        >
+          {/* Window chrome — direct child of outer card */}
+          <div style={{display:"flex",alignItems:"center",gap:5,padding:"12px 16px",background:"#161b22",borderBottom:"1px solid rgba(255,255,255,0.06)"}}>
+            <div style={{width:9,height:9,borderRadius:"50%",background:"#ff5f56"}}/>
+            <div style={{width:9,height:9,borderRadius:"50%",background:"#ffbd2e"}}/>
+            <div style={{width:9,height:9,borderRadius:"50%",background:"#27c93f"}}/>
+            <span style={{marginLeft:8,color:"rgba(255,255,255,0.2)",fontSize:10}}>client_engagement_analyzer.py</span>
+          </div>
+          {/* Scrollable code area — direct child of outer card */}
+          <div
+            ref={scrollRef}
+            className="code-scroll"
+            style={{height:290,overflowY:"auto",overflowX:"auto",background:"#0d1117",padding:"10px 0"}}
+          >
+            <table style={{borderCollapse:"collapse",width:"100%"}}>
+              <tbody>
+                {lines.map((line, i) => (
+                  <tr key={i}>
+                    <td style={{padding:"0 10px 0 12px",textAlign:"right",userSelect:"none",fontSize:10,lineHeight:"18px",color:"#3f3f46",verticalAlign:"top",minWidth:28,fontFamily:"'JetBrains Mono','Fira Code',monospace"}}>{i+1}</td>
+                    <td style={{padding:"0 12px 0 4px",fontSize:11,lineHeight:"18px",whiteSpace:"pre",fontFamily:"'JetBrains Mono','Fira Code',monospace",color:"#e5e7eb",verticalAlign:"top"}}>
+                      {i === lines.length - 1 && !done
+                        ? <>{highlightPython(line)}<span style={{display:"inline-block",width:1,height:11,background:"rgba(255,255,255,0.75)",verticalAlign:"middle",animation:"blink 1s step-end infinite",marginLeft:1}}/></>
+                        : highlightPython(line)
+                      }
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       );
@@ -140,6 +515,7 @@
               width: "118%", height: "112%",
               objectFit: "cover", objectPosition: "left top", display: "block",
               opacity: 1,
+              transform: "translateX(-1.8%)",
             }} />
           </div>
         </div>
@@ -531,10 +907,382 @@
       );
     }
 
+    /* ─── GLOBE SPINNER ─────────────────────────────────────── */
+    function GlobeSpinner() {
+      const canvasRef = useRef(null);
+
+      useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let raf, W, H, dpr;
+        let globeRot = 0;
+        let textAngle = 0;
+
+        function setup() {
+          dpr = window.devicePixelRatio || 1;
+          const rect = canvas.getBoundingClientRect();
+          W = Math.round(rect.width  * dpr);
+          H = Math.round(rect.height * dpr);
+          canvas.width  = W;
+          canvas.height = H;
+        }
+        setup();
+        window.addEventListener('resize', setup);
+
+        function drawGlobe(cx, cy, r) {
+          /* subtle fill */
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255,255,255,0.025)';
+          ctx.fill();
+          /* clip interior lines to circle */
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(cx, cy, r - dpr, 0, Math.PI * 2);
+          ctx.clip();
+          /* latitude lines */
+          for (let i = 1; i <= 6; i++) {
+            const lat  = -Math.PI / 2 + Math.PI * i / 7;
+            const latR = Math.cos(lat) * r;
+            const latY = cy - Math.sin(lat) * r;
+            ctx.beginPath();
+            ctx.ellipse(cx, latY, Math.max(latR, 1), Math.max(latR * 0.28, 0.5), 0, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255,255,255,0.13)';
+            ctx.lineWidth   = 0.8 * dpr;
+            ctx.stroke();
+          }
+          /* longitude lines */
+          for (let i = 0; i < 8; i++) {
+            const ang = globeRot + Math.PI * i / 8;
+            const rx  = Math.abs(Math.cos(ang)) * r;
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, Math.max(rx, 1), r, 0, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255,255,255,0.13)';
+            ctx.lineWidth   = 0.8 * dpr;
+            ctx.stroke();
+          }
+          ctx.restore();
+          /* outer ring */
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(255,255,255,0.28)';
+          ctx.lineWidth   = 1.4 * dpr;
+          ctx.stroke();
+        }
+
+        function drawAst(ax, ay, rot, size, col) {
+          ctx.save();
+          ctx.translate(ax, ay);
+          ctx.rotate(rot);
+          ctx.fillStyle = col;
+          const hw = size * 0.30;
+          for (let i = 0; i < 6; i++) {
+            const a  = (i * Math.PI) / 3 + Math.PI / 6;
+            const tx = Math.cos(a), ty = Math.sin(a);
+            const px = -ty,         py = tx;
+            ctx.beginPath();
+            ctx.moveTo( px * hw,   py * hw);
+            ctx.lineTo( tx * size, ty * size);
+            ctx.lineTo(-px * hw,  -py * hw);
+            ctx.closePath();
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        const ITEMS = [
+          { type:'txt', t:'TORNIKE', col:'#ffffff', weight:900, scale:1.00 },
+          { type:'ast', col:'#7B9EC0' },
+          { type:'txt', t:'ZARIDZE', col:'#aaaaaa', weight:300, scale:0.82 },
+          { type:'ast', col:'#7B9EC0' },
+          { type:'txt', t:'TORNIKE', col:'#c9a84c', weight:700, scale:0.90 },
+          { type:'ast', col:'#7B9EC0' },
+          { type:'txt', t:'ZARIDZE', col:'#ffffff', weight:900, scale:1.05 },
+          { type:'ast', col:'#7B9EC0' },
+          { type:'txt', t:'TORNIKE', col:'#888888', weight:400, scale:0.78 },
+          { type:'ast', col:'#7B9EC0' },
+          { type:'txt', t:'ZARIDZE', col:'#c9a84c', weight:700, scale:0.95 },
+          { type:'ast', col:'#7B9EC0' },
+          { type:'txt', t:'TORNIKE', col:'#cccccc', weight:500, scale:1.08 },
+          { type:'ast', col:'#7B9EC0' },
+          { type:'txt', t:'ZARIDZE', col:'#666666', weight:300, scale:0.85 },
+          { type:'ast', col:'#7B9EC0' },
+        ];
+
+        function draw() {
+          /* globe static — only text ring rotates */
+          textAngle -= 0.006; /* clockwise */
+
+          ctx.clearRect(0, 0, W, H);
+
+          const cx = W / 2, cy = H / 2;
+          const sz = Math.min(W, H);
+          const globeR = sz * 0.30;
+          const ringR  = sz * 0.46;
+
+          drawGlobe(cx, cy, globeR);
+
+          const fs      = Math.round(sz * 0.067);
+          const ls      = Math.round(fs * 0.04);
+          const astSz   = Math.round(fs * 0.37);
+          const astSlot = astSz * 2.8;
+          const wordGap = fs * 0.18;
+
+          ctx.textBaseline = 'middle';
+
+          /* build units */
+          const units = [];
+          for (const item of ITEMS) {
+            if (item.type === 'ast') {
+              units.push({ kind:'ast', da: astSlot / ringR, sz: astSz, col: item.col });
+            } else {
+              const itemFs = Math.round(fs * (item.scale || 1.0));
+              const itemW  = item.weight || 900;
+              ctx.font = `${itemW} ${itemFs}px "DM Sans", system-ui, sans-serif`;
+              for (const ch of item.t) {
+                const cw = ctx.measureText(ch).width;
+                units.push({ kind:'chr', da:(cw + ls) / ringR, cw, ch, col: item.col, fs: itemFs, weight: itemW });
+              }
+              units.push({ kind:'gap', da: wordGap / ringR });
+            }
+          }
+
+          const oneArc = units.reduce((s, u) => s + u.da, 0);
+          if (oneArc < 0.001) { raf = requestAnimationFrame(draw); return; }
+
+          const norm = ((textAngle % oneArc) + oneArc) % oneArc;
+          let a  = -Math.PI / 2 - norm;
+          const endA = a + Math.PI * 2 + oneArc;
+          let ui = 0;
+
+          while (a < endA) {
+            const u = units[ui % units.length];
+            if (u.kind === 'gap') {
+              a += u.da;
+            } else if (u.kind === 'ast') {
+              const midA = a + u.da / 2;
+              const ax = cx + ringR * Math.cos(midA);
+              const ay = cy + ringR * Math.sin(midA);
+              drawAst(ax, ay, midA + Math.PI / 2, u.sz, u.col);
+              a += u.da;
+            } else {
+              const midA = a + u.da / 2;
+              const ax = cx + ringR * Math.cos(midA);
+              const ay = cy + ringR * Math.sin(midA);
+              ctx.fillStyle = u.col;
+              ctx.save();
+              ctx.translate(ax, ay);
+              ctx.rotate(midA + Math.PI / 2);
+              ctx.font = `${u.weight||900} ${u.fs||fs}px "DM Sans", system-ui, sans-serif`;
+              ctx.textBaseline = 'middle';
+              ctx.fillText(u.ch, -u.cw / 2, 0);
+              ctx.restore();
+              a += u.da;
+            }
+            ui++;
+          }
+          raf = requestAnimationFrame(draw);
+        }
+
+        raf = requestAnimationFrame(draw);
+        return () => {
+          cancelAnimationFrame(raf);
+          window.removeEventListener('resize', setup);
+        };
+      }, []);
+
+      return (
+        <canvas ref={canvasRef} style={{ width:'100%', height:'100%', display:'block', position:'absolute', top:0, left:0 }} />
+      );
+    }
+
+    /* ─── ARC TEXT BANNER ───────────────────────────────────── */
+    function ArcTextBanner() {
+      const canvasRef = useRef(null);
+      const stateRef  = useRef({ offset: 0, dir: -1, prevY: 0, lastT: null });
+
+      useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx   = canvas.getContext('2d');
+        const s     = stateRef.current;
+        const SPEED = 55; /* CSS px / second */
+        let raf, W, H, dpr, R, cx, cyC;
+
+        function setup() {
+          dpr = window.devicePixelRatio || 1;
+          const rect = canvas.getBoundingClientRect();
+          W   = Math.round(rect.width  * dpr);
+          H   = Math.round(rect.height * dpr);
+          canvas.width  = W;
+          canvas.height = H;
+          /*
+            Arc endpoints: y = H*0.50 (left & right)
+            Arc lowest pt: y = H*0.82 (center)
+            sag  = H*0.82 - H*0.50 = H*0.32
+            R    = (halfChord² + sag²) / (2×sag)
+            cyC  = H*0.82 - R         (circle center, above canvas)
+          */
+          const sag = H * 0.32;
+          R   = ((W/2)*(W/2) + sag*sag) / (2*sag);
+          cx  = W / 2;
+          cyC = H * 0.62 - R;
+        }
+        setup();
+        window.addEventListener('resize', setup);
+
+        /* text segments — type:'txt' or type:'ast' */
+        const SEGS = [
+          { type:'txt', t:'BE',       col:'#ffffff' },
+          { type:'ast', col:'#7B9EC0' },
+          { type:'txt', t:'CREATIVE', col:'#ffffff' },
+          { type:'ast', col:'#7B9EC0' },
+          { type:'txt', t:'WITH',     col:'#ffffff' },
+          { type:'ast', col:'#7B9EC0' },
+          { type:'txt', t:'ME',       col:'#ffffff' },
+          { type:'ast', col:'#7B9EC0' },
+        ];
+
+        /* draw a sharp-tipped 6-arm asterisk — each arm is a filled
+           tapered triangle: wide at center, pointed at tip            */
+        function drawAst(ax, ay, arcAngle, size, col) {
+          ctx.save();
+          ctx.translate(ax, ay);
+          ctx.rotate(arcAngle);
+          ctx.fillStyle = col;
+
+          const hw = size * 0.30;   /* half-width at arm base (center) */
+
+          for (let i = 0; i < 6; i++) {
+            const a  = (i * Math.PI) / 3 + Math.PI / 6;
+            const tx = Math.cos(a), ty = Math.sin(a); /* along arm      */
+            const px = -ty,         py =  tx;          /* perpendicular  */
+
+            ctx.beginPath();
+            ctx.moveTo( px * hw,   py * hw);           /* base — left    */
+            ctx.lineTo( tx * size, ty * size);          /* tip  — sharp   */
+            ctx.lineTo(-px * hw,  -py * hw);            /* base — right   */
+            ctx.closePath();
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        function draw(ts) {
+          /* advance offset */
+          if (s.lastT !== null) {
+            const dt  = Math.min(ts - s.lastT, 50);
+            s.offset += s.dir * SPEED * dpr * dt / 1000;
+          }
+          s.lastT = ts;
+
+          ctx.clearRect(0, 0, W, H);
+
+          const fs   = Math.round(H * 0.21);
+          const ls   = Math.round(fs * 0.05);
+          const astW = Math.round(fs * 1.00); /* asterisk slot width  */
+          const astR = Math.round(astW * 0.52); /* arm radius          */
+          const pad  = Math.round(fs * 0.22); /* padding each side   */
+          ctx.font         = `900 ${fs}px "DM Sans", system-ui, sans-serif`;
+          ctx.textBaseline = 'middle';
+
+          /* measure one phrase */
+          let phraseW = 0;
+          for (const seg of SEGS) {
+            if (seg.type === 'ast') {
+              phraseW += astW + pad * 2 + ls;
+            } else {
+              for (const ch of seg.t) phraseW += ctx.measureText(ch).width + ls;
+            }
+          }
+
+          if (phraseW < 1) { raf = requestAnimationFrame(draw); return; }
+
+          s.offset = ((s.offset % phraseW) + phraseW) % phraseW;
+
+          const startX = -(s.offset % phraseW) - phraseW;
+          const reps   = Math.ceil((W + phraseW * 3) / phraseW) + 2;
+
+          for (let rep = 0; rep < reps; rep++) {
+            let x = startX + rep * phraseW;
+            if (x > W + phraseW) break;
+
+            for (const seg of SEGS) {
+              if (seg.type === 'ast') {
+                /* centre of asterisk slot */
+                const xMid = x + pad + astW / 2 + ls / 2;
+                if (xMid > -astW && xMid < W + astW) {
+                  const dx    = xMid - cx;
+                  if (Math.abs(dx) < R) {
+                    const sq    = Math.sqrt(R * R - dx * dx);
+                    const yArc  = cyC + sq;
+                    const tang  = Math.atan2(-dx, sq);
+                    drawAst(xMid, yArc, tang, astR, seg.col);
+                  }
+                }
+                x += astW + pad * 2 + ls;
+              } else {
+                for (const ch of seg.t) {
+                  const cw   = ctx.measureText(ch).width;
+                  const xMid = x + (cw + ls) / 2;
+                  if (xMid > -cw && xMid < W + cw) {
+                    const dx = xMid - cx;
+                    if (Math.abs(dx) < R) {
+                      const sq    = Math.sqrt(R * R - dx * dx);
+                      const yArc  = cyC + sq;
+                      const angle = Math.atan2(-dx, sq);
+                      ctx.fillStyle = seg.col;
+                      ctx.save();
+                      ctx.translate(xMid, yArc);
+                      ctx.rotate(angle);
+                      ctx.fillText(ch, -(cw / 2), 0);
+                      ctx.restore();
+                    }
+                  }
+                  x += cw + ls;
+                }
+              }
+            }
+          }
+
+          raf = requestAnimationFrame(draw);
+        }
+
+        s.prevY = window.scrollY;
+        const onScroll = () => {
+          const y = window.scrollY;
+          s.dir   = y > s.prevY ? 1 : -1;
+          s.prevY = y;
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        raf = requestAnimationFrame(draw);
+
+        return () => {
+          cancelAnimationFrame(raf);
+          window.removeEventListener('scroll', onScroll);
+          window.removeEventListener('resize', setup);
+        };
+      }, []);
+
+      return (
+        <div style={{ background:'#111111', overflow:'hidden', position:'relative', width:'100%', height:'clamp(224px,25.6vw,352px)' }}>
+          <div className="arc-banner-grid" aria-hidden="true">
+            {Array.from({length:10},(_,i)=><span key={i}/>)}
+          </div>
+          <canvas
+            ref={canvasRef}
+            style={{ width:'100%', height:'100%', display:'block', position:'absolute', top:0, left:0, zIndex:1 }}
+          />
+        </div>
+      );
+    }
+
     /* ─── PORTFOLIO ─────────────────────────────────────────── */
     function Portfolio() {
       const [loaded, setLoaded] = useState(false);
       const [mobileNav, setMobileNav] = useState(false);
+      const [navHovered, setNavHovered] = useState(true);
 
       useEffect(() => { setLoaded(true); }, []);
 
@@ -560,7 +1308,7 @@
           background: "#0A0A0A", color: "#fff", minHeight: "100vh",
           width: "100%", minWidth: "100%", margin: 0, padding: 0,
           boxSizing: "border-box", fontFamily: "var(--f-body)",
-          overflowX: "hidden",
+          overflowX: "clip",
           opacity: loaded ? 1 : 0, transition: "opacity 0.8s ease",
           paddingBottom: 80,
         }}>
@@ -573,7 +1321,7 @@
               margin: 0 !important;
               padding: 0 !important;
               width: 100vw !important;
-              overflow-x: hidden !important;
+              overflow-x: clip !important;
               box-sizing: border-box !important;
             }
             body{background:#0A0A0A;}
@@ -584,6 +1332,7 @@
             @keyframes float2{0%,100%{transform:translateY(0px) rotate(5deg);}50%{transform:translateY(-12px) rotate(7deg);}}
             @keyframes float3{0%,100%{transform:translateY(0px) rotate(2deg);}50%{transform:translateY(-10px) rotate(-1deg);}}
             @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.45}}
+            @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
             @keyframes arcInLabel{
               0%  { transform: translate(-50%,-50%) scale(0.4) rotate(-25deg); opacity:0; }
               40% { transform: translate(-6px,-6px)  scale(0.7)  rotate(-12deg); opacity:0.5; }
@@ -596,6 +1345,10 @@
             }
             .arc-label-in  { animation: arcInLabel  0.6s cubic-bezier(0.34,1.56,0.64,1) forwards; }
             .arc-label-out { animation: arcOutLabel 0.45s cubic-bezier(0.65,0,0.35,1)     forwards; }
+            .code-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+            .code-scroll::-webkit-scrollbar-track { background: transparent; }
+            .code-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+            .code-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
             /* ── Hero inner container ──────────────── */
             .sec-inner {
@@ -624,16 +1377,34 @@
               .polo-panel{ padding: 50px 18px 70px !important; border-top-left-radius: 24px !important; border-top-right-radius: 24px !important; }
             }
 
+            /* ── Arc Text Banner ──────────────────── */
+            .arc-banner-grid{
+              position:absolute;inset:0;pointer-events:none;
+              display:grid;grid-template-columns:repeat(10,1fr);
+              opacity:0.07;
+            }
+            .arc-banner-grid span{
+              border-right:1px solid rgba(255,255,255,0.6);
+              height:100%;display:block;
+            }
+            .arc-banner-grid span:last-child{border-right:none;}
+
             /* ── Nav ──────────────────────────────── */
             .nav-pill{
               position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:1000;
-              display:flex;align-items:center;gap:0;padding:10px 20px 10px 20px;
+              display:flex;align-items:center;gap:0;padding:10px 20px;
               border-radius:999px;background:rgba(18,18,18,0.55);
               backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
               border:1px solid rgba(255,255,255,0.05);box-shadow:0 4px 32px rgba(0,0,0,0.5);
-              max-width:95vw;min-width:700px;overflow:visible;
+              max-width:95vw;overflow:hidden;
+              transition:padding 0.45s cubic-bezier(0.16,1,0.3,1);
             }
-            .nav-links{flex:1;display:flex;justify-content:center;gap:8px;margin:0 24px;}
+            .nav-links{
+              display:flex;justify-content:center;gap:8px;
+              max-width:0;opacity:0;overflow:hidden;margin:0;
+              transition:max-width 0.45s cubic-bezier(0.16,1,0.3,1),opacity 0.3s ease,margin 0.45s cubic-bezier(0.16,1,0.3,1);
+            }
+            .nav-pill.expanded .nav-links{max-width:700px;opacity:1;margin:0 24px;}
             .nav-link{
               color:rgba(255,255,255,0.55);text-decoration:none;font-size:14px;
               padding:8px 18px;border-radius:999px;cursor:pointer;
@@ -729,10 +1500,122 @@
               .nav-pill{padding:8px 8px 8px 16px !important;}
               section{ padding: 0 12px !important; }
             }
+
+            /* ── Why Me Stack ────────────────────── */
+            .wm-stack-wrapper{
+              position:relative;
+              padding-bottom:228px;
+            }
+            .wm-card{
+              position:sticky;
+              display:grid;
+              grid-template-columns:1fr auto 1fr;
+              padding:32px 40px;
+              background:#0f0f0f;
+              border:1px solid rgba(255,255,255,0.08);
+              border-radius:16px;
+              margin-bottom:14px;
+              min-height:160px;
+              align-items:start;
+              transition:transform 0.25s ease, opacity 0.25s ease;
+              will-change:transform,opacity;
+              transform-origin:center top;
+            }
+            .wm-card[data-card="1"]{top:100px;z-index:1;}
+            .wm-card[data-card="2"]{top:120px;z-index:2;}
+            .wm-card[data-card="3"]{top:140px;z-index:3;}
+            .wm-card[data-card="4"]{top:160px;z-index:4;}
+            .wm-divider{
+              width:1px;height:80%;align-self:center;
+              background:linear-gradient(to bottom,transparent,rgba(255,255,255,0.1),transparent);
+              margin:0 32px;
+            }
+            .wm-side{display:flex;flex-direction:column;gap:0;}
+            .wm-icon{
+              width:30px;height:30px;border-radius:50%;
+              display:flex;align-items:center;justify-content:center;
+              margin-bottom:20px;flex-shrink:0;
+            }
+            .wm-icon.pos{
+              background:rgba(255,255,255,0.07);
+              border:1px solid rgba(255,255,255,0.15);
+            }
+            .wm-icon.neg{
+              background:rgba(255,255,255,0.07);
+              border:1px solid rgba(255,255,255,0.15);
+            }
+            .wm-icon svg{width:13px;height:13px;display:block;}
+            .wm-side h3{font-family:var(--f-display);font-size:22px;font-weight:500;color:#fff;letter-spacing:-0.01em;margin:0 0 10px;}
+            .wm-side p{font-size:14px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:92%;margin:0;}
+            @media(max-width:767px){
+              .wm-stack-wrapper{padding-bottom:0 !important;}
+              .wm-card{
+                position:relative !important;top:auto !important;
+                grid-template-columns:1fr !important;padding:24px 20px !important;
+                margin-bottom:12px !important;
+              }
+              .wm-divider{width:80% !important;height:1px !important;margin:16px auto !important;
+                background:linear-gradient(to right,transparent,rgba(255,255,255,0.1),transparent) !important;}
+              .wm-side h3{font-size:18px !important;}
+            }
+            /* ===== PROJECT IMAGE CARDS ===== */
+            .proj-img-wrap{position:absolute;inset:0;z-index:0;border-radius:inherit;overflow:hidden;background:#0a0a0a;}
+            .proj-img-wrap img{width:100%;height:100%;object-fit:cover;object-position:top center;filter:grayscale(100%) brightness(0.6);transition:filter 0.6s ease,transform 0.6s ease;display:block;}
+            .proj-img-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(to top,rgba(0,0,0,0.88) 0%,rgba(0,0,0,0.3) 45%,rgba(0,0,0,0.05) 100%);border-radius:inherit;pointer-events:none;transition:opacity 0.5s ease;}
+            .proj-img-content{position:relative;z-index:2;}
+            .polo-card-wrap:hover .proj-img-wrap img{filter:grayscale(0%) brightness(1);transform:scale(1.03);}
+            .polo-card-wrap:hover .proj-img-overlay{opacity:0.65;}
+            /* Project card footer row */
+            .proj-footer{display:flex;align-items:center;gap:14px;}
+            .proj-arrow-btn{flex-shrink:0;width:44px;height:44px;border-radius:50%;background:rgba(10,10,10,0.92);border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.25s ease,border-color 0.25s ease;text-decoration:none;color:#fff;position:relative;overflow:hidden;}
+            .proj-arrow-btn .arr-out{position:absolute;font-size:18px;line-height:1;transition:transform 0.45s cubic-bezier(0.65,0,0.35,1),opacity 0.45s cubic-bezier(0.65,0,0.35,1);transform:translate(0,0);opacity:1;}
+            .proj-arrow-btn .arr-in{position:absolute;font-size:18px;line-height:1;transition:transform 0.45s cubic-bezier(0.65,0,0.35,1) 0.08s,opacity 0.45s cubic-bezier(0.65,0,0.35,1) 0.08s;transform:translate(-18px,18px);opacity:0;}
+            .polo-card-wrap:hover .proj-arrow-btn{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.35);}
+            .proj-arrow-btn:hover .arr-out{transform:translate(18px,-18px);opacity:0;}
+            .proj-arrow-btn:hover .arr-in{transform:translate(0,0);opacity:1;}
+
+            /* ===== CONTACT MODAL ===== */
+            .contact-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;visibility:hidden;transition:opacity 0.3s ease,visibility 0.3s ease;}
+            .contact-modal.is-open{opacity:1;visibility:visible;}
+            .modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+            .modal-container{position:relative;background:#0d0d0d;border:1px solid rgba(255,255,255,0.08);border-radius:24px;width:100%;max-width:1100px;max-height:90vh;overflow-y:auto;padding:60px;transform:scale(0.95) translateY(20px);transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);box-shadow:0 30px 80px rgba(0,0,0,0.6);}
+            .contact-modal.is-open .modal-container{transform:scale(1) translateY(0);}
+            .modal-close{position:absolute;top:20px;right:20px;width:40px;height:40px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);border-radius:50%;color:rgba(255,255,255,0.6);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s ease;z-index:2;}
+            .modal-close:hover{background:rgba(255,255,255,0.08);color:#fff;}
+            .modal-close svg{width:16px;height:16px;}
+            .modal-content{display:grid;grid-template-columns:300px 1fr;gap:60px;align-items:flex-start;}
+            .modal-info h2{font-family:var(--f-display);font-size:32px;font-weight:500;color:#fff;margin:0 0 20px;letter-spacing:-0.01em;line-height:1.2;}
+            .modal-info p{font-size:15px;color:rgba(255,255,255,0.45);line-height:1.7;margin:0;}
+            .modal-form{display:flex;flex-direction:column;gap:24px;}
+            .form-row.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+            .form-field{display:flex;flex-direction:column;gap:8px;}
+            .form-field label{font-size:13px;color:rgba(255,255,255,0.6);font-weight:500;letter-spacing:0.02em;text-transform:uppercase;}
+            .form-field input,.form-field select,.form-field textarea{background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.12);color:#fff;font-size:15px;padding:10px 0;outline:none;transition:border-color 0.2s ease;font-family:var(--f-body);width:100%;}
+            .form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-bottom-color:rgba(255,255,255,0.45);}
+            .form-field input::placeholder,.form-field textarea::placeholder{color:rgba(255,255,255,0.25);}
+            .form-field select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='1.5' opacity='0.4'><polyline points='6 9 12 15 18 9'></polyline></svg>");background-repeat:no-repeat;background-position:right 0 center;background-size:16px;padding-right:24px;cursor:pointer;}
+            .form-field select option{background:#1a1a1a;color:#fff;}
+            .form-field textarea{resize:vertical;min-height:100px;}
+            .form-submit{display:inline-flex;align-items:center;gap:8px;background:transparent;color:#fff;border:none;font-size:15px;font-weight:500;padding:14px 0;cursor:pointer;align-self:flex-start;transition:gap 0.2s ease,opacity 0.2s ease;font-family:var(--f-body);}
+            .form-submit:hover{gap:14px;}
+            .form-submit svg{width:18px;height:18px;}
+            .form-submit:disabled{opacity:0.5;cursor:wait;}
+            .form-status{font-size:14px;margin-top:-8px;min-height:20px;}
+            .form-status.success{color:#4ade80;}
+            .form-status.error{color:#f87171;}
+            body.modal-open{overflow:hidden;}
+            @media(max-width:768px){
+              .modal-container{padding:32px 24px;border-radius:16px;}
+              .modal-content{grid-template-columns:1fr;gap:32px;}
+              .modal-info h2{font-size:26px;}
+              .form-row.two-col{grid-template-columns:1fr;gap:24px;}
+            }
           `}</style>
 
           {/* ── NAV ──────────────────────────────────────────────── */}
-          <nav className="nav-pill">
+          <nav className={`nav-pill${navHovered ? " expanded" : ""}`}
+            onMouseEnter={()=>setNavHovered(true)}
+            onMouseLeave={()=>setNavHovered(false)}>
             <div style={{display:"flex",alignItems:"center",cursor:"pointer",flexShrink:0}}
               onClick={()=>window.scrollTo({top:0,behavior:"smooth"})}>
               <TerminalLogo size={36} />
@@ -741,7 +1624,8 @@
               <button className="nav-link" onClick={()=>go("about")}>About Me</button>
               <button className="nav-link" onClick={()=>go("services")}>Services</button>
               <button className="nav-link" onClick={()=>go("projects")}>Projects</button>
-              <button className="nav-link" onClick={()=>go("contact")}>Contact</button>
+              <button className="nav-link" onClick={()=>window.location.href="chess.html"}>Play Chess</button>
+              <button className="nav-link" onClick={(e)=>{e.preventDefault();if(window.__openContactModal)window.__openContactModal();else go("contact");}}>Contact</button>
             </div>
             <button className="mob-toggle" onClick={()=>setMobileNav(!mobileNav)}
               style={{display:"none",background:"none",border:"none",color:"#fff",fontSize:22,cursor:"pointer",padding:"4px 8px",marginLeft:12}}>
@@ -755,6 +1639,7 @@
               {["about","services","projects","contact"].map(s=>(
                 <button key={s} className="nav-link" onClick={()=>go(s)} style={{fontSize:22,textTransform:"capitalize"}}>{s==="about"?"About Me":s}</button>
               ))}
+              <button className="nav-link" onClick={()=>window.location.href="chess.html"} style={{fontSize:22}}>Play Chess</button>
             </div>
           )}
 
@@ -821,9 +1706,15 @@
               <div className="two-col" style={{display:"grid",gridTemplateColumns:"1.4fr 1fr",gap:24,marginTop:72}}>
                 <Anim delay={200}>
                   <PoloCard showArrow={true} minHeight={340} hoverable={true}>
-                    <div style={{minHeight:340,background:"linear-gradient(135deg,#0f0f0f,#191919,#0a0a0a)",display:"flex",alignItems:"flex-end",padding:32}}>
-                      <div>
-                        <p style={{fontSize:11,color:"rgba(255,255,255,0.25)",marginBottom:8,letterSpacing:"0.1em",textTransform:"uppercase"}}>Featured Project</p>
+                    <div style={{minHeight:340,position:"relative",overflow:"hidden",display:"flex",alignItems:"flex-end",padding:32}}>
+                      {/* Layer 1 — background video */}
+                      <video autoPlay muted loop playsInline preload="auto" style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:"center",transform:"scale(1.08)",transformOrigin:"center center",zIndex:0,borderRadius:"inherit"}}>
+                        <source src="assets/videos/featured-project.mp4" type="video/mp4" />
+                      </video>
+                      {/* Layer 2 — gradient overlay (masks watermark + improves text readability) */}
+                      <div style={{position:"absolute",bottom:0,left:0,right:0,height:"60%",background:"linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.45) 55%, transparent 100%)",zIndex:1,pointerEvents:"none"}} />
+                      {/* Layer 3 — card text content */}
+                      <div style={{position:"relative",zIndex:2}}>
                         <h3 style={{fontFamily:"var(--f-display)",fontSize:26,fontWeight:400,lineHeight:1.2}}>
                           Building platforms to drive <em style={{color:"rgba(255,255,255,0.4)"}}>Results</em>
                         </h3>
@@ -832,11 +1723,9 @@
                   </PoloCard>
                 </Anim>
                 <Anim delay={350}>
-                  <PoloCard showArrow={true} minHeight={340} hoverable={true}>
-                    <div style={{minHeight:340,background:"linear-gradient(160deg,#0d0d0d,#161616,#0f0f0f)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                      <h3 style={{fontFamily:"var(--f-display)",fontSize:30,fontWeight:600,lineHeight:1.15,letterSpacing:"0.05em",textAlign:"center"}}>ONE DAY,<br/>WE MET</h3>
-                    </div>
-                  </PoloCard>
+                  <div style={{minHeight:340,position:"relative",borderRadius:20,overflow:"hidden"}}>
+                    <GlobeSpinner />
+                  </div>
                 </Anim>
               </div>
             </div>
@@ -846,7 +1735,7 @@
           <SectionFrame id="about">
             <Anim>
               <div style={{textAlign:"center",marginBottom:56}}>
-                <div style={{...pill,margin:"0 auto 20px",display:"inline-flex"}}><span style={{color:"rgba(100,255,150,0.7)",fontSize:10}}>◉</span> Expert Developer</div>
+                <div style={{...pill,margin:"0 auto 20px",display:"inline-flex",alignItems:"center",gap:6}}><span style={{width:10,height:10,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.5)",display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{width:4,height:4,borderRadius:"50%",background:"rgba(255,255,255,0.9)",display:"block"}}/></span>Expert Developer</div>
                 <h2 style={heading}>Tornike Zaridze, <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>Your Developer</em></h2>
                 <p style={{color:"rgba(255,255,255,0.36)",fontSize:15}}>Brief initial presentation of myself and my previous experiences.</p>
               </div>
@@ -899,27 +1788,26 @@
               </Anim>
               <div>
                 <Anim delay={200}>
-                  <div style={{marginBottom:20}}>
-                    <PoloCard hoverable={true}>
-                      <div style={{padding:30}}>
-                        <p style={{color:"rgba(255,255,255,0.52)",fontSize:15,lineHeight:1.85}}>I'm Tornike Zaridze, a dedicated Fullstack Developer based in the vibrant city of Tbilisi, Georgia. I specialize in creative frontend development with seamless backend execution to craft exceptional digital experiences.</p>
-                        <div style={{display:"flex",flexWrap:"wrap",gap:10,marginTop:24}}>
-                          {["React","Node.js","TypeScript","Next.js","Python","PostgreSQL"].map(s=>(<span key={s} className="skill-tag">{s}</span>))}
-                        </div>
-                      </div>
-                    </PoloCard>
-                  </div>
-                </Anim>
-                <Anim delay={350}>
                   <PoloCard hoverable={true}>
-                    <div style={{padding:"8px 0"}}>
-                      {[{role:"Frontend Developer",co:"TechCorp",yr:"2021"},{role:"Fullstack Developer",co:"DevStudio",yr:"2022"},{role:"Senior Developer",co:"CodeCraft Studios",yr:"2023"}].map((e,i)=>(
-                        <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"17px 26px",borderBottom:i<2?"1px solid rgba(255,255,255,0.05)":"none",alignItems:"center"}}>
-                          <span style={{color:"rgba(255,255,255,0.55)",fontSize:14,flex:1}}>{e.role}</span>
-                          <span style={{color:"rgba(255,255,255,0.28)",fontSize:14,flex:1,textAlign:"center"}}>{e.co}</span>
-                          <span style={{color:"rgba(255,255,255,0.2)",fontSize:14}}>{e.yr}</span>
-                        </div>
-                      ))}
+                    <div style={{padding:30,display:"flex",flexDirection:"column",gap:0}}>
+                      {/* Bio */}
+                      <p style={{color:"rgba(255,255,255,0.52)",fontSize:15,lineHeight:1.85,marginBottom:24}}>I'm Tornike Zaridze, a dedicated Fullstack Developer based in Vienna, Austria. I specialize in creative frontend development with seamless backend execution to craft exceptional digital experiences.</p>
+                      {/* Frontend tags */}
+                      <p style={{fontSize:11,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10}}>Frontend</p>
+                      <div style={{display:"flex",flexWrap:"wrap",gap:10,marginBottom:20}}>
+                        {["React","Next.js","TypeScript","HTML/CSS","Tailwind CSS","Framer Motion"].map(s=>(<span key={s} className="skill-tag">{s}</span>))}
+                      </div>
+                      {/* Backend tags */}
+                      <p style={{fontSize:11,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10}}>Backend</p>
+                      <div style={{display:"flex",flexWrap:"wrap",gap:10,marginBottom:28}}>
+                        {["Node.js","Python","PostgreSQL","Express","REST API","MongoDB"].map(s=>(<span key={s} className="skill-tag">{s}</span>))}
+                      </div>
+                      {/* AI Integration */}
+                      <p style={{fontSize:11,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10}}>AI Integration</p>
+                      <p style={{color:"rgba(255,255,255,0.52)",fontSize:15,lineHeight:1.7,marginBottom:28}}>I bring AI into real products — not as a buzzword, but as a tool that actually solves problems. From building custom chatbots and AI agents that handle real customer needs, to integrating intelligent automation into existing platforms — I help businesses work smarter. Whether it's a conversational assistant, a data-driven recommendation engine, or a workflow that used to take hours and now takes seconds, I make AI practical and accessible for any business.</p>
+                      {/* Mission */}
+                      <p style={{fontSize:11,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10}}>My Mission</p>
+                      <p style={{color:"rgba(255,255,255,0.52)",fontSize:15,lineHeight:1.7,marginBottom:0}}>My goal is simple — I want to help businesses grow by building exactly what they envision. I listen to your ideas, understand your goals, and turn them into polished, functional platforms that make a real difference. Every project I take on is a partnership, not just a transaction. I care about your success as much as you do, because the best work comes from genuine collaboration and a shared vision.</p>
                     </div>
                   </PoloCard>
                 </Anim>
@@ -931,7 +1819,7 @@
           <SectionFrame id="services">
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:24,marginBottom:56}}>
               <div>
-                <Anim><div style={{...pill,display:"inline-flex"}}><span style={{color:"rgba(100,255,150,0.7)",fontSize:10}}>◉</span> Development Services</div></Anim>
+                <Anim><div style={{...pill,display:"inline-flex",alignItems:"center",gap:6}}><span style={{width:10,height:10,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.5)",display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{width:4,height:4,borderRadius:"50%",background:"rgba(255,255,255,0.9)",display:"block"}}/></span>Development Services</div></Anim>
                 <Anim delay={150}><h2 style={heading}>Development <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>Services</em></h2></Anim>
                 <Anim delay={250}><p style={{color:"rgba(255,255,255,0.36)",fontSize:15}}>Explore a suite of development services to elevate your product.</p></Anim>
               </div>
@@ -942,45 +1830,156 @@
               <ServiceCard icon="⚙️" title="Backend Development" desc="Architecting robust, scalable, and secure server-side solutions that power your applications reliably and efficiently at any scale." delay={200}/>
               <ServiceCard icon="🔗" title="API Development" desc="Designing and building clean, well-documented APIs that connect your services and enable seamless integrations with third-party tools." delay={300}/>
               <ServiceCard icon="🗄" title="Database Design" desc="Crafting optimized database architectures and queries for fast, reliable data management at scale across your entire platform." delay={400}/>
+              <ServiceCard icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{width:26,height:26}}><circle cx="13.5" cy="6.5" r="0.5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r="0.5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r="0.5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r="0.5" fill="currentColor"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg>} title="UI/UX Design" desc="Crafting intuitive, beautiful interfaces through a trusted partnership with senior design specialists. While design isn't my primary craft, I collaborate closely with experienced UI/UX professionals who bring world-class expertise — ensuring your product looks as exceptional as it performs." delay={500}/>
+              <ServiceCard icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{width:26,height:26}}><path d="M9.06 11.9l8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"></path><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"></path></svg>} title="Graphic Design" desc="From brand identity to marketing visuals, I deliver complete graphic design solutions through my network of seasoned designers. Backed by years of professional experience, my creative partners handle every visual requirement with precision — so you get a cohesive brand presence without compromise." delay={600}/>
             </div>
           </SectionFrame>
 
-          {/* ── WHY ME ───────────────────────────────────────────── */}
-          <SectionFrame>
-            <div style={{textAlign:"center",marginBottom:56}}>
-              <Anim><div style={{...pill,margin:"0 auto 20px",display:"inline-flex"}}><span style={{color:"rgba(100,255,150,0.7)",fontSize:10}}>◉</span> Why choose me</div></Anim>
-              <Anim delay={150}><h2 style={heading}>Why me as <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>Development Partner</em></h2></Anim>
+          {/* ── WHY ME STACK ─────────────────────────────────────── */}
+          {/*
+            NOTE: deliberately NOT using SectionFrame here.
+            position:sticky requires every ancestor to have overflow:visible.
+            SectionFrame's polo-panel applies mask-image + can carry overflow
+            that silently breaks sticky. A plain <section> guarantees clean ancestry.
+          */}
+          <section style={{
+            width:"100%", overflow:"visible",
+            padding:"100px 80px 0", boxSizing:"border-box",
+          }}>
+          <div style={{position:"relative",maxWidth:1280,margin:"0 auto",width:"100%",overflow:"visible"}}>
+            {/* Header */}
+            <div style={{textAlign:"center",marginBottom:72}}>
+              <Anim><div style={{...pill,margin:"0 auto 20px",display:"inline-flex",alignItems:"center",gap:6}}><span style={{width:10,height:10,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.5)",display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{width:4,height:4,borderRadius:"50%",background:"rgba(255,255,255,0.9)",display:"block"}}/></span>Why choose me</div></Anim>
+              <Anim delay={150}><h2 style={heading}>Why me as <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>Developer</em></h2></Anim>
               <Anim delay={250}><p style={{color:"rgba(255,255,255,0.36)",fontSize:15}}>Why Partner with Me for Development Excellence</p></Anim>
             </div>
-            <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
-              <CompareCard positive title="Skilled Professional" desc="Gain access to top-tier talent with years of experience, ensuring high-quality, production-ready code." delay={100}/>
-              <CompareCard positive={false} title="Amateur Developer" desc="Lack of experience may result in code inconsistencies and mounting technical debt over time." delay={200}/>
-              <CompareCard positive title="Future-Ready Solutions" desc="Crafting modern, scalable applications that grow with your business and stay ahead of trends." delay={300}/>
-              <CompareCard positive={false} title="Outdated Concepts" desc="Stale approaches that don't reflect current best practices or your evolving technical needs." delay={400}/>
-              <CompareCard positive title="Client-Centric Collaboration" desc="Transparent communication, regular updates, and a true partnership approach to every project." delay={500}/>
-              <CompareCard positive={false} title="Detached Communication" desc="Poor responsiveness and lack of collaboration that leads to misaligned outcomes and frustration." delay={600}/>
-            </div>
-          </SectionFrame>
+
+            {/* Sticky stack */}
+            <div id="wm-wrapper" className="wm-stack-wrapper">
+
+              {/* Card 1 */}
+              <div className="wm-card" data-card="1">
+                <div className="wm-side">
+                  <div className="wm-icon pos"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                  <h3>Skilled Professional</h3>
+                  <p>Gain access to top-tier talent with years of experience, ensuring flawless execution and production-ready results.</p>
+                </div>
+                <div className="wm-divider"></div>
+                <div className="wm-side">
+                  <div className="wm-icon neg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
+                  <h3>Amateur Developer</h3>
+                  <p>Lack of experience may result in code inconsistencies and overlooked details that compound into technical debt.</p>
+                </div>
+              </div>
+
+              {/* Card 2 */}
+              <div className="wm-card" data-card="2">
+                <div className="wm-side">
+                  <div className="wm-icon pos"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                  <h3>Future-Ready Solutions</h3>
+                  <p>Crafting modern, scalable applications that grow with your business and stay ahead of industry trends.</p>
+                </div>
+                <div className="wm-divider"></div>
+                <div className="wm-side">
+                  <div className="wm-icon neg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
+                  <h3>Outdated Tech Stack</h3>
+                  <p>Stale technologies that don't reflect current standards or your evolving business needs.</p>
+                </div>
+              </div>
+
+              {/* Card 3 */}
+              <div className="wm-card" data-card="3">
+                <div className="wm-side">
+                  <div className="wm-icon pos"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                  <h3>Client-Centric Collaboration</h3>
+                  <p>Your vision leads the way — I work closely with you to bring ideas to life with precision and creativity.</p>
+                </div>
+                <div className="wm-divider"></div>
+                <div className="wm-side">
+                  <div className="wm-icon neg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
+                  <h3>Detached Communication</h3>
+                  <p>Lack of collaboration and poor feedback loops can result in misaligned outcomes and frustration.</p>
+                </div>
+              </div>
+
+              {/* Card 4 */}
+              <div className="wm-card" data-card="4">
+                <div className="wm-side">
+                  <div className="wm-icon pos"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                  <h3>Timely Project Tracking</h3>
+                  <p>Stay informed with regular progress updates and timely deliverables — no surprises, just results.</p>
+                </div>
+                <div className="wm-divider"></div>
+                <div className="wm-side">
+                  <div className="wm-icon neg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
+                  <h3>Unstructured &amp; Unreliable Work</h3>
+                  <p>Inconsistent timelines and last-minute changes can compromise quality and erode trust.</p>
+                </div>
+              </div>
+
+            </div>{/* end .wm-stack-wrapper */}
+
+            {/* Depth scale effect as cards stack */}
+            <script dangerouslySetInnerHTML={{__html: `
+(function(){
+  var cards = document.querySelectorAll('.wm-card');
+  if (!cards.length) return;
+  function update() {
+    cards.forEach(function(card, i) {
+      var rect = card.getBoundingClientRect();
+      var stickyTop = 100 + i * 20;
+      if (rect.top <= stickyTop + 2) {
+        var next = cards[i + 1];
+        if (next) {
+          var nRect = next.getBoundingClientRect();
+          var overlap = Math.max(0, rect.bottom - nRect.top);
+          var pct = Math.min(overlap / (rect.height * 0.6), 1);
+          card.style.transform = 'scale(' + (1 - pct * 0.035) + ')';
+          card.style.opacity = String(1 - pct * 0.28);
+        }
+      } else {
+        card.style.transform = '';
+        card.style.opacity = '';
+      }
+    });
+  }
+  window.addEventListener('scroll', update, { passive: true });
+})();
+            `}}/>
+          </div>
+          </section>
 
           {/* ── PROJECTS ─────────────────────────────────────────── */}
           <SectionFrame id="projects">
             <div style={{textAlign:"center",marginBottom:56}}>
-              <Anim><div style={{...pill,margin:"0 auto 20px",display:"inline-flex"}}><span style={{color:"rgba(100,255,150,0.7)",fontSize:10}}>◉</span> Recent Projects</div></Anim>
+              <Anim><div style={{...pill,margin:"0 auto 20px",display:"inline-flex",alignItems:"center",gap:6}}><span style={{width:10,height:10,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.5)",display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{width:4,height:4,borderRadius:"50%",background:"rgba(255,255,255,0.9)",display:"block"}}/></span>Recent Projects</div></Anim>
               <Anim delay={150}><h2 style={heading}>Elevating Brands <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>to Drive<br/>Success and Impact</em></h2></Anim>
               <Anim delay={300}><button className="btn-primary" onClick={()=>go("contact")} style={{marginTop:20}}>Contact Now</button></Anim>
             </div>
             <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
               {[
-                {title:"E-Commerce Platform",sub:"React · Node.js · PostgreSQL",bg:"linear-gradient(135deg,#0f0f0f,#1a1a1a,#111)"},
-                {title:"SaaS Dashboard",sub:"Next.js · TypeScript · Prisma",bg:"linear-gradient(135deg,#0d0d0d,#181818,#0f0f0f)"},
-                {title:"Real-time Chat App",sub:"Socket.io · Express · MongoDB",bg:"linear-gradient(160deg,#111,#151520,#0d0d0d)"},
-                {title:"Portfolio Generator",sub:"React · Tailwind · Vercel",bg:"linear-gradient(135deg,#101010,#191919,#0c0c0c)"},
+                {title:"Online Shop",sub:"React · Node.js · PostgreSQL",bg:"linear-gradient(135deg,#0f0f0f,#1a1a1a,#111)",img:"assets/projects/onlineshop.png",url:"projects/onlineshop.html"},
+                {title:"Brand Studio AI",sub:"Next.js · OpenAI · TypeScript",bg:"linear-gradient(135deg,#0d0d0d,#181818,#0f0f0f)",img:"assets/projects/ai-platform.png",url:"projects/ai-platform.html"},
+                {title:"Ivunex Logistics",sub:"React · Node.js · Stripe",bg:"linear-gradient(160deg,#111,#151520,#0d0d0d)",img:"assets/projects/ivunex.png",url:"projects/ivunex.html"},
+                {title:"FLY.CLOUD",sub:"Next.js · Socket.io · OpenAI",bg:"linear-gradient(135deg,#080d1a,#0d1a2e,#060c18)",img:"assets/projects/flycloud.png",url:"projects/flycloud.html"},
               ].map((p,i)=>(
                 <Anim key={i} delay={i*120}>
-                  <PoloCard showArrow={true} minHeight={320} hoverable={true}>
-                    <div style={{minHeight:320,background:p.bg,display:"flex",flexDirection:"column",justifyContent:"flex-end",padding:32}}>
-                      <p style={{fontSize:11,color:"rgba(255,255,255,0.25)",marginBottom:8,letterSpacing:"0.08em",textTransform:"uppercase"}}>{p.sub}</p>
-                      <h3 style={{fontFamily:"var(--f-display)",fontSize:24,fontWeight:400}}>{p.title}</h3>
+                  <PoloCard showArrow={false} minHeight={320} hoverable={true}>
+                    <div style={{minHeight:320,background:p.bg,display:"flex",flexDirection:"column",justifyContent:"flex-end",padding:32,position:"relative",overflow:"hidden"}}>
+                      {p.img && <div className="proj-img-wrap"><img src={p.img} alt={p.title}/></div>}
+                      {p.img && <div className="proj-img-overlay"></div>}
+                      <div className="proj-img-content">
+                        <p style={{fontSize:11,color:"rgba(255,255,255,0.5)",marginBottom:12,letterSpacing:"0.08em",textTransform:"uppercase"}}>{p.sub}</p>
+                        <div className="proj-footer">
+                          <a className="proj-arrow-btn" href={p.url||"#"} target={p.url&&p.url.startsWith("http")?"_blank":"_self"} rel="noopener noreferrer"
+                            onClick={e=>e.stopPropagation()}
+                            aria-label={`Open ${p.title}`}>
+                            <span className="arr-out">↗</span>
+                            <span className="arr-in">↗</span>
+                          </a>
+                          <h3 style={{fontFamily:"var(--f-display)",fontSize:24,fontWeight:400,margin:0}}>{p.title}</h3>
+                        </div>
+                      </div>
                     </div>
                   </PoloCard>
                 </Anim>
@@ -990,31 +1989,14 @@
 
           {/* ── TESTIMONIALS + FAQ ────────────────────────────────── */}
           <SectionFrame id="testimonials">
-            <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 1.2fr",gap:60,alignItems:"flex-start"}}>
+            <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 0.85fr",gap:60,alignItems:"flex-start"}}>
               <div>
-                <Anim><div style={{...pill,display:"inline-flex"}}><span style={{color:"rgba(100,255,150,0.7)",fontSize:10}}>◉</span> FAQ Section</div></Anim>
+                <Anim><div style={{...pill,display:"inline-flex",alignItems:"center",gap:6}}><span style={{width:10,height:10,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.5)",display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{width:4,height:4,borderRadius:"50%",background:"rgba(255,255,255,0.9)",display:"block"}}/></span>FAQ Section</div></Anim>
                 <Anim delay={100}><h2 style={{...heading,marginBottom:12}}>Questions, <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>Answers</em></h2></Anim>
                 <Anim delay={200}><p style={{color:"rgba(255,255,255,0.36)",fontSize:15,marginBottom:40}}>Get quick answers to your most pressing questions</p></Anim>
                 <Anim delay={300}>
                   <div style={{marginBottom:28}}>
-                    <PoloCard hoverable={true}>
-                      <div style={{padding:28}}>
-                        <div style={{display:"flex",gap:14,alignItems:"center",marginBottom:16}}>
-                          <div style={{width:46,height:46,borderRadius:"50%",background:"linear-gradient(135deg,#2a2a2a,#444)",border:"1px solid rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,color:"rgba(255,255,255,0.5)",fontFamily:"var(--f-display)"}}>R</div>
-                          <div>
-                            <h4 style={{fontSize:15,fontWeight:600}}>Ryan Harper</h4>
-                            <p style={{color:"rgba(255,255,255,0.3)",fontSize:12,marginTop:2}}>Harper Education</p>
-                          </div>
-                        </div>
-                        <div style={{display:"flex",gap:3,marginBottom:14,alignItems:"center"}}>
-                          <span style={{fontSize:12,color:"rgba(255,255,255,0.3)",marginRight:6,fontWeight:600}}>5.0</span>
-                          {[...Array(5)].map((_,i)=><span key={i} style={{color:"#c9a84c",fontSize:13}}>★</span>)}
-                        </div>
-                        <p style={{color:"rgba(255,255,255,0.5)",fontSize:14,lineHeight:1.75,fontStyle:"italic",fontFamily:"var(--f-display)"}}>
-                          "Exceptional creativity and attention to detail! The final product not only looks great but also enhances user engagement."
-                        </p>
-                      </div>
-                    </PoloCard>
+                    <TestimonialCodeBlock />
                   </div>
                 </Anim>
                 <Anim delay={400}>
@@ -1026,21 +2008,23 @@
               </div>
               <Anim delay={200}>
                 <div>
-                  {[
+                  <FAQList items={[
                     {q:"What services do you offer?",a:"I specialize in frontend development, backend systems, API design, and fullstack application development, creating modern, user-friendly experiences tailored to your needs.",open:true},
                     {q:"How do I start working with you?",a:"Simply reach out via the contact form or email. We'll discuss your project requirements, timeline, and budget, then I'll prepare a detailed proposal to get things started."},
                     {q:"What tech stack do you use?",a:"I primarily work with React, Next.js, TypeScript on the frontend; Node.js, Python, and Express on the backend; and PostgreSQL, MongoDB for databases."},
                     {q:"How long does a project take?",a:"Timelines vary based on complexity. A simple landing page takes 1–2 weeks, while a full-featured application can take 2–3 months. I provide a detailed timeline after our discovery call."},
                     {q:"Do you provide revisions?",a:"Absolutely. I include revision rounds in every project to ensure the final product meets your expectations perfectly before final delivery."},
-                    {q:"What industries do you work with?",a:"I work across industries — tech startups, education, e-commerce, healthcare, fintech, and more. My broad experience lets me adapt quickly to any domain."},
                     {q:"Do you offer maintenance services?",a:"Yes, I offer ongoing maintenance and support packages to keep your applications running smoothly, securely, and up-to-date after launch."},
                     {q:"What is your pricing structure?",a:"Pricing depends on project scope and complexity. I offer both fixed-price projects and hourly rates, with full transparency in every proposal."},
                     {q:"Can you rebuild my existing application?",a:"Definitely. I can audit your existing codebase, identify improvements, and rebuild or modernize it with current technologies without disrupting your operations."},
-                  ].map((f,i)=>(<FAQItem key={i} question={f.q} answer={f.a} defaultOpen={!!f.open}/>))}
+                  ]} />
                 </div>
               </Anim>
             </div>
           </SectionFrame>
+
+          {/* ── ARC TEXT BANNER (replaces Get in touch heading) ── */}
+          <ArcTextBanner />
 
           {/* ── CONTACT / FOOTER ─────────────────────────────────── */}
           <SectionFrame id="contact" innerStyle={{overflow:"visible"}}>
@@ -1049,16 +2033,6 @@
                 {["Twitter (X)","LinkedIn","Instagram","GitHub"].map(s=>(
                   <button key={s} className="footer-link">{s} →</button>
                 ))}
-              </div>
-            </Anim>
-            <Anim delay={200}>
-              <div style={{textAlign:"center",padding:"20px 0 80px",position:"relative"}}>
-                <h2 className="footer-big" style={{fontFamily:"var(--f-display)",fontSize:"clamp(3.5rem,8vw,8rem)",fontWeight:400,lineHeight:1,color:"#fff",letterSpacing:"-0.03em"}}>Get in touch</h2>
-                <div
-                  style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",width:60,height:60,borderRadius:"50%",background:"rgba(255,255,255,0.06)",backdropFilter:"blur(8px)",display:"flex",alignItems:"center",justifyContent:"center",border:"1px solid rgba(255,255,255,0.1)",fontSize:22,color:"rgba(255,255,255,0.55)",cursor:"pointer",zIndex:2,transition:"all 0.3s"}}
-                  onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,0.12)";e.currentTarget.style.color="#fff";}}
-                  onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,0.06)";e.currentTarget.style.color="rgba(255,255,255,0.55)";}}
-                >↗</div>
               </div>
             </Anim>
             <div style={{borderTop:"1px solid rgba(255,255,255,0.06)"}}>
@@ -1076,6 +2050,162 @@
 
     const root = ReactDOM.createRoot(document.getElementById("root"));
     root.render(<Portfolio />);
+  </script>
+
+  <!-- ======= CONTACT MODAL ======= -->
+  <div id="contact-modal" class="contact-modal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="modal-close" data-close-modal aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <div class="modal-content">
+        <div class="modal-info">
+          <h2 id="modal-title">Let's Work Together</h2>
+          <p>Reach out to discuss collaborations, inquiries or any project opportunities. We're just a message away.</p>
+        </div>
+        <form class="modal-form" id="contact-form" novalidate>
+          <div class="form-row two-col">
+            <div class="form-field">
+              <label for="cf-name">Your Name</label>
+              <input type="text" id="cf-name" name="name" placeholder="Jane Smith" required />
+            </div>
+            <div class="form-field">
+              <label for="cf-phone">Your Phone</label>
+              <input type="tel" id="cf-phone" name="phone" placeholder="(044) 123-456-789" />
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="cf-email">Your Email ID</label>
+            <input type="email" id="cf-email" name="email" placeholder="janesmith@email.com" required />
+          </div>
+          <div class="form-field">
+            <label for="cf-interest">I'm Interested In</label>
+            <select id="cf-interest" name="interest" required>
+              <option value="" disabled selected>Select a service</option>
+              <option value="frontend">Frontend Development</option>
+              <option value="backend">Backend Development</option>
+              <option value="fullstack">Full-stack Development</option>
+              <option value="ai">AI Integration / Chatbots</option>
+              <option value="uiux">UI/UX Design</option>
+              <option value="graphic">Graphic Design</option>
+              <option value="other">Consultation / Other</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="cf-message">More About The Project</label>
+            <textarea id="cf-message" name="message" placeholder="Type Here..." rows="5" required></textarea>
+          </div>
+          <button type="submit" class="form-submit">
+            Submit Now
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+          <div class="form-status" id="form-status"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    var modal = document.getElementById('contact-modal');
+    if (!modal) return;
+    var form = document.getElementById('contact-form');
+    var statusEl = document.getElementById('form-status');
+
+    // Expose so React JSX can call window.__openContactModal()
+    window.__openContactModal = function() { openModal(); };
+
+    function openModal(e) {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+      setTimeout(function() {
+        var first = modal.querySelector('input, select, textarea');
+        if (first) first.focus();
+      }, 350);
+    }
+
+    function closeModal() {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-open');
+      setTimeout(function() {
+        form.reset();
+        statusEl.textContent = '';
+        statusEl.className = 'form-status';
+      }, 400);
+    }
+
+    // Close triggers inside modal
+    modal.querySelectorAll('[data-close-modal]').forEach(function(el) {
+      el.addEventListener('click', closeModal);
+    });
+
+    // Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+    });
+
+    // Event delegation — catches React-rendered buttons regardless of timing
+    var CONTACT_TEXTS = ['contact now','get in touch','hire me','contact with me','contact me'];
+    document.body.addEventListener('click', function(e) {
+      var el = e.target;
+      // Walk up to find a button or <a>
+      while (el && el !== document.body) {
+        if (el.tagName === 'BUTTON' || el.tagName === 'A') {
+          var txt = el.textContent.trim().toLowerCase();
+          if (CONTACT_TEXTS.indexOf(txt) !== -1) {
+            openModal(e);
+            return;
+          }
+        }
+        el = el.parentElement;
+      }
+    }, true); // capture phase so we beat React handlers
+
+    // Form submission via Formspree
+    // TODO: Replace YOUR_FORM_ID with your actual Formspree form ID from https://formspree.io
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      var submitBtn = form.querySelector('.form-submit');
+      var originalHTML = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
+      statusEl.textContent = '';
+      statusEl.className = 'form-status';
+
+      var data = {};
+      new FormData(form).forEach(function(v, k) { data[k] = v; });
+
+      fetch('https://formspree.io/f/YOUR_FORM_ID', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      .then(function(res) {
+        if (!res.ok) throw new Error('failed');
+        statusEl.textContent = '✓ Message sent! I\'ll get back to you soon.';
+        statusEl.className = 'form-status success';
+        setTimeout(closeModal, 2000);
+      })
+      .catch(function() {
+        statusEl.textContent = 'Something went wrong. Please email me directly at tornikezaridze@gmail.com';
+        statusEl.className = 'form-status error';
+      })
+      .finally(function() {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalHTML;
+      });
+    });
+  })();
   </script>
 </body>
 </html>

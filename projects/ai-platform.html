@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4corners AI — Tornike Zaridze</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --f-display: 'Instrument Serif', serif;
+      --f-body: 'DM Sans', sans-serif;
+      --bg: #080808;
+      --border: rgba(255,255,255,0.07);
+      --muted: rgba(255,255,255,0.38);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: #fff;
+      font-family: var(--f-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 60px;
+      background: rgba(8,8,8,0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-back {
+      display: inline-flex; align-items: center; gap: 10px;
+      color: rgba(255,255,255,0.6); font-size: 14px; text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: #fff; }
+    .nav-back svg { width: 16px; height: 16px; }
+    .nav-logo {
+      font-family: var(--f-display); font-size: 18px; font-weight: 400;
+      color: rgba(255,255,255,0.85); text-decoration: none;
+    }
+    .nav-link-ext {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 20px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.7); font-size: 13px; font-family: var(--f-body);
+      text-decoration: none; transition: all 0.2s;
+    }
+    .nav-link-ext:hover { background: rgba(255,255,255,0.09); color: #fff; border-color: rgba(255,255,255,0.22); }
+    .nav-link-ext svg { width: 13px; height: 13px; }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 120px 60px 0;
+      max-width: 1280px; margin: 0 auto;
+    }
+    .hero-meta {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 28px; flex-wrap: wrap;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.03);
+      font-size: 12px; color: var(--muted);
+    }
+    .pill-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(100,255,160,0.7); }
+    .pill-dot-ai { width: 6px; height: 6px; border-radius: 50%; background: rgba(139,92,246,0.9); }
+    .hero h1 {
+      font-family: var(--f-display);
+      font-size: clamp(2.6rem, 6vw, 5rem);
+      font-weight: 400; line-height: 1.08;
+      letter-spacing: -0.02em;
+      margin-bottom: 22px;
+    }
+    .hero h1 em { color: rgba(255,255,255,0.28); font-weight: 300; font-style: normal; }
+    .hero-desc {
+      font-size: 16px; color: rgba(255,255,255,0.45);
+      max-width: 640px; line-height: 1.75; margin-bottom: 36px;
+    }
+    .hero-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 56px; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px; border-radius: 999px;
+      background: #fff; color: #000;
+      font-size: 14px; font-weight: 600; font-family: var(--f-body);
+      text-decoration: none; border: none; cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px; border-radius: 999px;
+      background: transparent; color: rgba(255,255,255,0.7);
+      font-size: 14px; font-weight: 500; font-family: var(--f-body);
+      text-decoration: none; border: 1px solid rgba(255,255,255,0.12); cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.06); color: #fff; border-color: rgba(255,255,255,0.22); }
+
+    /* ── SCREENSHOT ── */
+    .screenshot-wrap {
+      max-width: 1280px; margin: 0 auto;
+      padding: 0 60px 80px;
+    }
+    .screenshot-frame {
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: #0d0d0d;
+      box-shadow: 0 40px 120px rgba(0,0,0,0.7);
+    }
+    .screenshot-frame img {
+      width: 100%; display: block;
+      object-fit: cover; object-position: top;
+    }
+
+    /* ── SECTIONS ── */
+    .section {
+      max-width: 1280px; margin: 0 auto;
+      padding: 0 60px 80px;
+    }
+    .section-label {
+      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 32px;
+      padding-bottom: 16px; border-bottom: 1px solid var(--border);
+    }
+
+    /* ── OVERVIEW GRID ── */
+    .overview-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+    }
+    .overview-cell {
+      background: #0d0d0d; padding: 28px 32px;
+    }
+    .overview-cell h4 {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 12px;
+    }
+    .overview-cell p {
+      font-size: 15px; color: rgba(255,255,255,0.85); line-height: 1.55;
+    }
+    .overview-cell p.big {
+      font-family: var(--f-display); font-size: 22px; font-weight: 400;
+    }
+
+    /* ── AI MODELS HIGHLIGHT ── */
+    .models-row {
+      display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 60px;
+    }
+    .model-card {
+      flex: 1; min-width: 180px;
+      background: #0d0d0d; border: 1px solid var(--border); border-radius: 16px;
+      padding: 24px 28px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .model-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .model-icon.openai { background: rgba(16,163,127,0.12); }
+    .model-icon.anthropic { background: rgba(210,130,80,0.12); }
+    .model-icon.google { background: rgba(66,133,244,0.12); }
+    .model-name { font-size: 15px; font-weight: 600; color: #fff; }
+    .model-sub { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* ── TECH STACK ── */
+    .stack-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;
+    }
+    .stack-item {
+      background: #0d0d0d; border: 1px solid var(--border); border-radius: 12px;
+      padding: 18px 20px;
+    }
+    .stack-item .layer {
+      font-size: 10px; letter-spacing: 0.09em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 6px;
+    }
+    .stack-item .value {
+      font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.85);
+    }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    .feature-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: #0d0d0d; border: 1px solid var(--border); border-radius: 12px;
+      padding: 16px 20px;
+    }
+    .feature-check {
+      flex-shrink: 0; width: 20px; height: 20px; margin-top: 1px;
+      border-radius: 50%; background: rgba(100,255,160,0.1);
+      border: 1px solid rgba(100,255,160,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: rgba(100,255,160,0.8);
+    }
+    .feature-text { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.5; }
+
+    /* ── CHALLENGES ── */
+    .challenges-list { display: flex; flex-direction: column; gap: 16px; }
+    .challenge-item {
+      background: #0d0d0d; border: 1px solid var(--border); border-radius: 16px;
+      padding: 28px 32px;
+    }
+    .challenge-item h3 {
+      font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 10px;
+    }
+    .challenge-item p {
+      font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.7;
+    }
+
+    /* ── QUOTE ── */
+    .quote-block {
+      background: #0d0d0d; border: 1px solid var(--border); border-radius: 16px;
+      padding: 40px 48px; margin-bottom: 80px; max-width: 1280px;
+      margin-left: auto; margin-right: auto;
+      padding-left: 60px; padding-right: 60px;
+    }
+    .quote-block blockquote {
+      font-family: var(--f-display); font-size: clamp(1.2rem, 2.5vw, 1.65rem);
+      font-weight: 400; line-height: 1.5; color: rgba(255,255,255,0.8);
+      font-style: italic;
+    }
+    .quote-block cite {
+      display: block; margin-top: 20px;
+      font-size: 13px; color: var(--muted); font-style: normal;
+    }
+
+    /* ── CODE TABS ── */
+    .code-section { }
+    .tab-bar {
+      display: flex; gap: 4px; margin-bottom: 0;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 10px 18px; border-radius: 8px 8px 0 0;
+      background: transparent; border: 1px solid transparent;
+      border-bottom: none; color: var(--muted);
+      font-size: 12px; font-family: var(--f-body); font-weight: 500;
+      cursor: pointer; transition: all 0.15s;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      position: relative; bottom: -1px;
+    }
+    .tab-btn:hover { color: rgba(255,255,255,0.7); }
+    .tab-btn.active {
+      background: #0d0d0d; color: #fff;
+      border-color: var(--border); border-bottom-color: #0d0d0d;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .code-block {
+      background: #0d0d0d; border: 1px solid var(--border);
+      border-top: none; border-radius: 0 0 16px 16px;
+      overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+    .code-filename {
+      font-size: 12px; color: var(--muted); font-family: monospace;
+    }
+    .code-lang-badge {
+      font-size: 10px; padding: 3px 9px; border-radius: 999px;
+      background: rgba(255,255,255,0.06); color: var(--muted);
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    pre {
+      padding: 24px; overflow-x: auto; font-size: 13px;
+      line-height: 1.65; font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+    }
+
+    /* Syntax theme */
+    .kw { color: #c792ea; }
+    .fn { color: #82aaff; }
+    .str { color: #c3e88d; }
+    .num { color: #f78c6c; }
+    .cm { color: #546e7a; font-style: italic; }
+    .ty { color: #ffcb6b; }
+    .op { color: rgba(255,255,255,0.5); }
+    .prop { color: #89ddff; }
+    .dec { color: #f07178; }
+
+    .multi-code { display: flex; flex-direction: column; }
+
+    /* ── FOOTER ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 60px;
+      max-width: 1280px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer p { font-size: 13px; color: var(--muted); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .nav { padding: 16px 24px; }
+      .hero, .screenshot-wrap, .section { padding-left: 24px; padding-right: 24px; }
+      .overview-grid { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: clamp(2rem, 9vw, 3rem); }
+      .footer { padding: 32px 24px; }
+      .quote-block { padding: 28px 24px; }
+    }
+    @media (max-width: 600px) {
+      .stack-grid { grid-template-columns: 1fr 1fr; }
+      .models-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="../index.html" class="nav-back">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="19" y1="12" x2="5" y2="12"></line>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+    Back to Portfolio
+  </a>
+  <a href="../index.html" class="nav-logo">Tornike Zaridze</a>
+  <a href="https://4-corners-ai.vercel.app" target="_blank" rel="noopener noreferrer" class="nav-link-ext">
+    Visit Live Site
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline>
+    </svg>
+  </a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-meta">
+    <span class="pill"><span class="pill-dot"></span> Live in Production</span>
+    <span class="pill"><span class="pill-dot-ai"></span> Multi-Model AI</span>
+    <span class="pill">SaaS · April 2026</span>
+    <span class="pill">Solo Developer · 1 Month</span>
+  </div>
+  <h1>4corners AI<br/><em>AI-Powered Design System Generator</em></h1>
+  <p class="hero-desc">
+    Describe your brand in plain text. Get back a complete, production-ready design system — color palettes with WCAG accessibility scores, typography pairings, component specs — exportable to CSS variables, Tailwind config, Figma tokens, or a full ZIP package. Powered by GPT-4o, Claude, and Gemini 2.5 Flash simultaneously.
+  </p>
+  <div class="hero-actions">
+    <a href="https://4-corners-ai.vercel.app" target="_blank" rel="noopener noreferrer" class="btn-primary">
+      Visit Live Site ↗
+    </a>
+    <a href="https://github.com/tokson7/4Corners-AI" target="_blank" rel="noopener noreferrer" class="btn-secondary">
+      View on GitHub ↗
+    </a>
+    <a href="../index.html" class="btn-secondary">← Back to Portfolio</a>
+  </div>
+</div>
+
+<!-- SCREENSHOT -->
+<div class="screenshot-wrap">
+  <div class="screenshot-frame">
+    <img src="../assets/projects/ai-platform.png" alt="4corners AI screenshot" />
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="section">
+  <div class="section-label">Project Overview</div>
+  <div class="overview-grid">
+    <div class="overview-cell">
+      <h4>Timeline</h4>
+      <p class="big">1 Month</p>
+      <p style="margin-top:8px;font-size:13px;color:var(--muted);">February 2026<br/>Launched live in production</p>
+    </div>
+    <div class="overview-cell">
+      <h4>Role</h4>
+      <p class="big">Solo Developer</p>
+      <p style="margin-top:8px;font-size:13px;color:var(--muted);">Full-stack, AI prompt engineering, UI/UX design, DevOps, Stripe integration</p>
+    </div>
+    <div class="overview-cell">
+      <h4>Product Type</h4>
+      <p class="big">SaaS Platform</p>
+      <p style="margin-top:8px;font-size:13px;color:var(--muted);">Free tier · Basic $9/mo · Pro $29/mo · Stripe subscriptions</p>
+    </div>
+  </div>
+</div>
+
+<!-- AI MODELS -->
+<div class="section">
+  <div class="section-label">AI Models</div>
+  <div class="models-row">
+    <div class="model-card">
+      <div class="model-icon openai">🤖</div>
+      <div class="model-name">OpenAI GPT-4o</div>
+      <div class="model-sub">Pro tier default. Highest output quality and most consistent JSON structure across complex design systems.</div>
+    </div>
+    <div class="model-card">
+      <div class="model-icon anthropic">🦾</div>
+      <div class="model-name">Anthropic Claude</div>
+      <div class="model-sub">Pro tier alternative. Excellent reasoning for nuanced brand descriptions and edge-case typography decisions.</div>
+    </div>
+    <div class="model-card">
+      <div class="model-icon google">⚡</div>
+      <div class="model-name">Google Gemini 2.5 Flash</div>
+      <div class="model-sub">Standard tier default. Sub-2 second response times. Switching from GPT-4o (8–12s) to Gemini as the default dramatically reduced abandonment.</div>
+    </div>
+  </div>
+</div>
+
+<!-- TECH STACK -->
+<div class="section">
+  <div class="section-label">Technical Stack</div>
+  <div class="stack-grid">
+    <div class="stack-item"><div class="layer">Frontend</div><div class="value">Next.js 15 · React 19 · TypeScript</div></div>
+    <div class="stack-item"><div class="layer">Styling</div><div class="value">Tailwind CSS v4 · shadcn/ui · Framer Motion</div></div>
+    <div class="stack-item"><div class="layer">Backend</div><div class="value">Next.js API Routes · Server Actions</div></div>
+    <div class="stack-item"><div class="layer">Database</div><div class="value">PostgreSQL · Neon (serverless) · Prisma ORM v7</div></div>
+    <div class="stack-item"><div class="layer">Auth</div><div class="value">Clerk · Webhook sync to Prisma DB</div></div>
+    <div class="stack-item"><div class="layer">Payments</div><div class="value">Stripe · Subscriptions · Webhook sync</div></div>
+    <div class="stack-item"><div class="layer">AI Layer</div><div class="value">OpenAI GPT-4o · Anthropic Claude · Gemini 2.5 Flash</div></div>
+    <div class="stack-item"><div class="layer">Rate Limiting</div><div class="value">Upstash Redis · Sliding window</div></div>
+    <div class="stack-item"><div class="layer">Email</div><div class="value">Resend · Welcome + admin notifications</div></div>
+    <div class="stack-item"><div class="layer">State</div><div class="value">Zustand</div></div>
+    <div class="stack-item"><div class="layer">Export</div><div class="value">JSZip · CSS vars · Tailwind config · Figma tokens</div></div>
+    <div class="stack-item"><div class="layer">Logging / Testing</div><div class="value">Pino + Pino-pretty · Jest · Vitest</div></div>
+    <div class="stack-item"><div class="layer">Hosting</div><div class="value">Vercel</div></div>
+    <div class="stack-item"><div class="layer">Domain</div><div class="value">4-corners-ai.vercel.app</div></div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div class="section">
+  <div class="section-label">Features Delivered</div>
+  <div class="features-grid">
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Multi-model AI generation — GPT-4o / Claude / Gemini selectable per tier</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Color palette generation with WCAG AA/AAA accessibility contrast scoring</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Psychology-based color mapping to industry type (finance, healthcare, creative…)</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Typography pair generator — heading + body font recommendations</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">React component generation from design tokens</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Export: CSS variables · Tailwind config · Figma JSON · ZIP package</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Tiered subscriptions — Free (3 credits) · Basic $9 · Pro $29</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Stripe checkout + subscription management + webhook sync</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">User dashboard — saved design systems + usage metrics</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Admin panel — ban users, view metrics, manage showcase entries</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Public showcase — community-shared design systems</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Rate limiting per endpoint — Upstash Redis sliding window (5 AI calls/min)</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Auth-protected routes via Clerk middleware with role-based access</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Transactional email — welcome messages + admin notifications via Resend</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">In-memory memoization of color shade calculations for speed</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Free trial + paid credits tracked separately (clean upgrade path)</div></div>
+  </div>
+</div>
+
+<!-- TECHNICAL CHALLENGES -->
+<div class="section">
+  <div class="section-label">Technical Challenges Solved</div>
+  <div class="challenges-list">
+    <div class="challenge-item">
+      <h3>Multi-Model JSON Parsing — Making Three AI Providers Agree</h3>
+      <p>GPT-4o, Claude, and Gemini each return slightly different JSON shapes for the same design system prompt. Getting guaranteed-valid, identically-structured output from all three required iterative prompt engineering — every field, type, and nesting level had to be explicitly specified. A repair layer on top detects truncated or malformed responses and patches them before they reach the app, preventing runtime errors even when an AI provider produces incomplete output.</p>
+    </div>
+    <div class="challenge-item">
+      <h3>Stripe Webhook + Clerk Race Condition</h3>
+      <p>When a user subscribes via Stripe, two webhooks fire almost simultaneously — one from Clerk (new user created) and one from Stripe (subscription activated). The Stripe webhook must look up the user by <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">stripeCustomerId</code>, update their plan and credit balance in Postgres, and stay consistent with Clerk's user record. If the Stripe webhook arrives before the Clerk webhook has finished creating the user row, the lookup fails silently. Solved with retry logic and upsert semantics rather than insert-only writes.</p>
+    </div>
+    <div class="challenge-item">
+      <h3>Rate Limiting That Breaks at Build Time — The Mock Fallback</h3>
+      <p>Upstash Redis throws on initialization if the environment variables are missing — which they always are at <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">next build</code> time. Every deployment was failing for this reason until a mock Redis client was added that returns neutral values for all operations. The real limiter activates in production; the mock keeps builds clean. A small fix with a large impact on CI/CD reliability.</p>
+    </div>
+    <div class="challenge-item">
+      <h3>Accessibility Scoring at Scale — From O(n²) to Near-Constant</h3>
+      <p>Every generated color produces 10 shades (50–900 scale), and every shade needs a WCAG contrast ratio computed against both white and black. With multiple color roles (primary, secondary, accent, semantic, neutral), each generation was recalculating the same hex values repeatedly. Memoizing the contrast calculations by hex string reduced redundant work dramatically — repeated colors across different brand inputs compute in microseconds instead of milliseconds each.</p>
+    </div>
+    <div class="challenge-item">
+      <h3>One Data Structure → Three Export Formats That Don't Break Each Other</h3>
+      <p>Designers expect Figma tokens (a specific nested JSON schema). Developers expect CSS custom properties. System architects want a Tailwind config with <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">theme.extend.colors</code> keys. The color data in Zustand lives as an array of shade objects (<code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">{ value: "500", hex: "#6366f1" }</code>) but all three exporters need a <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">Record&lt;string, string&gt;</code>. A single converter function bridges the two representations, then three independent serializers write each output format. All three are generated from one call, and breaking one doesn't touch the others.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CODE EXAMPLES -->
+<div class="section code-section">
+  <div class="section-label">Code Examples</div>
+
+  <div class="tab-bar" id="tabBar">
+    <button class="tab-btn active" data-tab="ts">TypeScript</button>
+    <button class="tab-btn" data-tab="prisma">Prisma Schema</button>
+    <button class="tab-btn" data-tab="middleware">Middleware</button>
+  </div>
+
+  <!-- TypeScript Panel -->
+  <div class="tab-panel active" id="tab-ts">
+    <div class="code-block multi-code">
+
+      <div class="code-header">
+        <span class="code-filename">lib/ai/design-generator.ts — Multi-model orchestration</span>
+        <span class="code-lang-badge">TypeScript</span>
+      </div>
+      <pre><span class="cm">// Lazy-initialize only the providers whose API keys are present</span>
+<span class="kw">const</span> openai = process.env.<span class="prop">OPENAI_API_KEY</span>
+  ? <span class="kw">new</span> <span class="ty">OpenAI</span>({ <span class="prop">apiKey</span>: process.env.<span class="prop">OPENAI_API_KEY</span> })
+  : <span class="kw">null</span>;
+
+<span class="kw">const</span> anthropic = process.env.<span class="prop">ANTHROPIC_API_KEY</span>
+  ? <span class="kw">new</span> <span class="ty">Anthropic</span>({ <span class="prop">apiKey</span>: process.env.<span class="prop">ANTHROPIC_API_KEY</span> })
+  : <span class="kw">null</span>;
+
+<span class="kw">const</span> genAI = process.env.<span class="prop">GOOGLE_AI_API_KEY</span>
+  ? <span class="kw">new</span> <span class="ty">GoogleGenerativeAI</span>(process.env.<span class="prop">GOOGLE_AI_API_KEY</span>)
+  : <span class="kw">null</span>;
+
+<span class="cm">// Unified output interface — same shape regardless of which AI responded</span>
+<span class="kw">export interface</span> <span class="ty">GeneratedDesignSystem</span> {
+  <span class="prop">colors</span>: {
+    <span class="prop">primary</span>: <span class="ty">ColorPalette</span>;
+    <span class="prop">secondary</span>: <span class="ty">ColorPalette</span>;
+    <span class="prop">accent</span>: <span class="ty">ColorPalette</span>;
+    <span class="prop">semantic</span>: {
+      <span class="prop">success</span>: <span class="ty">ColorPalette</span>;
+      <span class="prop">error</span>: <span class="ty">ColorPalette</span>;
+      <span class="prop">warning</span>: <span class="ty">ColorPalette</span>;
+      <span class="prop">info</span>: <span class="ty">ColorPalette</span>;
+    };
+    <span class="prop">neutral</span>: <span class="ty">ColorPalette</span>;
+  };
+  <span class="prop">typography</span>: {
+    <span class="prop">fontPairs</span>: <span class="ty">FontPairing</span>[];
+    <span class="prop">typeScale</span>: <span class="ty">TypeScale</span>;
+    <span class="prop">recommendations</span>: <span class="ty">string</span>[];
+  };
+  <span class="prop">metadata</span>: {
+    <span class="prop">generatedAt</span>: <span class="ty">string</span>;
+    <span class="prop">aiProvider</span>: <span class="ty">string</span>;
+    <span class="prop">tier</span>?: <span class="ty">GenerationTier</span>;
+    <span class="prop">tokensUsed</span>?: <span class="ty">number</span>;
+    <span class="prop">brandSummary</span>?: <span class="ty">string</span>;
+    <span class="prop">creativeSeed</span>?: <span class="ty">number</span>;
+  };
+}</pre>
+
+      <div class="code-header" style="border-top:1px solid var(--border)">
+        <span class="code-filename">lib/ai/colorGenerator.ts — Industry-aware color psychology engine</span>
+        <span class="code-lang-badge">TypeScript</span>
+      </div>
+      <pre><span class="cm">// Color psychology mapped to industry — not random, deliberate</span>
+<span class="kw">const</span> <span class="ty">INDUSTRY_COLORS</span>: <span class="ty">Record</span>&lt;<span class="ty">string</span>, <span class="ty">string</span>&gt; = {
+  <span class="prop">finance</span>:     <span class="str">"#1E3A8A"</span>, <span class="cm">// Trust Blue</span>
+  <span class="prop">healthcare</span>:  <span class="str">"#3B82F6"</span>, <span class="cm">// Medical Blue</span>
+  <span class="prop">eco</span>:         <span class="str">"#059669"</span>, <span class="cm">// Sustainable Green</span>
+  <span class="prop">creative</span>:    <span class="str">"#7C3AED"</span>, <span class="cm">// Bold Purple</span>
+  <span class="prop">food</span>:        <span class="str">"#EA580C"</span>, <span class="cm">// Fresh Orange</span>
+  <span class="prop">technology</span>:  <span class="str">"#6366F1"</span>, <span class="cm">// Tech Indigo</span>
+  <span class="prop">education</span>:   <span class="str">"#2563EB"</span>, <span class="cm">// Learning Blue</span>
+  <span class="prop">gaming</span>:      <span class="str">"#A855F7"</span>, <span class="cm">// Neon Purple</span>
+  <span class="prop">ecommerce</span>:   <span class="str">"#EC4899"</span>, <span class="cm">// Vibrant Pink</span>
+};
+
+<span class="cm">// Memoized — in-memory cache prevents redundant shade recalculation</span>
+<span class="kw">const</span> shadeCache = <span class="kw">new</span> <span class="ty">Map</span>&lt;<span class="ty">string</span>, <span class="ty">ColorShades</span>&gt;();
+<span class="kw">const</span> accessibilityCache = <span class="kw">new</span> <span class="ty">Map</span>&lt;<span class="ty">string</span>, <span class="ty">AccessibilityResult</span>&gt;();
+
+<span class="cm">// Each color gets 10 shades (50–900) + full WCAG contrast report (vs white + black)</span></pre>
+
+      <div class="code-header" style="border-top:1px solid var(--border)">
+        <span class="code-filename">lib/rate-limit.ts — Sliding window rate limiting with build-safe fallback</span>
+        <span class="code-lang-badge">TypeScript</span>
+      </div>
+      <pre><span class="cm">// Production: real Upstash sliding window (5 AI calls per minute per user)</span>
+<span class="kw">export const</span> generateRateLimit = <span class="kw">new</span> <span class="ty">Ratelimit</span>({
+  <span class="prop">redis</span>,
+  <span class="prop">limiter</span>: <span class="ty">Ratelimit</span>.<span class="fn">slidingWindow</span>(<span class="num">5</span>, <span class="str">'1 m'</span>),
+  <span class="prop">analytics</span>: <span class="kw">true</span>,
+  <span class="prop">prefix</span>: <span class="str">'4corners_generate'</span>,
+});
+
+<span class="cm">// Build time: Upstash credentials don't exist → mock keeps next build from throwing</span>
+redis = {
+  <span class="prop">get</span>:    <span class="kw">async</span> () => <span class="kw">null</span>,
+  <span class="prop">set</span>:    <span class="kw">async</span> () => <span class="str">'OK'</span>,
+  <span class="prop">incr</span>:   <span class="kw">async</span> () => <span class="num">1</span>,
+  <span class="prop">expire</span>: <span class="kw">async</span> () => <span class="num">1</span>,
+  <span class="prop">eval</span>:   <span class="kw">async</span> () => <span class="kw">null</span>,
+} <span class="kw">as any</span>;</pre>
+
+      <div class="code-header" style="border-top:1px solid var(--border)">
+        <span class="code-filename">lib/utils/downloadHandler.ts — ZIP export pipeline</span>
+        <span class="code-lang-badge">TypeScript</span>
+      </div>
+      <pre><span class="cm">// Zustand stores colors as { value: "500", hex: "#6366f1" }[]
+// Exporters need Record&lt;string, string&gt; — this bridges the two</span>
+<span class="kw">function</span> <span class="fn">convertToColorPalette</span>(<span class="prop">storeData</span>: <span class="ty">DesignSystemInput</span>): <span class="ty">ColorPaletteResponse</span> {
+  <span class="kw">if</span> (storeData.colors?.primary?.shades && <span class="ty">Array</span>.<span class="fn">isArray</span>(storeData.colors.primary.shades)) {
+    <span class="kw">const</span> primaryShades: <span class="ty">Record</span>&lt;<span class="ty">string</span>, <span class="ty">string</span>&gt; = {};
+    storeData.colors.primary.shades.<span class="fn">forEach</span>((<span class="prop">shade</span>: <span class="kw">any</span>) => {
+      primaryShades[shade.<span class="prop">value</span>] = shade.<span class="prop">hex</span>; <span class="cm">// { "500": "#6366f1" }</span>
+    });
+    <span class="cm">// One call → CSS vars, Tailwind config, Figma JSON — all in one ZIP</span>
+  }
+}</pre>
+
+    </div>
+  </div>
+
+  <!-- Prisma Panel -->
+  <div class="tab-panel" id="tab-prisma">
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">prisma/schema.prisma — User model with subscription + credit system</span>
+        <span class="code-lang-badge">Prisma</span>
+      </div>
+      <pre><span class="kw">model</span> <span class="ty">User</span> {
+  <span class="prop">clerkId</span>  <span class="ty">String</span>  <span class="dec">@unique</span>
+  <span class="prop">plan</span>     <span class="ty">String</span>  <span class="dec">@default</span>(<span class="str">"free"</span>)
+  <span class="prop">credits</span>  <span class="ty">Int</span>     <span class="dec">@default</span>(<span class="num">10</span>)
+
+  <span class="cm">// Free trial (3 generations) tracked separately from paid credits
+  // User can exhaust trial, upgrade, and paid credits start fresh</span>
+  <span class="prop">freeGenerationsUsed</span>  <span class="ty">Int</span>  <span class="dec">@default</span>(<span class="num">0</span>)
+  <span class="prop">freeGenerationsLimit</span> <span class="ty">Int</span>  <span class="dec">@default</span>(<span class="num">3</span>)
+
+  <span class="cm">// Stripe bindings for subscription management</span>
+  <span class="prop">stripeCustomerId</span>       <span class="ty">String</span>?   <span class="dec">@unique</span>
+  <span class="prop">stripeSubscriptionId</span>   <span class="ty">String</span>?   <span class="dec">@unique</span>
+  <span class="prop">stripePriceId</span>          <span class="ty">String</span>?
+  <span class="prop">stripeCurrentPeriodEnd</span> <span class="ty">DateTime</span>?
+
+  <span class="prop">designSystems</span> <span class="ty">DesignSystem</span>[]
+  <span class="prop">usageMetrics</span>  <span class="ty">UsageMetrics</span>[]
+}
+
+<span class="kw">model</span> <span class="ty">DesignSystem</span> {
+  <span class="prop">tier</span>       <span class="ty">String</span>  <span class="dec">@default</span>(<span class="str">"basic"</span>)
+  <span class="prop">colors</span>     <span class="ty">Json</span>?
+  <span class="prop">typography</span> <span class="ty">Json</span>?
+  <span class="prop">components</span> <span class="ty">Json</span>?
+  <span class="prop">isPublic</span>   <span class="ty">Boolean</span> <span class="dec">@default</span>(<span class="kw">false</span>)
+  <span class="prop">featured</span>   <span class="ty">Boolean</span> <span class="dec">@default</span>(<span class="kw">false</span>)
+
+  <span class="dec">@@index</span>([<span class="prop">userId</span>, <span class="fn">createdAt</span>(sort: Desc)])
+  <span class="dec">@@index</span>([<span class="prop">userId</span>, <span class="prop">tier</span>])
+}</pre>
+    </div>
+  </div>
+
+  <!-- Middleware Panel -->
+  <div class="tab-panel" id="tab-middleware">
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">middleware.ts — Clerk auth with role-based access + selective route matching</span>
+        <span class="code-lang-badge">TypeScript</span>
+      </div>
+      <pre><span class="kw">export default</span> <span class="fn">clerkMiddleware</span>(<span class="kw">async</span> (<span class="prop">auth</span>, <span class="prop">req</span>) => {
+  <span class="kw">if</span> (<span class="fn">isAdminRoute</span>(req)) {
+    <span class="kw">const</span> { <span class="prop">userId</span> } = <span class="kw">await</span> <span class="fn">auth</span>();
+    <span class="kw">if</span> (!userId) {
+      <span class="kw">const</span> signInUrl = <span class="kw">new</span> <span class="ty">URL</span>(<span class="str">'/sign-in'</span>, req.url);
+      signInUrl.searchParams.<span class="fn">set</span>(<span class="str">'redirect_url'</span>, req.url);
+      <span class="kw">return</span> <span class="ty">NextResponse</span>.<span class="fn">redirect</span>(signInUrl);
+    }
+    <span class="cm">// Role check (USER vs ADMIN) handled inside the admin layout</span>
+  }
+
+  <span class="kw">if</span> (<span class="fn">isPublicRoute</span>(req)) <span class="kw">return</span>;
+  <span class="kw">if</span> (<span class="fn">isProtectedApiRoute</span>(req)) <span class="kw">return</span>; <span class="cm">// API routes handle their own 401s</span>
+  <span class="kw">if</span> (<span class="fn">isProtectedRoute</span>(req)) <span class="kw">await</span> auth.<span class="fn">protect</span>();
+});
+
+<span class="cm">// Matcher scoped only to routes that need auth — removed ~200ms latency on public pages</span>
+<span class="kw">export const</span> config = {
+  <span class="prop">matcher</span>: [
+    <span class="str">'/dashboard/:path*'</span>,
+    <span class="str">'/generate/:path*'</span>,
+    <span class="str">'/admin/:path*'</span>,
+    <span class="str">'/api/design-systems/:path*'</span>,
+    <span class="str">'/api/stripe/create-checkout-session'</span>,
+  ],
+};</pre>
+    </div>
+  </div>
+
+</div>
+
+<!-- QUOTE -->
+<div class="quote-block">
+  <blockquote>
+    "When you give users three AI models to choose from, they don't pick the smartest one — they pick the fastest one. Speed is a feature, not an optimization."
+  </blockquote>
+  <cite>— Learned in production. Early builds used GPT-4o everywhere: users waited 8–12 seconds and left. Switching the default to Gemini 2.5 Flash (sub-2s) for standard tier, keeping Claude and GPT-4o for Pro, reduced abandonment dramatically. Perceived quality is inseparable from perceived speed.</cite>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p>4corners AI — Built solo by Tornike Zaridze, 2026</p>
+  <a href="https://4-corners-ai.vercel.app" target="_blank" rel="noopener noreferrer" class="nav-link-ext">
+    4-corners-ai.vercel.app ↗
+  </a>
+</div>
+
+<script>
+  // Tab switching
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabPanels = document.querySelectorAll('.tab-panel');
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      tabBtns.forEach(b => b.classList.remove('active'));
+      tabPanels.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + target).classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>

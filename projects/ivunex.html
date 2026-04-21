@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IV Universal Express — Tornike Zaridze</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --f-display: 'Instrument Serif', serif;
+      --f-body: 'DM Sans', sans-serif;
+      --bg: #080808;
+      --border: rgba(255,255,255,0.07);
+      --muted: rgba(255,255,255,0.38);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: #fff;
+      font-family: var(--f-body);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 60px;
+      background: rgba(8,8,8,0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-back {
+      display: inline-flex; align-items: center; gap: 10px;
+      color: rgba(255,255,255,0.6); font-size: 14px; text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: #fff; }
+    .nav-back svg { width: 16px; height: 16px; }
+    .nav-logo {
+      font-family: var(--f-display); font-size: 18px; font-weight: 400;
+      color: rgba(255,255,255,0.85); text-decoration: none;
+    }
+    .nav-link-ext {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 20px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.7); font-size: 13px; font-family: var(--f-body);
+      text-decoration: none; transition: all 0.2s;
+    }
+    .nav-link-ext:hover { background: rgba(255,255,255,0.09); color: #fff; border-color: rgba(255,255,255,0.22); }
+    .nav-link-ext svg { width: 13px; height: 13px; }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 120px 60px 0;
+      max-width: 1280px; margin: 0 auto;
+    }
+    .hero-meta {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 28px; flex-wrap: wrap;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.03);
+      font-size: 12px; color: var(--muted);
+    }
+    .pill-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(100,255,160,0.7); }
+    .hero h1 {
+      font-family: var(--f-display);
+      font-size: clamp(2.6rem, 6vw, 5rem);
+      font-weight: 400; line-height: 1.08;
+      letter-spacing: -0.02em;
+      margin-bottom: 22px;
+    }
+    .hero h1 em { color: rgba(255,255,255,0.28); font-weight: 300; font-style: normal; }
+    .hero-desc {
+      font-size: 16px; color: rgba(255,255,255,0.45);
+      max-width: 640px; line-height: 1.75; margin-bottom: 36px;
+    }
+    .hero-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 56px; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px; border-radius: 999px;
+      background: #fff; color: #000;
+      font-size: 14px; font-weight: 600; font-family: var(--f-body);
+      text-decoration: none; border: none; cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 26px; border-radius: 999px;
+      background: transparent; color: rgba(255,255,255,0.7);
+      font-size: 14px; font-weight: 500; font-family: var(--f-body);
+      text-decoration: none; border: 1px solid rgba(255,255,255,0.12); cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.06); color: #fff; border-color: rgba(255,255,255,0.22); }
+
+    /* ── SCREENSHOT ── */
+    .screenshot-wrap {
+      max-width: 1280px; margin: 0 auto;
+      padding: 0 60px 80px;
+    }
+    .screenshot-frame {
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: #0d0d0d;
+      box-shadow: 0 40px 120px rgba(0,0,0,0.7);
+    }
+    .screenshot-frame img {
+      width: 100%; display: block;
+      object-fit: cover; object-position: top;
+    }
+
+    /* ── SECTIONS ── */
+    .section {
+      max-width: 1280px; margin: 0 auto;
+      padding: 0 60px 80px;
+    }
+    .section-label {
+      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 32px;
+      padding-bottom: 16px; border-bottom: 1px solid var(--border);
+    }
+
+    /* ── OVERVIEW GRID ── */
+    .overview-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+    }
+    .overview-cell {
+      background: #0d0d0d; padding: 28px 32px;
+    }
+    .overview-cell h4 {
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 12px;
+    }
+    .overview-cell p {
+      font-size: 15px; color: rgba(255,255,255,0.85); line-height: 1.55;
+    }
+    .overview-cell p.big {
+      font-family: var(--f-display); font-size: 22px; font-weight: 400;
+    }
+
+    /* ── SERVICES HIGHLIGHT ── */
+    .services-row {
+      display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 60px;
+    }
+    .service-card {
+      flex: 1; min-width: 240px;
+      background: #0d0d0d; border: 1px solid var(--border); border-radius: 16px;
+      padding: 28px 32px;
+    }
+    .service-icon {
+      font-size: 28px; margin-bottom: 14px; display: block;
+    }
+    .service-name { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+    .service-sub { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    /* ── TECH STACK ── */
+    .stack-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;
+    }
+    .stack-item {
+      background: #0d0d0d; border: 1px solid var(--border); border-radius: 12px;
+      padding: 18px 20px;
+    }
+    .stack-item .layer {
+      font-size: 10px; letter-spacing: 0.09em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 6px;
+    }
+    .stack-item .value {
+      font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.85);
+    }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    .feature-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      background: #0d0d0d; border: 1px solid var(--border); border-radius: 12px;
+      padding: 16px 20px;
+    }
+    .feature-check {
+      flex-shrink: 0; width: 20px; height: 20px; margin-top: 1px;
+      border-radius: 50%; background: rgba(100,255,160,0.1);
+      border: 1px solid rgba(100,255,160,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: rgba(100,255,160,0.8);
+    }
+    .feature-x {
+      flex-shrink: 0; width: 20px; height: 20px; margin-top: 1px;
+      border-radius: 50%; background: rgba(255,80,80,0.07);
+      border: 1px solid rgba(255,80,80,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: rgba(255,100,100,0.6);
+    }
+    .feature-text { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.5; }
+
+    /* ── CHALLENGES ── */
+    .challenges-list { display: flex; flex-direction: column; gap: 16px; }
+    .challenge-item {
+      background: #0d0d0d; border: 1px solid var(--border); border-radius: 16px;
+      padding: 28px 32px;
+    }
+    .challenge-item h3 {
+      font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 10px;
+    }
+    .challenge-item p {
+      font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.7;
+    }
+
+    /* ── QUOTE ── */
+    .quote-block {
+      background: #0d0d0d; border: 1px solid var(--border); border-radius: 16px;
+      margin-bottom: 80px; max-width: 1280px;
+      margin-left: auto; margin-right: auto;
+      padding: 40px 60px;
+    }
+    .quote-block blockquote {
+      font-family: var(--f-display); font-size: clamp(1.2rem, 2.5vw, 1.65rem);
+      font-weight: 400; line-height: 1.5; color: rgba(255,255,255,0.8);
+      font-style: italic;
+    }
+    .quote-block cite {
+      display: block; margin-top: 20px;
+      font-size: 13px; color: var(--muted); font-style: normal;
+    }
+
+    /* ── CODE TABS ── */
+    .tab-bar {
+      display: flex; gap: 4px; margin-bottom: 0;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 10px 18px; border-radius: 8px 8px 0 0;
+      background: transparent; border: 1px solid transparent;
+      border-bottom: none; color: var(--muted);
+      font-size: 12px; font-family: var(--f-body); font-weight: 500;
+      cursor: pointer; transition: all 0.15s;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      position: relative; bottom: -1px;
+    }
+    .tab-btn:hover { color: rgba(255,255,255,0.7); }
+    .tab-btn.active {
+      background: #0d0d0d; color: #fff;
+      border-color: var(--border); border-bottom-color: #0d0d0d;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .code-block {
+      background: #0d0d0d; border: 1px solid var(--border);
+      border-top: none; border-radius: 0 0 16px 16px;
+      overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+    .code-filename { font-size: 12px; color: var(--muted); font-family: monospace; }
+    .code-lang-badge {
+      font-size: 10px; padding: 3px 9px; border-radius: 999px;
+      background: rgba(255,255,255,0.06); color: var(--muted);
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    pre {
+      padding: 24px; overflow-x: auto; font-size: 13px;
+      line-height: 1.65; font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+    }
+
+    /* Syntax theme */
+    .kw { color: #c792ea; }
+    .fn { color: #82aaff; }
+    .str { color: #c3e88d; }
+    .num { color: #f78c6c; }
+    .cm { color: #546e7a; font-style: italic; }
+    .ty { color: #ffcb6b; }
+    .op { color: rgba(255,255,255,0.5); }
+    .prop { color: #89ddff; }
+    .dec { color: #f07178; }
+
+    .multi-code { display: flex; flex-direction: column; }
+
+    /* ── FOOTER ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 60px;
+      max-width: 1280px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer p { font-size: 13px; color: var(--muted); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .nav { padding: 16px 24px; }
+      .hero, .screenshot-wrap, .section { padding-left: 24px; padding-right: 24px; }
+      .overview-grid { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: clamp(2rem, 9vw, 3rem); }
+      .footer { padding: 32px 24px; }
+      .quote-block { padding: 28px 24px; }
+      .services-row { flex-direction: column; }
+    }
+    @media (max-width: 600px) {
+      .stack-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="../index.html" class="nav-back">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="19" y1="12" x2="5" y2="12"></line>
+      <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+    Back to Portfolio
+  </a>
+  <a href="../index.html" class="nav-logo">Tornike Zaridze</a>
+  <a href="https://ivunex.eu" target="_blank" rel="noopener noreferrer" class="nav-link-ext">
+    Visit Live Site
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline>
+    </svg>
+  </a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-meta">
+    <span class="pill"><span class="pill-dot"></span> Live in Production</span>
+    <span class="pill">Bratislava, Slovakia</span>
+    <span class="pill">4 Languages</span>
+    <span class="pill">Solo Developer · 4–5 Weeks</span>
+  </div>
+  <h1>IV Universal Express<br/><em>Transport &amp; Logistics Platform</em></h1>
+  <p class="hero-desc">
+    A full-service transport and logistics website for a Slovak-based moving and chauffeur company — built without any frontend framework. Furniture relocation across Central Europe, premium private driver services, multi-language booking forms, WhatsApp Business API integration, and a 4-language i18n system — all in vanilla JavaScript, HTML, and CSS.
+  </p>
+  <div class="hero-actions">
+    <a href="https://ivunex.eu" target="_blank" rel="noopener noreferrer" class="btn-primary">
+      Visit Live Site ↗
+    </a>
+    <a href="../index.html" class="btn-secondary">← Back to Portfolio</a>
+  </div>
+</div>
+
+<!-- SCREENSHOT -->
+<div class="screenshot-wrap">
+  <div class="screenshot-frame">
+    <img src="../assets/projects/ivunex.png" alt="IV Universal Express screenshot" />
+  </div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="section">
+  <div class="section-label">Project Overview</div>
+  <div class="overview-grid">
+    <div class="overview-cell">
+      <h4>Timeline</h4>
+      <p class="big">4–5 Weeks</p>
+      <p style="margin-top:8px;font-size:13px;color:var(--muted);">Late 2023 — Early 2024<br/>Live in production since launch</p>
+    </div>
+    <div class="overview-cell">
+      <h4>Role</h4>
+      <p class="big">Solo Developer</p>
+      <p style="margin-top:8px;font-size:13px;color:var(--muted);">Architecture, frontend UI, backend API, i18n, security, notification integrations</p>
+    </div>
+    <div class="overview-cell">
+      <h4>Client</h4>
+      <p class="big">Transport Co.</p>
+      <p style="margin-top:8px;font-size:13px;color:var(--muted);">IV Universal Express — founded 2021, Bratislava. Operates across Slovakia, Austria, Hungary, Czech Republic, Italy</p>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<div class="section">
+  <div class="section-label">Services Covered</div>
+  <div class="services-row">
+    <div class="service-card">
+      <span class="service-icon">🚛</span>
+      <div class="service-name">Furniture Transport</div>
+      <div class="service-sub">Residential and office moves, international relocation across Central Europe, express moves, furniture assembly, property clearance. Customers upload up to 5 photos with their booking inquiry.</div>
+    </div>
+    <div class="service-card">
+      <span class="service-icon">🚘</span>
+      <div class="service-name">Private Auto Service</div>
+      <div class="service-sub">Premium chauffeur rides, airport transfers in and around Bratislava and Vienna, long-distance European cross-border trips. Covers Austria, Hungary, Czech Republic, Italy, and beyond.</div>
+    </div>
+  </div>
+</div>
+
+<!-- TECH STACK -->
+<div class="section">
+  <div class="section-label">Technical Stack</div>
+  <div class="stack-grid">
+    <div class="stack-item"><div class="layer">Frontend</div><div class="value">Vanilla HTML5 + CSS3 + JavaScript (zero frameworks)</div></div>
+    <div class="stack-item"><div class="layer">Styling</div><div class="value">Custom CSS design system — CSS Variables, no Tailwind, no Bootstrap</div></div>
+    <div class="stack-item"><div class="layer">Animations</div><div class="value">Lottie · bodymovin 5.12.2 (CDN) — JSON-driven animations</div></div>
+    <div class="stack-item"><div class="layer">i18n</div><div class="value">Custom-built vanilla JS internationalization — 4 languages</div></div>
+    <div class="stack-item"><div class="layer">Backend</div><div class="value">Node.js · Express 4.18</div></div>
+    <div class="stack-item"><div class="layer">Email</div><div class="value">Nodemailer 6.9 · SMTP (configurable, defaults to Gmail)</div></div>
+    <div class="stack-item"><div class="layer">WhatsApp</div><div class="value">Meta WhatsApp Business Cloud API · graph.facebook.com/v18.0 · axios</div></div>
+    <div class="stack-item"><div class="layer">File Uploads</div><div class="value">Multer · up to 5 images · 5MB each · JPG + PNG</div></div>
+    <div class="stack-item"><div class="layer">Security</div><div class="value">Helmet.js · express-validator · honeypot bot detection · CORS whitelist</div></div>
+    <div class="stack-item"><div class="layer">Database</div><div class="value">None — stateless API, inquiry-only, no persistence</div></div>
+    <div class="stack-item"><div class="layer">Languages</div><div class="value">English · German · Slovak · Georgian (default: Georgian)</div></div>
+    <div class="stack-item"><div class="layer">Hosting</div><div class="value">ivunex.eu — standalone Express + static frontend</div></div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div class="section">
+  <div class="section-label">Features Delivered</div>
+  <div class="features-grid">
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Service browsing — Furniture Transport + Private Auto pages</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Online booking form — Furniture Transport with image uploads</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Online booking form — Private Auto Service</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Image uploads with booking — up to 5 photos, 5MB each</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Email notifications — admin alert + customer confirmation</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">WhatsApp Business API notifications with graceful fallback</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">4-language UI — English, German, Slovak, Georgian</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Language preference persisted in localStorage</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Bot protection — honeypot field (no CAPTCHA friction)</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Parallel notification pipeline — WhatsApp + email run independently</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Lottie JSON animations on homepage</div></div>
+    <div class="feature-item"><div class="feature-check">✓</div><div class="feature-text">Full mobile-responsive design across all 4 pages</div></div>
+    <div class="feature-item"><div class="feature-x">✕</div><div class="feature-text">Admin panel — not needed, owner uses email + WhatsApp directly</div></div>
+    <div class="feature-item"><div class="feature-x">✕</div><div class="feature-text">Payments — booking is inquiry-only, no payment processing</div></div>
+    <div class="feature-item"><div class="feature-x">✕</div><div class="feature-text">Customer accounts — no user registration</div></div>
+    <div class="feature-item"><div class="feature-x">✕</div><div class="feature-text">Database — stateless by design, no persistence layer needed</div></div>
+  </div>
+</div>
+
+<!-- TECHNICAL CHALLENGES -->
+<div class="section">
+  <div class="section-label">Technical Challenges Solved</div>
+  <div class="challenges-list">
+
+    <div class="challenge-item">
+      <h3>4-Language i18n System Built from Scratch — No Library</h3>
+      <p>No i18next, no external dependency. Every translatable string on every page is tagged with a <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">data-i18n</code> attribute, and the i18n engine walks the entire DOM and swaps text live on language switch. The tricky part: inputs need <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">.value</code>, placeholders need <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">.placeholder</code>, and everything else uses <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">.textContent</code> — each handled separately. 471 lines of translation keys across four languages. Default language is Georgian — a direct signal of who the real user base is: the Georgian-speaking diaspora in Central Europe.</p>
+    </div>
+
+    <div class="challenge-item">
+      <h3>WhatsApp Business Cloud API with Graceful Fallback</h3>
+      <p>The backend integrates with Meta's Graph API (v18.0) to send WhatsApp messages to the business owner on every booking. But production APIs fail — credentials expire, rate limits hit, network issues happen. Rather than letting a WhatsApp failure crash the booking, the service silently falls back to a click-to-chat link when credentials are unconfigured or the API call fails. All three notification channels (admin email, customer email, WhatsApp) run in parallel using <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">Promise.allSettled()</code> — the booking always returns success, even if one channel drops.</p>
+    </div>
+
+    <div class="challenge-item">
+      <h3>Promise.allSettled() — A Booking That Can't Be Killed by a Side Effect</h3>
+      <p>The naive approach is <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">Promise.all()</code> — but that means one failed WhatsApp call kills the entire booking transaction. The customer submits their form, something goes wrong in a third-party API, and they see an error. Their booking is lost. Using <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">allSettled()</code> instead means every notification service logs its own result independently. The core booking logic always succeeds. Each channel's failure is logged, not propagated.</p>
+    </div>
+
+    <div class="challenge-item">
+      <h3>Multer Upload → Email Attachment Pipeline</h3>
+      <p>Booking photos travel a full pipeline: Multer receives them at the HTTP layer, stores them on disk with collision-safe unique filenames, and then the controller reads them back and attaches them as real email attachments — not links — to the admin notification. The same file paths are also serialized into the WhatsApp message text so the owner can see what furniture they're being asked to move, directly in WhatsApp. Coordinating Multer middleware, the booking controller, and two separate notification services without dropping files or duplicating paths required careful ordering.</p>
+    </div>
+
+    <div class="challenge-item">
+      <h3>Bot Protection Without CAPTCHA</h3>
+      <p>reCAPTCHA adds UX friction — extra click, sometimes a puzzle, always a request to Google. The booking form instead uses a honeypot: a hidden <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">website</code> input field that real users never see and never fill. Bots that blindly complete all form fields populate it. The server-side validator in <code style="background:rgba(255,255,255,0.07);padding:2px 6px;border-radius:4px;font-size:12px;">validation.js</code> checks it and silently rejects the submission. Real users experience zero friction; bot submissions never reach the notification pipeline.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- CODE EXAMPLES -->
+<div class="section code-section">
+  <div class="section-label">Code Examples</div>
+
+  <div class="tab-bar" id="tabBar">
+    <button class="tab-btn active" data-tab="js">JavaScript</button>
+    <button class="tab-btn" data-tab="backend">Node.js / Backend</button>
+    <button class="tab-btn" data-tab="css">CSS Design System</button>
+  </div>
+
+  <!-- JS Panel -->
+  <div class="tab-panel active" id="tab-js">
+    <div class="code-block multi-code">
+
+      <div class="code-header">
+        <span class="code-filename">public/js/i18n.js — DOM walker for live language switching</span>
+        <span class="code-lang-badge">JavaScript</span>
+      </div>
+      <pre><span class="cm">// Zero-dependency i18n: walks the DOM, swaps every translatable node</span>
+<span class="kw">function</span> <span class="fn">applyTranslations</span>(lang) {
+  <span class="kw">const</span> t = translations[lang];
+  <span class="kw">if</span> (!t) <span class="kw">return</span>;
+
+  <span class="cm">// Text content — covers most elements (headings, labels, paragraphs)</span>
+  document.<span class="fn">querySelectorAll</span>(<span class="str">'[data-i18n]'</span>).<span class="fn">forEach</span>(el => {
+    <span class="kw">const</span> key = el.dataset.i18n;
+    <span class="kw">if</span> (t[key]) el.textContent = t[key];
+  });
+
+  <span class="cm">// Placeholders — inputs and textareas need a separate pass</span>
+  document.<span class="fn">querySelectorAll</span>(<span class="str">'[data-i18n-placeholder]'</span>).<span class="fn">forEach</span>(el => {
+    <span class="kw">const</span> key = el.dataset.i18nPlaceholder;
+    <span class="kw">if</span> (t[key]) el.placeholder = t[key];
+  });
+
+  <span class="cm">// Input values (e.g. submit buttons rendered as &lt;input type="submit"&gt;)</span>
+  document.<span class="fn">querySelectorAll</span>(<span class="str">'[data-i18n-value]'</span>).<span class="fn">forEach</span>(el => {
+    <span class="kw">const</span> key = el.dataset.i18nValue;
+    <span class="kw">if</span> (t[key]) el.value = t[key];
+  });
+
+  localStorage.<span class="fn">setItem</span>(<span class="str">'preferredLanguage'</span>, lang);
+  document.documentElement.lang = lang;
+}</pre>
+
+      <div class="code-header" style="border-top:1px solid var(--border)">
+        <span class="code-filename">public/js/translations.js — Language key structure (excerpt)</span>
+        <span class="code-lang-badge">JavaScript</span>
+      </div>
+      <pre><span class="cm">// 4 languages, 471 keys. Default: Georgian (ka) — the real user base</span>
+<span class="kw">const</span> translations = {
+  <span class="prop">en</span>: {
+    <span class="prop">nav_services</span>:     <span class="str">"Services"</span>,
+    <span class="prop">nav_about</span>:        <span class="str">"About Us"</span>,
+    <span class="prop">nav_contact</span>:      <span class="str">"Contact"</span>,
+    <span class="prop">hero_title</span>:       <span class="str">"Reliable Transport &amp; Logistics"</span>,
+    <span class="prop">booking_submit</span>:   <span class="str">"Send Booking Request"</span>,
+    <span class="cm">// ... 466 more keys</span>
+  },
+  <span class="prop">de</span>: { <span class="prop">nav_services</span>: <span class="str">"Dienstleistungen"</span>, <span class="cm">/* ... */</span> },
+  <span class="prop">sk</span>: { <span class="prop">nav_services</span>: <span class="str">"Služby"</span>,           <span class="cm">/* ... */</span> },
+  <span class="prop">ka</span>: { <span class="prop">nav_services</span>: <span class="str">"სერვისები"</span>,       <span class="cm">/* ... */</span> },
+};
+
+<span class="cm">// Restore saved language on page load, default to Georgian</span>
+<span class="kw">const</span> saved = localStorage.<span class="fn">getItem</span>(<span class="str">'preferredLanguage'</span>) || <span class="str">'ka'</span>;
+<span class="fn">applyTranslations</span>(saved);</pre>
+
+    </div>
+  </div>
+
+  <!-- Backend Panel -->
+  <div class="tab-panel" id="tab-backend">
+    <div class="code-block multi-code">
+
+      <div class="code-header">
+        <span class="code-filename">src/controllers/bookingController.js — Parallel notifications with allSettled</span>
+        <span class="code-lang-badge">Node.js</span>
+      </div>
+      <pre><span class="cm">// allSettled — each notification channel fails independently
+// The booking ALWAYS returns success to the user</span>
+<span class="kw">const</span> results = <span class="kw">await</span> <span class="ty">Promise</span>.<span class="fn">allSettled</span>([
+  emailService.<span class="fn">sendAdminNotification</span>(bookingData, uploadedFiles),
+  emailService.<span class="fn">sendCustomerConfirmation</span>(bookingData),
+  whatsappService.<span class="fn">sendBookingNotification</span>(bookingData),
+]);
+
+<span class="cm">// Log each channel result independently — no silent failures</span>
+results.<span class="fn">forEach</span>((result, index) => {
+  <span class="kw">const</span> channels = [<span class="str">'Admin email'</span>, <span class="str">'Customer email'</span>, <span class="str">'WhatsApp'</span>];
+  <span class="kw">if</span> (result.status === <span class="str">'fulfilled'</span>) {
+    console.<span class="fn">log</span>(<span class="str">`[Booking] <span class="prop">${channels[index]}</span>: sent`</span>);
+  } <span class="kw">else</span> {
+    console.<span class="fn">error</span>(<span class="str">`[Booking] <span class="prop">${channels[index]}</span> failed:`</span>, result.reason);
+  }
+});
+
+<span class="cm">// Always return 200 — notification failures are not booking failures</span>
+res.<span class="fn">status</span>(<span class="num">200</span>).<span class="fn">json</span>({ <span class="prop">success</span>: <span class="kw">true</span>, <span class="prop">message</span>: <span class="str">'Booking received'</span> });</pre>
+
+      <div class="code-header" style="border-top:1px solid var(--border)">
+        <span class="code-filename">src/services/whatsappService.js — Meta Graph API with fallback</span>
+        <span class="code-lang-badge">Node.js</span>
+      </div>
+      <pre><span class="kw">async function</span> <span class="fn">sendBookingNotification</span>(bookingData) {
+  <span class="cm">// No credentials? Return a click-to-chat link instead of throwing</span>
+  <span class="kw">if</span> (!process.env.<span class="prop">WHATSAPP_TOKEN</span> || !process.env.<span class="prop">WHATSAPP_PHONE_ID</span>) {
+    <span class="kw">return</span> {
+      <span class="prop">fallback</span>: <span class="kw">true</span>,
+      <span class="prop">link</span>: <span class="str">`https://wa.me/<span class="prop">${process.env.BUSINESS_PHONE}</span>?text=New booking`</span>
+    };
+  }
+
+  <span class="kw">const</span> response = <span class="kw">await</span> axios.<span class="fn">post</span>(
+    <span class="str">`https://graph.facebook.com/v18.0/<span class="prop">${process.env.WHATSAPP_PHONE_ID}</span>/messages`</span>,
+    {
+      <span class="prop">messaging_product</span>: <span class="str">'whatsapp'</span>,
+      <span class="prop">to</span>: process.env.<span class="prop">BUSINESS_PHONE</span>,
+      <span class="prop">type</span>: <span class="str">'text'</span>,
+      <span class="prop">text</span>: { <span class="prop">body</span>: <span class="fn">formatBookingMessage</span>(bookingData) },
+    },
+    { <span class="prop">headers</span>: { <span class="prop">Authorization</span>: <span class="str">`Bearer <span class="prop">${process.env.WHATSAPP_TOKEN}</span>`</span> } }
+  );
+
+  <span class="kw">return</span> response.data;
+}
+
+<span class="cm">// Multer-uploaded file paths are serialized into the message body
+// so the owner sees what furniture they're being asked to move, in WhatsApp</span></pre>
+
+      <div class="code-header" style="border-top:1px solid var(--border)">
+        <span class="code-filename">src/middleware/validation.js — Honeypot bot detection</span>
+        <span class="code-lang-badge">Node.js</span>
+      </div>
+      <pre><span class="cm">// Honeypot: hidden input named "website" — real users never fill it
+// Bots that blindly complete all fields get silently rejected</span>
+<span class="kw">const</span> validateBooking = [
+  <span class="fn">body</span>(<span class="str">'website'</span>)
+    .<span class="fn">isEmpty</span>()
+    .<span class="fn">withMessage</span>(<span class="str">'Bot detected'</span>),
+
+  <span class="fn">body</span>(<span class="str">'name'</span>)
+    .<span class="fn">trim</span>().<span class="fn">notEmpty</span>().<span class="fn">withMessage</span>(<span class="str">'Name is required'</span>)
+    .<span class="fn">isLength</span>({ <span class="prop">max</span>: <span class="num">100</span> }),
+
+  <span class="fn">body</span>(<span class="str">'phone'</span>)
+    .<span class="fn">trim</span>().<span class="fn">notEmpty</span>().<span class="fn">withMessage</span>(<span class="str">'Phone is required'</span>)
+    .<span class="fn">isMobilePhone</span>(),
+
+  (<span class="prop">req</span>, <span class="prop">res</span>, <span class="prop">next</span>) => {
+    <span class="kw">const</span> errors = <span class="fn">validationResult</span>(req);
+    <span class="kw">if</span> (!errors.<span class="fn">isEmpty</span>()) {
+      <span class="kw">return</span> res.<span class="fn">status</span>(<span class="num">400</span>).<span class="fn">json</span>({ <span class="prop">errors</span>: errors.<span class="fn">array</span>() });
+    }
+    <span class="fn">next</span>();
+  }
+];</pre>
+
+    </div>
+  </div>
+
+  <!-- CSS Panel -->
+  <div class="tab-panel" id="tab-css">
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-filename">public/css/styles.css — Design token system (CSS custom properties)</span>
+        <span class="code-lang-badge">CSS</span>
+      </div>
+      <pre><span class="cm">/* Full design system in :root — colors, spacing, typography, shadows, transitions
+   This is what makes 3144 lines of CSS consistent without any framework */</span>
+<span class="dec">:root</span> {
+  <span class="cm">/* Brand Colors */</span>
+  <span class="prop">--color-primary</span>:        <span class="num">#1a3a5c</span>;
+  <span class="prop">--color-primary-light</span>:  <span class="num">#2d5a8e</span>;
+  <span class="prop">--color-accent</span>:         <span class="num">#e8a020</span>;
+  <span class="prop">--color-accent-dark</span>:    <span class="num">#c8880a</span>;
+  <span class="prop">--color-success</span>:        <span class="num">#2d8a4e</span>;
+  <span class="prop">--color-error</span>:          <span class="num">#c0392b</span>;
+
+  <span class="cm">/* Neutrals */</span>
+  <span class="prop">--color-text</span>:           <span class="num">#1a1a2e</span>;
+  <span class="prop">--color-text-muted</span>:     <span class="num">#6b7280</span>;
+  <span class="prop">--color-bg</span>:             <span class="num">#ffffff</span>;
+  <span class="prop">--color-bg-subtle</span>:      <span class="num">#f8fafc</span>;
+  <span class="prop">--color-border</span>:         <span class="num">#e2e8f0</span>;
+
+  <span class="cm">/* Spacing scale */</span>
+  <span class="prop">--space-xs</span>:   <span class="num">4px</span>;
+  <span class="prop">--space-sm</span>:   <span class="num">8px</span>;
+  <span class="prop">--space-md</span>:   <span class="num">16px</span>;
+  <span class="prop">--space-lg</span>:   <span class="num">32px</span>;
+  <span class="prop">--space-xl</span>:   <span class="num">64px</span>;
+
+  <span class="cm">/* Typography */</span>
+  <span class="prop">--font-sans</span>:  <span class="str">'Inter', system-ui, sans-serif</span>;
+  <span class="prop">--font-size-base</span>: <span class="num">16px</span>;
+  <span class="prop">--line-height-body</span>: <span class="num">1.6</span>;
+
+  <span class="cm">/* Elevation */</span>
+  <span class="prop">--shadow-sm</span>:  <span class="num">0 1px 3px rgba(0,0,0,0.08)</span>;
+  <span class="prop">--shadow-md</span>:  <span class="num">0 4px 16px rgba(0,0,0,0.12)</span>;
+  <span class="prop">--shadow-lg</span>:  <span class="num">0 16px 48px rgba(0,0,0,0.16)</span>;
+
+  <span class="cm">/* Motion */</span>
+  <span class="prop">--transition-fast</span>:  <span class="num">0.15s ease</span>;
+  <span class="prop">--transition-base</span>:  <span class="num">0.25s ease</span>;
+  <span class="prop">--radius-md</span>:        <span class="num">8px</span>;
+  <span class="prop">--radius-lg</span>:        <span class="num">16px</span>;
+}</pre>
+    </div>
+  </div>
+
+</div>
+
+<!-- QUOTE -->
+<div class="quote-block">
+  <blockquote>
+    "Small businesses don't need CRMs or customer portals. The owner just needs a WhatsApp message and an email when someone books. That's the entire backend requirement — and over-engineering it would have been worse than under-engineering it."
+  </blockquote>
+  <cite>— The practical lesson from this project. The default language being Georgian wasn't an accident — it was the first design decision, because that's who actually uses the site: the Georgian diaspora community in Central Europe, booking furniture moves and airport transfers.</cite>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p>IV Universal Express — Built solo by Tornike Zaridze, 2026</p>
+  <a href="https://ivunex.eu" target="_blank" rel="noopener noreferrer" class="nav-link-ext">
+    ivunex.eu ↗
+  </a>
+</div>
+
+<script>
+  // Tab switching
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const tabPanels = document.querySelectorAll('.tab-panel');
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      tabBtns.forEach(b => b.classList.remove('active'));
+      tabPanels.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + target).classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>

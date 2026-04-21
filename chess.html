@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chess — Tornike Zaridze</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/chess.css" />
+</head>
+<body>
+
+  <!-- Shader background (WebGL, landing only) -->
+  <canvas id="shader-bg" class="shader-canvas"></canvas>
+
+  <!-- Navbar -->
+  <nav class="nav-pill">
+    <a href="index.html" style="display:flex;align-items:center;flex-shrink:0;text-decoration:none">
+      <svg width="36" height="36" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="display:block">
+        <rect x="8" y="8" width="84" height="84" rx="18" ry="18" fill="none" stroke="#FFFFFF" stroke-width="2.5" />
+        <path d="M 32 38 L 48 50 L 32 62" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+        <rect x="54" y="60" width="16" height="4" rx="1" fill="#FFFFFF">
+          <animate attributeName="opacity" values="1;1;0;0;1" keyTimes="0;0.5;0.5;1;1" dur="1.2s" repeatCount="indefinite" />
+        </rect>
+      </svg>
+    </a>
+    <div class="nav-links">
+      <a href="index.html#about" class="nav-link">About Me</a>
+      <a href="index.html#services" class="nav-link">Services</a>
+      <a href="index.html#projects" class="nav-link">Projects</a>
+      <a href="chess.html" class="nav-link active">Play Chess</a>
+      <a href="index.html#contact" class="nav-link">Contact</a>
+    </div>
+  </nav>
+
+  <!-- Landing screen -->
+  <div id="landing">
+    <div class="landing-content">
+    <div class="chess-icon">&#9823;</div>
+    <h1 class="landing-title">Think you can beat me?</h1>
+    <div class="section-label" style="margin-top:8px">Choose your side</div>
+    <div class="side-selector">
+      <button class="side-option selected" data-side="w"><span style="color:#D4A843">&#9812;</span> Gold <span style="opacity:0.4;font-size:12px">(you go first)</span></button>
+      <button class="side-option" data-side="b"><span style="color:#1B3A5C">&#9818;</span> Blue <span style="opacity:0.4;font-size:12px">(Tornike goes first)</span></button>
+    </div>
+
+    <button class="btn-primary" id="start-btn" style="margin-top:8px">Play now</button>
+
+    <!-- Game history -->
+    <div class="game-history-section">
+      <h3>Game History</h3>
+      <div id="game-history"></div>
+    </div>
+    </div><!-- /.landing-content -->
+  </div>
+
+  <!-- Name modal -->
+  <div id="name-modal">
+    <div class="name-modal-box">
+      <label class="name-modal-label" for="player-name-input">Enter your name</label>
+      <input id="player-name-input" class="name-input" type="text" placeholder="Your name..." maxlength="24" autocomplete="off" />
+      <button class="btn-primary" id="confirm-name-btn" style="margin-top:8px">Start Game</button>
+    </div>
+  </div>
+
+  <!-- Game screen -->
+  <div id="game-screen">
+    <div class="game-container">
+
+      <!-- 1. Buttons -->
+      <div class="game-buttons">
+        <button id="undo-btn">Undo</button>
+        <button id="resign-btn">Resign</button>
+        <button id="new-game-btn">New Game</button>
+      </div>
+
+      <!-- 2. Board area with side captures -->
+      <div class="board-area">
+        <!-- LEFT: pieces I captured (blue) -->
+        <div id="captured-by-you" class="captured-column left"></div>
+
+        <!-- Board -->
+        <div id="board" class="chess-board"></div>
+
+        <!-- RIGHT: pieces AI captured (gold) -->
+        <div id="captured-by-ai" class="captured-column right"></div>
+      </div>
+
+      <!-- 3. Status -->
+      <div id="status" class="status-text">Your move</div>
+
+    </div>
+  </div>
+
+  <!-- Game over overlay -->
+  <div id="game-over">
+    <h2 id="game-over-title"></h2>
+    <p id="game-over-sub"></p>
+    <div class="game-over-actions">
+      <button class="btn-primary" id="rematch-btn">Rematch</button>
+      <a href="index.html#contact" class="btn-secondary">Hire me instead</a>
+    </div>
+    <p style="color:rgba(255,255,255,0.28);font-size:13px;margin-top:4px">Enjoyed the game? Imagine what I can build for you.</p>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+  <script src="js/chess-game.js"></script>
+  <script src="js/shader-bg.js"></script>
+
+</body>
+</html>
