@@ -7,8 +7,328 @@
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    html, body { background: #0a0a0a; }
+
+    @view-transition { navigation: auto; }
+
+    /* ═══ INTRO OVERLAY ══════════════════════════════════════ */
+    .intro-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      width: 100vw; height: 100vh;
+      background: #000;
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .intro-logo-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+      position: relative;
+    }
+    .intro-logo-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 900px; height: 900px;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(
+        circle,
+        rgba(0,217,255,0.07) 0%,
+        rgba(201,54,255,0.04) 42%,
+        transparent 70%
+      );
+      filter: blur(48px);
+      opacity: 0;
+      animation: ambientPulse 4s ease-in-out infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+    @keyframes ambientPulse {
+      0%, 100% { opacity: 0.35; transform: translate(-50%,-50%) scale(1); }
+      50%       { opacity: 0.75; transform: translate(-50%,-50%) scale(1.14); }
+    }
+    .intro-logo {
+      width: 880px;
+      height: 880px;
+      overflow: visible;
+    }
+    .intro-frame {
+      opacity: 0;
+      transform-origin: center center;
+    }
+    .intro-shockwave {
+      visibility: hidden;
+      opacity: 0;
+    }
+    .intro-shockwave-a {
+      filter: drop-shadow(0 0 8px #00d9ff) drop-shadow(0 0 20px #00d9ff55);
+    }
+    .intro-shockwave-b {
+      filter: drop-shadow(0 0 8px #c936ff) drop-shadow(0 0 20px #c936ff55);
+    }
+    /* Base crack state — pathLength=100 normalizes dash animation */
+    .intro-crack {
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 100;
+      stroke-dashoffset: 100;
+      opacity: 0;
+    }
+    .intro-crack.primary {
+      stroke: url(#crackGradient);
+      stroke-width: 2.5;
+      filter: drop-shadow(0 0 4px #00d9ff) drop-shadow(0 0 8px #c936ff);
+    }
+    .intro-crack.secondary {
+      stroke: url(#crackGradient);
+      stroke-width: 1.4;
+      filter: drop-shadow(0 0 2px #00d9ff) drop-shadow(0 0 5px #c936ff);
+    }
+    .intro-crack.micro {
+      stroke: url(#crackGradientMicro);
+      stroke-width: 0.7;
+      filter: drop-shadow(0 0 1.5px #00d9ff);
+    }
+    .intro-symbol-gt,
+    .intro-symbol-us {
+      opacity: 0;
+    }
+    .intro-welcome {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 56px;
+      color: #fff;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      opacity: 0;
+      white-space: nowrap;
+      position: absolute;
+      top: calc(50% + 300px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+    }
+    .intro-welcome-cursor {
+      opacity: 0;
+      font-weight: 300;
+      animation: intro-cursor-blink 0.75s step-end infinite;
+    }
+    @keyframes intro-cursor-blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .intro-skip {
+      position: absolute;
+      top: 30px; right: 40px;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.28);
+      color: rgba(255,255,255,0.6);
+      padding: 10px 22px;
+      border-radius: 999px;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      z-index: 100000;
+      transition: background 0.25s, color 0.25s, border-color 0.25s;
+      letter-spacing: 0.04em;
+    }
+    .intro-skip:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.55);
+      color: #fff;
+    }
+    body.intro-active {
+      overflow: hidden;
+      height: 100vh;
+    }
+    body.intro-active > *:not(.intro-overlay) {
+      visibility: hidden;
+    }
+    @media (max-width: 900px) {
+      .intro-welcome {
+        top: calc(50% + 200px);
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 32px;
+      }
+    }
+    @media (max-width: 768px) {
+      .intro-logo {
+        width: 320px;
+        height: 320px;
+      }
+      .intro-logo-wrapper::before {
+        width: 400px;
+        height: 400px;
+      }
+      .intro-welcome {
+        font-size: 32px;
+        top: calc(50% + 88px);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .intro-overlay { display: none !important; }
+      body.intro-active { overflow: auto; height: auto; }
+      body.intro-active > *:not(.intro-overlay) { visibility: visible; }
+    }
+  </style>
 </head>
-<body>
+<body class="intro-active">
+
+  <!-- ═══ CINEMATIC INTRO OVERLAY ═══ -->
+  <div class="intro-overlay" id="introOverlay">
+    <div class="intro-logo-wrapper">
+      <svg class="intro-logo" id="introLogo" viewBox="-130 -130 380 380" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- Neon glow: cyan + magenta layered bloom -->
+          <filter id="neonGlow" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="2.2" result="blur1" />
+            <feGaussianBlur stdDeviation="5" result="blur2" />
+            <feFlood flood-color="#00d9ff" flood-opacity="0.85" result="cyan" />
+            <feComposite in="cyan" in2="blur2" operator="in" result="cyanGlow" />
+            <feFlood flood-color="#c936ff" flood-opacity="0.6" result="mag" />
+            <feComposite in="mag" in2="blur1" operator="in" result="magGlow" />
+            <feMerge>
+              <feMergeNode in="cyanGlow" />
+              <feMergeNode in="magGlow" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <!-- Subtle frame glow -->
+          <filter id="frameGlow" x="-25%" y="-25%" width="150%" height="150%">
+            <feGaussianBlur stdDeviation="1.8" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <!-- Motion blur: vertical smear during fall -->
+          <filter id="motionBlur" x="-20%" y="-50%" width="140%" height="200%">
+            <feGaussianBlur stdDeviation="0 5" />
+          </filter>
+          <!-- Crack gradient: fades from ~45% for organic taper -->
+          <linearGradient id="crackGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stop-color="#ffffff" stop-opacity="1" />
+            <stop offset="25%"  stop-color="#ffffff" stop-opacity="0.95" />
+            <stop offset="45%"  stop-color="#ffffff" stop-opacity="0.75" />
+            <stop offset="70%"  stop-color="#ffffff" stop-opacity="0.35" />
+            <stop offset="90%"  stop-color="#ffffff" stop-opacity="0.1" />
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+          </linearGradient>
+          <!-- Micro-crack gradient: aggressively faded throughout -->
+          <linearGradient id="crackGradientMicro" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.6" />
+            <stop offset="40%"  stop-color="#ffffff" stop-opacity="0.35" />
+            <stop offset="75%"  stop-color="#ffffff" stop-opacity="0.12" />
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+
+        <!-- Outer frame -->
+        <rect class="intro-frame" filter="url(#frameGlow)"
+          x="10" y="10" width="100" height="100" rx="20" ry="20"
+          fill="none" stroke="#ffffff" stroke-width="2.5" />
+
+        <!-- Shockwave rings — expand radially on impact -->
+        <circle class="intro-shockwave intro-shockwave-a" cx="60" cy="60" r="55"
+          fill="none" stroke="#00d9ff" stroke-width="2" opacity="0" />
+        <circle class="intro-shockwave intro-shockwave-b" cx="60" cy="60" r="55"
+          fill="none" stroke="#c936ff" stroke-width="1.5" opacity="0" />
+
+        <!-- Organic glass fracture — cracks start 8-12px outside frame edges -->
+        <g class="intro-cracks">
+          <!-- TOP EDGE — extend FAR upward -->
+          <path class="intro-crack primary" pathLength="100"
+            d="M 32 -8 L 28 -25 L 22 -50 L 16 -78 L 8 -105" />
+          <path class="intro-crack primary" pathLength="100"
+            d="M 58 -12 L 60 -32 L 55 -58 L 52 -86 L 46 -115" />
+          <path class="intro-crack primary" pathLength="100"
+            d="M 82 -10 L 88 -28 L 94 -55 L 98 -82 L 105 -112" />
+
+          <!-- RIGHT EDGE — extend FAR right -->
+          <path class="intro-crack primary" pathLength="100"
+            d="M 130 32 L 152 28 L 180 22 L 208 15 L 235 8" />
+          <path class="intro-crack primary" pathLength="100"
+            d="M 128 58 L 156 62 L 185 58 L 215 52 L 245 48" />
+          <path class="intro-crack primary" pathLength="100"
+            d="M 132 82 L 158 92 L 188 105 L 218 120 L 248 138" />
+
+          <!-- BOTTOM EDGE — extend FAR down -->
+          <path class="intro-crack primary" pathLength="100"
+            d="M 28 128 L 22 152 L 16 182 L 10 212 L 2 245" />
+          <path class="intro-crack primary" pathLength="100"
+            d="M 62 132 L 65 158 L 60 188 L 55 218 L 48 250" />
+          <path class="intro-crack primary" pathLength="100"
+            d="M 88 130 L 98 155 L 108 185 L 118 215 L 130 248" />
+
+          <!-- LEFT EDGE — extend FAR left -->
+          <path class="intro-crack primary" pathLength="100"
+            d="M -10 28 L -32 22 L -58 14 L -85 6 L -115 -2" />
+          <path class="intro-crack primary" pathLength="100"
+            d="M -12 58 L -35 65 L -62 62 L -92 58 L -125 52" />
+          <path class="intro-crack primary" pathLength="100"
+            d="M -8 88 L -28 95 L -55 108 L -82 122 L -112 140" />
+
+          <!-- Secondary branches — extended, 3-point -->
+          <path class="intro-crack secondary" pathLength="100"
+            d="M 28 -25 L 12 -42 L -5 -58" />
+          <path class="intro-crack secondary" pathLength="100"
+            d="M 152 28 L 172 12 L 192 -5" />
+          <path class="intro-crack secondary" pathLength="100"
+            d="M 156 62 L 178 78 L 202 92" />
+          <path class="intro-crack secondary" pathLength="100"
+            d="M 65 158 L 82 178 L 102 198" />
+          <path class="intro-crack secondary" pathLength="100"
+            d="M -35 65 L -52 82 L -72 100" />
+          <path class="intro-crack secondary" pathLength="100"
+            d="M 88 -28 L 108 -45 L 130 -62" />
+
+          <!-- Micro hairlines — far out in the void -->
+          <path class="intro-crack micro" pathLength="100"
+            d="M -50 25 L -65 15" />
+          <path class="intro-crack micro" pathLength="100"
+            d="M 175 -5 L 195 -18" />
+          <path class="intro-crack micro" pathLength="100"
+            d="M 180 125 L 198 138" />
+          <path class="intro-crack micro" pathLength="100"
+            d="M -55 155 L -38 170" />
+          <path class="intro-crack micro" pathLength="100"
+            d="M 45 -50 L 52 -72" />
+          <path class="intro-crack micro" pathLength="100"
+            d="M 80 175 L 88 198" />
+        </g>
+
+        <!-- ">" symbol -->
+        <text class="intro-symbol-gt" x="38" y="65"
+          font-family="'DM Mono', 'Courier New', monospace"
+          font-size="36" font-weight="500" fill="#ffffff"
+          text-anchor="middle" dominant-baseline="middle"
+          filter="url(#frameGlow)">&gt;</text>
+        <!-- "_" symbol -->
+        <text class="intro-symbol-us" x="78" y="65"
+          font-family="'DM Mono', 'Courier New', monospace"
+          font-size="36" font-weight="500" fill="#ffffff"
+          text-anchor="middle" dominant-baseline="middle"
+          filter="url(#frameGlow)">_</text>
+      </svg>
+      <!-- Welcome text -->
+      <div class="intro-welcome" id="introWelcome">
+        <span class="intro-welcome-text" id="introWelcomeText"></span>
+        <span class="intro-welcome-cursor" id="introCursor">|</span>
+      </div>
+    </div>
+  </div>
+
   <div id="root"></div>
   <script type="text/babel">
     const { useState, useEffect, useRef, useCallback } = React;
@@ -911,13 +1231,17 @@ if __name__ == "__main__":
     function GlobeSpinner() {
       const canvasRef = useRef(null);
 
+      /* Unique IDs per instance — two GlobeSpinners on same page
+         would share id="gtr" / id="gtr-tight" and break each other */
+      const uid     = React.useId ? React.useId().replace(/:/g,'') : Math.random().toString(36).slice(2);
+      const ID_DEF  = uid + 'gtr';
+      const ID_TIGHT= uid + 'gtr-tight';
+
       useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
         let raf, W, H, dpr;
-        let globeRot = 0;
-        let textAngle = 0;
 
         function setup() {
           dpr = window.devicePixelRatio || 1;
@@ -931,17 +1255,14 @@ if __name__ == "__main__":
         window.addEventListener('resize', setup);
 
         function drawGlobe(cx, cy, r) {
-          /* subtle fill */
           ctx.beginPath();
           ctx.arc(cx, cy, r, 0, Math.PI * 2);
           ctx.fillStyle = 'rgba(255,255,255,0.025)';
           ctx.fill();
-          /* clip interior lines to circle */
           ctx.save();
           ctx.beginPath();
           ctx.arc(cx, cy, r - dpr, 0, Math.PI * 2);
           ctx.clip();
-          /* latitude lines */
           for (let i = 1; i <= 6; i++) {
             const lat  = -Math.PI / 2 + Math.PI * i / 7;
             const latR = Math.cos(lat) * r;
@@ -952,9 +1273,8 @@ if __name__ == "__main__":
             ctx.lineWidth   = 0.8 * dpr;
             ctx.stroke();
           }
-          /* longitude lines */
           for (let i = 0; i < 8; i++) {
-            const ang = globeRot + Math.PI * i / 8;
+            const ang = Math.PI * i / 8;
             const rx  = Math.abs(Math.cos(ang)) * r;
             ctx.beginPath();
             ctx.ellipse(cx, cy, Math.max(rx, 1), r, 0, 0, Math.PI * 2);
@@ -963,7 +1283,6 @@ if __name__ == "__main__":
             ctx.stroke();
           }
           ctx.restore();
-          /* outer ring */
           ctx.beginPath();
           ctx.arc(cx, cy, r, 0, Math.PI * 2);
           ctx.strokeStyle = 'rgba(255,255,255,0.28)';
@@ -971,117 +1290,11 @@ if __name__ == "__main__":
           ctx.stroke();
         }
 
-        function drawAst(ax, ay, rot, size, col) {
-          ctx.save();
-          ctx.translate(ax, ay);
-          ctx.rotate(rot);
-          ctx.fillStyle = col;
-          const hw = size * 0.30;
-          for (let i = 0; i < 6; i++) {
-            const a  = (i * Math.PI) / 3 + Math.PI / 6;
-            const tx = Math.cos(a), ty = Math.sin(a);
-            const px = -ty,         py = tx;
-            ctx.beginPath();
-            ctx.moveTo( px * hw,   py * hw);
-            ctx.lineTo( tx * size, ty * size);
-            ctx.lineTo(-px * hw,  -py * hw);
-            ctx.closePath();
-            ctx.fill();
-          }
-          ctx.restore();
-        }
-
-        const ITEMS = [
-          { type:'txt', t:'TORNIKE', col:'#ffffff', weight:900, scale:1.00 },
-          { type:'ast', col:'#7B9EC0' },
-          { type:'txt', t:'ZARIDZE', col:'#aaaaaa', weight:300, scale:0.82 },
-          { type:'ast', col:'#7B9EC0' },
-          { type:'txt', t:'TORNIKE', col:'#c9a84c', weight:700, scale:0.90 },
-          { type:'ast', col:'#7B9EC0' },
-          { type:'txt', t:'ZARIDZE', col:'#ffffff', weight:900, scale:1.05 },
-          { type:'ast', col:'#7B9EC0' },
-          { type:'txt', t:'TORNIKE', col:'#888888', weight:400, scale:0.78 },
-          { type:'ast', col:'#7B9EC0' },
-          { type:'txt', t:'ZARIDZE', col:'#c9a84c', weight:700, scale:0.95 },
-          { type:'ast', col:'#7B9EC0' },
-          { type:'txt', t:'TORNIKE', col:'#cccccc', weight:500, scale:1.08 },
-          { type:'ast', col:'#7B9EC0' },
-          { type:'txt', t:'ZARIDZE', col:'#666666', weight:300, scale:0.85 },
-          { type:'ast', col:'#7B9EC0' },
-        ];
-
         function draw() {
-          /* globe static — only text ring rotates */
-          textAngle -= 0.006; /* clockwise */
-
           ctx.clearRect(0, 0, W, H);
-
           const cx = W / 2, cy = H / 2;
           const sz = Math.min(W, H);
-          const globeR = sz * 0.30;
-          const ringR  = sz * 0.46;
-
-          drawGlobe(cx, cy, globeR);
-
-          const fs      = Math.round(sz * 0.067);
-          const ls      = Math.round(fs * 0.04);
-          const astSz   = Math.round(fs * 0.37);
-          const astSlot = astSz * 2.8;
-          const wordGap = fs * 0.18;
-
-          ctx.textBaseline = 'middle';
-
-          /* build units */
-          const units = [];
-          for (const item of ITEMS) {
-            if (item.type === 'ast') {
-              units.push({ kind:'ast', da: astSlot / ringR, sz: astSz, col: item.col });
-            } else {
-              const itemFs = Math.round(fs * (item.scale || 1.0));
-              const itemW  = item.weight || 900;
-              ctx.font = `${itemW} ${itemFs}px "DM Sans", system-ui, sans-serif`;
-              for (const ch of item.t) {
-                const cw = ctx.measureText(ch).width;
-                units.push({ kind:'chr', da:(cw + ls) / ringR, cw, ch, col: item.col, fs: itemFs, weight: itemW });
-              }
-              units.push({ kind:'gap', da: wordGap / ringR });
-            }
-          }
-
-          const oneArc = units.reduce((s, u) => s + u.da, 0);
-          if (oneArc < 0.001) { raf = requestAnimationFrame(draw); return; }
-
-          const norm = ((textAngle % oneArc) + oneArc) % oneArc;
-          let a  = -Math.PI / 2 - norm;
-          const endA = a + Math.PI * 2 + oneArc;
-          let ui = 0;
-
-          while (a < endA) {
-            const u = units[ui % units.length];
-            if (u.kind === 'gap') {
-              a += u.da;
-            } else if (u.kind === 'ast') {
-              const midA = a + u.da / 2;
-              const ax = cx + ringR * Math.cos(midA);
-              const ay = cy + ringR * Math.sin(midA);
-              drawAst(ax, ay, midA + Math.PI / 2, u.sz, u.col);
-              a += u.da;
-            } else {
-              const midA = a + u.da / 2;
-              const ax = cx + ringR * Math.cos(midA);
-              const ay = cy + ringR * Math.sin(midA);
-              ctx.fillStyle = u.col;
-              ctx.save();
-              ctx.translate(ax, ay);
-              ctx.rotate(midA + Math.PI / 2);
-              ctx.font = `${u.weight||900} ${u.fs||fs}px "DM Sans", system-ui, sans-serif`;
-              ctx.textBaseline = 'middle';
-              ctx.fillText(u.ch, -u.cw / 2, 0);
-              ctx.restore();
-              a += u.da;
-            }
-            ui++;
-          }
+          drawGlobe(cx, cy, sz * 0.30);
           raf = requestAnimationFrame(draw);
         }
 
@@ -1092,8 +1305,136 @@ if __name__ == "__main__":
         };
       }, []);
 
+      /* SVG textPath ring — two paths: default radius + tight hover radius */
+      const rDef   = 41.4;
+      const rTight = 28;
+      const cDef   = (2 * Math.PI * rDef).toFixed(1);
+      const cTight = (2 * Math.PI * rTight).toFixed(1);
+      const dDef   = `M50,50 m-${rDef},0 a${rDef},${rDef} 0 1,1 ${rDef*2},0 a${rDef},${rDef} 0 1,1 -${rDef*2},0`;
+      const dTight = `M50,50 m-${rTight},0 a${rTight},${rTight} 0 1,1 ${rTight*2},0 a${rTight},${rTight} 0 1,1 -${rTight*2},0`;
+      const svgRef   = useRef(null);
+      const wrapRef  = useRef(null);
+      const tpRef    = useRef(null);
+      const moverRef = useRef(null);
+
+      useEffect(() => {
+        const wrap = wrapRef.current;
+        const svg  = svgRef.current;
+        const tp   = tpRef.current;
+        if (!wrap || !svg || !tp) return;
+
+        const SLOW = 18;   // deg/s  (360 / 20s)
+        const FAST = 234;  // deg/s  (+30% on hover)
+        let angle = 0, speed = SLOW, targetSpeed = SLOW;
+        let lastTs = null, rafId = null;
+
+        // Single source of truth: CSS :hover polled every frame.
+        // No isHovered flag — flags can get out of sync with events.
+        // prevHovered only avoids redundant DOM writes when state didn't change.
+        let prevHovered = false;
+        // windowActive guards against Firefox keeping :hover after Cmd+Tab
+        let windowActive = true;
+
+        const mover = moverRef.current;
+
+        function applyHoverState(hovered) {
+          if (hovered === prevHovered) return;
+          prevHovered = hovered;
+          if (hovered) {
+            canvasRef.current.style.transform = 'scale(0.70)';
+            tp.setAttribute('href', '#' + ID_TIGHT);
+            tp.setAttribute('textLength', cTight);
+            targetSpeed = FAST;
+          } else {
+            canvasRef.current.style.transform = 'scale(1)';
+            tp.setAttribute('href', '#' + ID_DEF);
+            tp.setAttribute('textLength', cDef);
+            targetSpeed = SLOW;
+            // Spring back to center
+            mover.style.transition = 'transform 0.55s cubic-bezier(0.34,1.56,0.64,1)';
+            mover.style.transform  = 'translate(0px,0px)';
+          }
+        }
+
+        // Magnetic follow — moves globe toward cursor while inside container
+        function onMouseMove(e) {
+          if (!wrap.matches(':hover')) return;
+          const r  = wrap.getBoundingClientRect();
+          const tx = ((e.clientX - (r.left + r.width  / 2)) / (r.width  / 2)) * 48;
+          const ty = ((e.clientY - (r.top  + r.height / 2)) / (r.height / 2)) * 48;
+          mover.style.transition = 'transform 0.06s ease-out';
+          mover.style.transform  = `translate(${tx}px,${ty}px)`;
+        }
+        wrap.addEventListener('mousemove', onMouseMove);
+
+        function loop(ts) {
+          if (lastTs === null) lastTs = ts;
+          // Cap dt so a hidden/backgrounded tab doesn't jump the angle
+          const dt = Math.min((ts - lastTs) / 1000, 0.1);
+          lastTs = ts;
+
+          // Derive hover state purely from CSS — runs 60× per second.
+          // This is structurally immune to all event timing bugs.
+          applyHoverState(windowActive && wrap.matches(':hover'));
+
+          speed += (targetSpeed - speed) * 0.08;
+          angle  = (angle + speed * dt) % 360;
+          svg.style.transform = `rotate(${angle}deg)`;
+          rafId = requestAnimationFrame(loop);
+        }
+        rafId = requestAnimationFrame(loop);
+
+        // Blur/visibility: only needed for Firefox which keeps :hover after Cmd+Tab
+        function onBlur()  { windowActive = false; applyHoverState(false); }
+        function onFocus() { windowActive = true; }
+        function onVisibility() { if (document.hidden) { windowActive = false; applyHoverState(false); } }
+
+        window.addEventListener('blur',              onBlur);
+        window.addEventListener('focus',             onFocus);
+        document.addEventListener('visibilitychange', onVisibility);
+
+        return () => {
+          wrap.removeEventListener('mousemove', onMouseMove);
+          window.removeEventListener('blur',              onBlur);
+          window.removeEventListener('focus',             onFocus);
+          document.removeEventListener('visibilitychange', onVisibility);
+          cancelAnimationFrame(rafId);
+        };
+      }, []);
+
       return (
-        <canvas ref={canvasRef} style={{ width:'100%', height:'100%', display:'block', position:'absolute', top:0, left:0 }} />
+        <div ref={wrapRef} style={{position:'absolute', top:0, left:0, right:0, bottom:0, cursor:'pointer'}}>
+          <div ref={moverRef} style={{position:'absolute', top:0, left:0, right:0, bottom:0}}>
+          <canvas ref={canvasRef} style={{width:'100%', height:'100%', display:'block', position:'absolute', top:0, left:0,
+            transition:'transform 0.4s cubic-bezier(0.34,1.56,0.64,1)', transformOrigin:'50% 50%',
+            pointerEvents:'none'}}
+          />
+          <svg
+            ref={svgRef}
+            viewBox="0 0 100 100"
+            style={{position:'absolute', top:0, left:0, width:'100%', height:'100%',
+                    transformOrigin:'50% 50%',
+                    pointerEvents:'none'}}
+          >
+            <defs>
+              <path id={ID_DEF}   d={dDef}   fill="none" />
+              <path id={ID_TIGHT} d={dTight} fill="none" />
+            </defs>
+            <text fontFamily='"DM Sans", system-ui, sans-serif' fontSize="6.2" fontWeight="600" letterSpacing="0">
+              <textPath ref={tpRef} href={'#' + ID_DEF} textLength={cDef} lengthAdjust="spacing">
+                <tspan fill="#ffffff">{"TORNIKE "}</tspan><tspan fill="#7B9EC0">{"✶"}</tspan>
+                <tspan fill="#ffffff">{" ZARIDZE "}</tspan><tspan fill="#7B9EC0">{"✶"}</tspan>
+                <tspan fill="#ffffff">{" TORNIKE "}</tspan><tspan fill="#7B9EC0">{"✶"}</tspan>
+                <tspan fill="#ffffff">{" ZARIDZE "}</tspan><tspan fill="#7B9EC0">{"✶"}</tspan>
+                <tspan fill="#ffffff">{" TORNIKE "}</tspan><tspan fill="#7B9EC0">{"✶"}</tspan>
+                <tspan fill="#ffffff">{" ZARIDZE "}</tspan><tspan fill="#7B9EC0">{"✶"}</tspan>
+                <tspan fill="#ffffff">{" TORNIKE "}</tspan><tspan fill="#7B9EC0">{"✶"}</tspan>
+                <tspan fill="#ffffff">{" ZARIDZE "}</tspan><tspan fill="#7B9EC0">{"✶"}</tspan>
+              </textPath>
+            </text>
+          </svg>
+          </div>
+        </div>
       );
     }
 
@@ -1279,6 +1620,29 @@ if __name__ == "__main__":
     }
 
     /* ─── PORTFOLIO ─────────────────────────────────────────── */
+    /* ─── LOCATION CLOCK ────────────────────────────────────── */
+    function LocationClock() {
+      const [time, setTime] = React.useState('');
+      React.useEffect(() => {
+        function tick() {
+          setTime(new Date().toLocaleTimeString('en-AT', {
+            timeZone: 'Europe/Vienna',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+            hour12: false,
+          }));
+        }
+        tick();
+        const id = setInterval(tick, 1000);
+        return () => clearInterval(id);
+      }, []);
+      return (
+        <span style={{color:"rgba(255,255,255,0.28)",fontSize:13}}>
+          Europe, Austria — {time}
+        </span>
+      );
+    }
+
+    /* ─── PORTFOLIO ─────────────────────────────────────────── */
     function Portfolio() {
       const [loaded, setLoaded] = useState(false);
       const [mobileNav, setMobileNav] = useState(false);
@@ -1310,7 +1674,7 @@ if __name__ == "__main__":
           boxSizing: "border-box", fontFamily: "var(--f-body)",
           overflowX: "clip",
           opacity: loaded ? 1 : 0, transition: "opacity 0.8s ease",
-          paddingBottom: 80,
+          paddingBottom: 0,
         }}>
           <style>{`
             @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
@@ -1333,6 +1697,7 @@ if __name__ == "__main__":
             @keyframes float3{0%,100%{transform:translateY(0px) rotate(2deg);}50%{transform:translateY(-10px) rotate(-1deg);}}
             @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.45}}
             @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
             @keyframes arcInLabel{
               0%  { transform: translate(-50%,-50%) scale(0.4) rotate(-25deg); opacity:0; }
               40% { transform: translate(-6px,-6px)  scale(0.7)  rotate(-12deg); opacity:0.5; }
@@ -1469,6 +1834,67 @@ if __name__ == "__main__":
               transition:color 0.3s;font-family:var(--f-body);background:none;border:none;
             }
             .footer-link:hover{color:#fff;}
+
+            /* ── Gravity Drop Section ─────────────── */
+            .gravity-section{
+              position:relative;
+              min-height:400px;
+              width:100%;
+              overflow:hidden;
+              padding:20px 0 40px;
+              border-bottom:1px solid rgba(255,255,255,0.06);
+              margin-bottom:0;
+            }
+            .gravity-group{
+              position:absolute;
+              top:0;
+              width:50%;
+              height:100%;
+            }
+            .gravity-left{left:0;}
+            .gravity-right{right:0;left:auto;}
+            .gravity-button{
+              position:absolute;
+              display:inline-flex;
+              align-items:center;
+              justify-content:center;
+              padding:12px 24px;
+              border:1px solid rgba(255,255,255,0.15);
+              border-radius:999px;
+              background:rgba(255,255,255,0.04);
+              color:#fff;
+              font-family:var(--f-body);
+              font-size:15px;
+              font-weight:500;
+              letter-spacing:0.02em;
+              text-decoration:none;
+              white-space:nowrap;
+              opacity:0;
+              cursor:pointer;
+              transition:background 0.3s ease,border-color 0.3s ease,transform 0.2s ease;
+            }
+            .gravity-button:hover{
+              background:rgba(255,255,255,0.10);
+              border-color:rgba(255,255,255,0.30);
+            }
+            .gravity-button{ z-index:1; }
+            .gravity-group{ pointer-events:none; }
+            .gravity-button{ pointer-events:auto; }
+            .footer-globe-wrap{
+              position:absolute;
+              left:50%;
+              top:50%;
+              transform:translate(-50%,-50%);
+              width:220px;
+              height:220px;
+              z-index:0;
+              pointer-events:auto;
+            }
+            @media(max-width:767px){
+              .gravity-section{min-height:480px;}
+              .gravity-group{width:50%;}
+            }
+
             .mob-toggle{display:none !important;}
             .mob-menu{display:none !important;}
 
@@ -1621,11 +2047,11 @@ if __name__ == "__main__":
               <TerminalLogo size={36} />
             </div>
             <div className="nav-links">
-              <button className="nav-link" onClick={()=>go("about")}>About Me</button>
-              <button className="nav-link" onClick={()=>go("services")}>Services</button>
               <button className="nav-link" onClick={()=>go("projects")}>Projects</button>
-              <button className="nav-link" onClick={()=>window.location.href="chess.html"}>Play Chess</button>
+              <a className="nav-link" href="services.html">Services</a>
+              <a className="nav-link" href="about.html">About Me</a>
               <button className="nav-link" onClick={(e)=>{e.preventDefault();if(window.__openContactModal)window.__openContactModal();else go("contact");}}>Contact</button>
+              <button className="nav-link" onClick={()=>window.location.href="chess.html"}>Play Chess</button>
             </div>
             <button className="mob-toggle" onClick={()=>setMobileNav(!mobileNav)}
               style={{display:"none",background:"none",border:"none",color:"#fff",fontSize:22,cursor:"pointer",padding:"4px 8px",marginLeft:12}}>
@@ -1636,9 +2062,11 @@ if __name__ == "__main__":
           {mobileNav&&(
             <div className="mob-menu" style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(10,10,10,0.97)",backdropFilter:"blur(20px)",zIndex:999,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:28}}>
               <button style={{position:"absolute",top:22,right:24,background:"none",border:"none",color:"rgba(255,255,255,0.6)",fontSize:26,cursor:"pointer"}} onClick={()=>setMobileNav(false)}>✕</button>
-              {["about","services","projects","contact"].map(s=>(
-                <button key={s} className="nav-link" onClick={()=>go(s)} style={{fontSize:22,textTransform:"capitalize"}}>{s==="about"?"About Me":s}</button>
+              {["projects","contact"].map(s=>(
+                <button key={s} className="nav-link" onClick={()=>go(s)} style={{fontSize:22,textTransform:"capitalize"}}>{s==="projects"?"Projects":"Contact"}</button>
               ))}
+              <a className="nav-link" href="about.html" style={{fontSize:22}}>About Me</a>
+              <a className="nav-link" href="services.html" style={{fontSize:22}}>Services</a>
               <button className="nav-link" onClick={()=>window.location.href="chess.html"} style={{fontSize:22}}>Play Chess</button>
             </div>
           )}
@@ -1682,22 +2110,21 @@ if __name__ == "__main__":
                       {[...Array(5)].map((_,i)=><span key={i} style={{color:"#c9a84c",fontSize:13}}>★</span>)}
                     </div>
                     <p style={{fontFamily:"var(--f-display)",fontStyle:"italic",fontSize:15,color:"rgba(255,255,255,0.8)",lineHeight:1.55,marginBottom:14}}>"Working with him was a game changer — delivered beyond expectations!"</p>
-                    <span style={{color:"rgba(255,255,255,0.3)",fontSize:13}}>— pranavnb</span>
+                    <span style={{color:"rgba(255,255,255,0.3)",fontSize:13}}>— Michaela</span>
                   </div>
                   <div className="tcard" style={{top:170,left:0,width:244,animation:"float2 5s ease-in-out infinite",zIndex:2}}>
                     <div style={{display:"flex",gap:2,marginBottom:12,alignItems:"center"}}>
                       {[...Array(5)].map((_,i)=><span key={i} style={{color:"#c9a84c",fontSize:13}}>★</span>)}
-                      <span className="icon-circle" style={{marginLeft:"auto"}}>↗</span>
                     </div>
                     <p style={{fontFamily:"var(--f-display)",fontStyle:"italic",fontSize:15,color:"rgba(255,255,255,0.8)",lineHeight:1.55,marginBottom:14}}>"Exceptional quality &amp; communication throughout."</p>
-                    <span style={{color:"rgba(255,255,255,0.3)",fontSize:13}}>— alexdev</span>
+                    <span style={{color:"rgba(255,255,255,0.3)",fontSize:13}}>— Irakli</span>
                   </div>
                   <div className="tcard" style={{bottom:0,right:16,width:254,animation:"float3 4s ease-in-out infinite"}}>
                     <div style={{display:"flex",gap:2,marginBottom:12,alignItems:"center"}}>
                       {[...Array(5)].map((_,i)=><span key={i} style={{color:"#c9a84c",fontSize:13}}>★</span>)}
                     </div>
                     <p style={{fontFamily:"var(--f-display)",fontStyle:"italic",fontSize:15,color:"rgba(255,255,255,0.8)",lineHeight:1.55,marginBottom:14}}>"We increased our conversions by 200% after the new site launched."</p>
-                    <span style={{color:"rgba(255,255,255,0.3)",fontSize:13}}>— vijaynb</span>
+                    <span style={{color:"rgba(255,255,255,0.3)",fontSize:13}}>— Georg</span>
                   </div>
                 </div>
               </div>
@@ -1721,11 +2148,6 @@ if __name__ == "__main__":
                       </div>
                     </div>
                   </PoloCard>
-                </Anim>
-                <Anim delay={350}>
-                  <div style={{minHeight:340,position:"relative",borderRadius:20,overflow:"hidden"}}>
-                    <GlobeSpinner />
-                  </div>
                 </Anim>
               </div>
             </div>
@@ -1761,12 +2183,12 @@ if __name__ == "__main__":
                   {/* Social icons */}
                   <div style={{display:"flex",gap:0,alignItems:"center",padding:"0 4px"}}>
                     {[
-                      { title:"Instagram", path: <><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></> },
-                      { title:"LinkedIn",  path: <><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></> },
-                      { title:"GitHub",    path: <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/> },
+                      { title:"Instagram", href:"#",                                                                   path: <><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></> },
+                      { title:"LinkedIn",  href:"https://www.linkedin.com/in/tornike-zaridze-48052b36a/",             path: <><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></> },
+                      { title:"GitHub",    href:"https://github.com/tokson7",                                         path: <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/> },
                     ].map((ic, i, arr) => (
                       <React.Fragment key={ic.title}>
-                        <a href="#" title={ic.title} style={{width:42,height:42,borderRadius:"50%",border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.02)",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all 0.3s ease",textDecoration:"none",flexShrink:0}}
+                        <a href={ic.href} title={ic.title} target={ic.href !== "#" ? "_blank" : undefined} rel={ic.href !== "#" ? "noopener noreferrer" : undefined} style={{width:42,height:42,borderRadius:"50%",border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.02)",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all 0.3s ease",textDecoration:"none",flexShrink:0}}
                           onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.25)";e.currentTarget.style.background="rgba(255,255,255,0.05)";}}
                           onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.1)";e.currentTarget.style.background="rgba(255,255,255,0.02)";}}>
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{ic.path}</svg>
@@ -1795,12 +2217,12 @@ if __name__ == "__main__":
                       {/* Frontend tags */}
                       <p style={{fontSize:11,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10}}>Frontend</p>
                       <div style={{display:"flex",flexWrap:"wrap",gap:10,marginBottom:20}}>
-                        {["React","Next.js","TypeScript","HTML/CSS","Tailwind CSS","Framer Motion"].map(s=>(<span key={s} className="skill-tag">{s}</span>))}
+                        {["React","Next.js","TypeScript","JavaScript (ES2023)","HTML5/CSS3","Tailwind CSS","GSAP","Three.js","SASS"].map(s=>(<span key={s} className="skill-tag">{s}</span>))}
                       </div>
                       {/* Backend tags */}
                       <p style={{fontSize:11,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10}}>Backend</p>
                       <div style={{display:"flex",flexWrap:"wrap",gap:10,marginBottom:28}}>
-                        {["Node.js","Python","PostgreSQL","Express","REST API","MongoDB"].map(s=>(<span key={s} className="skill-tag">{s}</span>))}
+                        {["Node.js","Python","PostgreSQL","Express","REST API","MongoDB","Django / FastAPI","SQL","MySQL","Redis","Prisma ORM","Docker","Git & Version Control"].map(s=>(<span key={s} className="skill-tag">{s}</span>))}
                       </div>
                       {/* AI Integration */}
                       <p style={{fontSize:11,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10}}>AI Integration</p>
@@ -1812,26 +2234,6 @@ if __name__ == "__main__":
                   </PoloCard>
                 </Anim>
               </div>
-            </div>
-          </SectionFrame>
-
-          {/* ── SERVICES ─────────────────────────────────────────── */}
-          <SectionFrame id="services">
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:24,marginBottom:56}}>
-              <div>
-                <Anim><div style={{...pill,display:"inline-flex",alignItems:"center",gap:6}}><span style={{width:10,height:10,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.5)",display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{width:4,height:4,borderRadius:"50%",background:"rgba(255,255,255,0.9)",display:"block"}}/></span>Development Services</div></Anim>
-                <Anim delay={150}><h2 style={heading}>Development <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>Services</em></h2></Anim>
-                <Anim delay={250}><p style={{color:"rgba(255,255,255,0.36)",fontSize:15}}>Explore a suite of development services to elevate your product.</p></Anim>
-              </div>
-              <Anim delay={300}><button className="btn-primary" onClick={()=>go("contact")}>Contact Now</button></Anim>
-            </div>
-            <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
-              <ServiceCard icon="🖥" title="Frontend Development" desc="Building breathtaking, user-centric web applications that boost engagement, conversions, and growth, perfectly aligned with your brand." delay={100}/>
-              <ServiceCard icon="⚙️" title="Backend Development" desc="Architecting robust, scalable, and secure server-side solutions that power your applications reliably and efficiently at any scale." delay={200}/>
-              <ServiceCard icon="🔗" title="API Development" desc="Designing and building clean, well-documented APIs that connect your services and enable seamless integrations with third-party tools." delay={300}/>
-              <ServiceCard icon="🗄" title="Database Design" desc="Crafting optimized database architectures and queries for fast, reliable data management at scale across your entire platform." delay={400}/>
-              <ServiceCard icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{width:26,height:26}}><circle cx="13.5" cy="6.5" r="0.5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r="0.5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r="0.5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r="0.5" fill="currentColor"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg>} title="UI/UX Design" desc="Crafting intuitive, beautiful interfaces through a trusted partnership with senior design specialists. While design isn't my primary craft, I collaborate closely with experienced UI/UX professionals who bring world-class expertise — ensuring your product looks as exceptional as it performs." delay={500}/>
-              <ServiceCard icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{width:26,height:26}}><path d="M9.06 11.9l8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"></path><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"></path></svg>} title="Graphic Design" desc="From brand identity to marketing visuals, I deliver complete graphic design solutions through my network of seasoned designers. Backed by years of professional experience, my creative partners handle every visual requirement with precision — so you get a cohesive brand presence without compromise." delay={600}/>
             </div>
           </SectionFrame>
 
@@ -2027,19 +2429,29 @@ if __name__ == "__main__":
           <ArcTextBanner />
 
           {/* ── CONTACT / FOOTER ─────────────────────────────────── */}
-          <SectionFrame id="contact" innerStyle={{overflow:"visible"}}>
-            <Anim>
-              <div style={{display:"flex",justifyContent:"center",gap:40,flexWrap:"wrap",borderBottom:"1px solid rgba(255,255,255,0.06)",paddingBottom:60,marginBottom:0}}>
-                {["Twitter (X)","LinkedIn","Instagram","GitHub"].map(s=>(
-                  <button key={s} className="footer-link">{s} →</button>
-                ))}
+          <SectionFrame id="contact" innerStyle={{overflow:"visible",background:"#0a0a0a",WebkitMaskImage:"none",maskImage:"none",borderTopLeftRadius:0,borderTopRightRadius:0,padding:"0 80px 0"}}>
+            <div id="gravity-footer" className="gravity-section">
+              <div className="footer-globe-wrap"><GlobeSpinner /></div>
+              <div className="gravity-group gravity-left">
+                <a href="#projects" className="gravity-button" data-x="8" data-y="15" data-rot="-4">Projects</a>
+                <a href="#about" className="gravity-button" data-x="5" data-y="38" data-rot="-2">About Me</a>
+                <a href="#services" className="gravity-button" data-x="20" data-y="58" data-rot="6">Services</a>
+                <a href="chess.html" className="gravity-button" data-x="12" data-y="75" data-rot="3">Play Chess</a>
               </div>
-            </Anim>
+              <div className="gravity-group gravity-right">
+                <a href="https://www.linkedin.com/in/tornike-zaridze-48052b36a/" target="_blank" rel="noopener noreferrer" className="gravity-button" data-x="55" data-y="8" data-rot="5">LinkedIn</a>
+                <a href="https://instagram.com/tornike.zaridze" target="_blank" rel="noopener noreferrer" className="gravity-button" data-x="68" data-y="33" data-rot="-3">Instagram</a>
+                <a href="https://github.com/tokson7" target="_blank" rel="noopener noreferrer" className="gravity-button" data-x="52" data-y="57" data-rot="4">GitHub</a>
+                <a href="privacy.html" className="gravity-button" data-x="62" data-y="78" data-rot="-2">Privacy Policy</a>
+              </div>
+            </div>
             <div style={{borderTop:"1px solid rgba(255,255,255,0.06)"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:14,padding:"22px 0"}}>
-                <span style={{color:"rgba(255,255,255,0.28)",fontSize:13}}>Tbilisi, Georgia</span>
-                <button onClick={()=>window.scrollTo({top:0,behavior:"smooth"})} style={{background:"none",border:"none",color:"rgba(255,255,255,0.28)",fontSize:13,cursor:"pointer",fontFamily:"var(--f-body)"}}>↑ Back to top</button>
-                <span style={{color:"rgba(255,255,255,0.28)",fontSize:13}}>©2025 Tornike Zaridze. All rights reserved.</span>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:14,padding:"14px 0"}}>
+                <div style={{display:"flex",flexDirection:"column",gap:4}}>
+                  <LocationClock />
+                  <span style={{color:"rgba(255,255,255,0.28)",fontSize:13}}>zaridze2909@gmail.com</span>
+                </div>
+                <span style={{color:"rgba(255,255,255,0.28)",fontSize:13}}>©2026 Tornike Zaridze. All rights reserved.</span>
               </div>
             </div>
           </SectionFrame>
@@ -2053,7 +2465,7 @@ if __name__ == "__main__":
   </script>
 
   <!-- ======= CONTACT MODAL ======= -->
-  <div id="contact-modal" class="contact-modal" aria-hidden="true">
+  <div id="contact-modal" class="contact-modal" aria-hidden="true" style="display:none">
     <div class="modal-backdrop" data-close-modal></div>
     <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <button class="modal-close" data-close-modal aria-label="Close">
@@ -2122,8 +2534,17 @@ if __name__ == "__main__":
     // Expose so React JSX can call window.__openContactModal()
     window.__openContactModal = function() { openModal(); };
 
+    // Auto-open if navigated from services/other pages via sessionStorage flag
+    if (sessionStorage.getItem('openContact') === '1') {
+      sessionStorage.removeItem('openContact');
+      window.addEventListener('load', function() {
+        setTimeout(openModal, 400);
+      });
+    }
+
     function openModal(e) {
       if (e) { e.preventDefault(); e.stopPropagation(); }
+      modal.style.display = '';
       modal.classList.add('is-open');
       modal.setAttribute('aria-hidden', 'false');
       document.body.classList.add('modal-open');
@@ -2141,6 +2562,7 @@ if __name__ == "__main__":
         form.reset();
         statusEl.textContent = '';
         statusEl.className = 'form-status';
+        modal.style.display = 'none';
       }, 400);
     }
 
@@ -2205,6 +2627,376 @@ if __name__ == "__main__":
         submitBtn.innerHTML = originalHTML;
       });
     });
+  })();
+  </script>
+
+  <!-- ======= GRAVITY DROP ANIMATION ======= -->
+  <script>
+  (function() {
+    function initGravity(section) {
+      if (typeof gsap === 'undefined') return;
+      var buttons = section.querySelectorAll('.gravity-button');
+      if (!buttons.length) return;
+
+      var hasAnimated = false;
+
+      // Set each button's target X/Y position inside its group
+      buttons.forEach(function(btn) {
+        btn.style.left = btn.dataset.x + '%';
+        btn.style.top  = btn.dataset.y + '%';
+      });
+
+      // Respect reduced-motion: skip animation, show buttons directly
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        buttons.forEach(function(btn) {
+          gsap.set(btn, { y: 0, rotation: parseFloat(btn.dataset.rot) || 0, opacity: 1 });
+        });
+        return;
+      }
+
+      function runAnimation() {
+        if (hasAnimated) return;
+        hasAnimated = true;
+
+        buttons.forEach(function(btn, index) {
+          var finalRot    = parseFloat(btn.dataset.rot) || 0;
+          var fallDelay   = index * 0.09 + Math.random() * 0.08;
+          var initTumble  = (Math.random() - 0.5) * 60;
+
+          var tl = gsap.timeline({ delay: fallDelay });
+
+          // Phase 1 — gravity fall (accelerating)
+          tl.fromTo(btn,
+            { y: -500, rotation: initTumble, opacity: 0 },
+            { y: 0,    rotation: finalRot,   opacity: 1,
+              duration: 0.85, ease: 'power2.in' }
+          );
+
+          // Phase 2 — bounce sequence
+          tl.to(btn, { y:  18, duration: 0.12, ease: 'power1.out' });
+          tl.to(btn, { y: -10, rotation: finalRot - 2, duration: 0.18, ease: 'power1.out' });
+          tl.to(btn, { y:   5, rotation: finalRot + 1, duration: 0.14, ease: 'power1.out' });
+          tl.to(btn, { y:  -2, rotation: finalRot,     duration: 0.12, ease: 'power1.out' });
+          tl.to(btn, { y:   0, rotation: finalRot,     duration: 0.16, ease: 'power2.out' });
+        });
+      }
+
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.4) {
+            runAnimation();
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.4 });
+
+      observer.observe(section);
+
+      // ── Magnetic follow effect ────────────────────────────────
+      // Each button follows the cursor while hovered, snaps back on leave.
+      // Uses GSAP quickTo for silky 60fps interpolation without layout thrash.
+      buttons.forEach(function(btn) {
+        var xTo = gsap.quickTo(btn, 'x', { duration: 0.15, ease: 'power2.out' });
+        var yTo = gsap.quickTo(btn, 'y', { duration: 0.15, ease: 'power2.out' });
+
+        // Strength: how far (px) the button can travel toward cursor.
+        // Proportional to button size so larger buttons feel natural.
+        var STRENGTH = 0.65;
+
+        btn.addEventListener('mousemove', function(e) {
+          var r   = btn.getBoundingClientRect();
+          var cx  = r.left + r.width  / 2;
+          var cy  = r.top  + r.height / 2;
+          var dx  = (e.clientX - cx) * STRENGTH;
+          var dy  = (e.clientY - cy) * STRENGTH;
+          xTo(dx);
+          yTo(dy);
+        });
+
+        btn.addEventListener('mouseleave', function() {
+          // Snap back to GSAP-controlled y=0 (bounce-settled position)
+          xTo(0);
+          yTo(0);
+        });
+      });
+    }
+
+    // React 18 renders asynchronously — retry until element is in DOM
+    function waitFor(retries) {
+      var el = document.getElementById('gravity-footer');
+      if (el) { initGravity(el); return; }
+      if (retries > 0) setTimeout(function() { waitFor(retries - 1); }, 50);
+    }
+    setTimeout(function() { waitFor(30); }, 0);
+  })();
+  </script>
+
+  <!-- ======= CINEMATIC INTRO — GSAP TIMELINE ======= -->
+  <script>
+  (function() {
+    var overlay   = document.getElementById('introOverlay');
+    var skipBtn   = document.getElementById('introSkip');
+    var logoEl    = document.getElementById('introLogo');
+    var welcome   = document.getElementById('introWelcome');
+    var welcomeTxt= document.getElementById('introWelcomeText');
+    var cursor    = document.getElementById('introCursor');
+
+    if (!overlay || typeof gsap === 'undefined') {
+      // GSAP not yet loaded — wait for it
+      window.addEventListener('load', runIntro);
+    } else {
+      runIntro();
+    }
+
+    function shouldSkipIntro() {
+      try {
+        // Detect navigation type
+        var entries = performance.getEntriesByType('navigation');
+        var navType = 'navigate';
+        if (entries.length) {
+          navType = entries[0].type;
+        } else if (performance.navigation) {
+          navType = ['navigate','reload','','back_forward'][performance.navigation.type] || 'navigate';
+        }
+
+        // Always play on page reload (F5 / Ctrl+R)
+        if (navType === 'reload') return false;
+
+        // Skip on browser back/forward button
+        if (navType === 'back_forward') return true;
+
+        // Skip if navigating from within the same site (e.g. services.html → index.html)
+        if (navType === 'navigate' && document.referrer) {
+          try {
+            if (new URL(document.referrer).origin === location.origin) return true;
+          } catch(e) {}
+        }
+      } catch(e) {}
+      return false;
+    }
+
+    function runIntro() {
+      if (!overlay) return;
+
+      if (shouldSkipIntro()) {
+        finish(); return;
+      }
+
+      document.body.classList.add('intro-active');
+
+      // Respect reduced motion
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        finish(); return;
+      }
+
+      var tl = gsap.timeline({ onComplete: finish });
+
+      /* ── Scene 0: Void (already black overlay, just a beat) ── */
+      tl.set(overlay, { opacity: 1 }, 0);
+
+      /* ── Scene 1: The Drop (HEAVY) ── */
+      // Apply vertical motion blur at fall start
+      tl.set('.intro-frame', { attr: { filter: 'url(#motionBlur)' } }, 0.3);
+      tl.fromTo('.intro-frame',
+        { opacity: 0, y: -600, rotation: -12, scale: 1.1, transformOrigin: '60px 60px' },
+        { opacity: 1, y: 26,   rotation: 0,   scale: 1,
+          duration: 1.05, ease: 'power3.in' },
+        0.3
+      );
+      // Snap sharp just before impact
+      tl.set('.intro-frame', { attr: { filter: 'url(#frameGlow)' } }, 1.25);
+      // Settle with bounce — heavy object landing
+      tl.to('.intro-frame', {
+        y: 0,
+        duration: 0.32,
+        ease: 'bounce.out',
+      });
+      // Shockwave rings fire at moment of impact — use attr r to avoid SVG compositing issues
+      tl.set('.intro-shockwave', { visibility: 'visible' }, 1.25);
+      tl.fromTo('.intro-shockwave-a',
+        { opacity: 0.9, attr: { r: 55 } },
+        { opacity: 0, attr: { r: 240 }, duration: 0.6, ease: 'power2.out', immediateRender: false },
+        1.3
+      );
+      tl.fromTo('.intro-shockwave-b',
+        { opacity: 0.7, attr: { r: 55 } },
+        { opacity: 0, attr: { r: 270 }, duration: 0.7, ease: 'power2.out', immediateRender: false },
+        1.38
+      );
+      tl.set('.intro-shockwave', { visibility: 'hidden' }, 2.1);
+
+      /* ── Scene 2: Impact — Radial Crack Explosion ── */
+      // Primary cracks explode outward simultaneously
+      tl.to('.intro-cracks .primary', {
+        opacity: 1,
+        strokeDashoffset: 0,
+        duration: 0.5,
+        ease: 'power4.out',
+        stagger: { each: 0.02, from: 'random' },
+      }, '-=0.18');
+
+      // Secondary cracks branch outward
+      tl.to('.intro-cracks .secondary', {
+        opacity: 1,
+        strokeDashoffset: 0,
+        duration: 0.4,
+        ease: 'power3.out',
+        stagger: { each: 0.04, from: 'random' },
+      }, '-=0.3');
+
+      // Micro hairline cracks
+      tl.to('.intro-cracks .micro', {
+        opacity: 1,
+        strokeDashoffset: 0,
+        duration: 0.3,
+        ease: 'power2.out',
+        stagger: { each: 0.03, from: 'random' },
+      }, '-=0.22');
+
+      // Violent screen shake
+      tl.to(overlay, {
+        x: function() { return (Math.random() - 0.5) * 22; },
+        y: function() { return (Math.random() - 0.5) * 22; },
+        duration: 0.04,
+        yoyo: true,
+        repeat: 12,
+        ease: 'none',
+      }, '-=0.42');
+      tl.set(overlay, { x: 0, y: 0 });
+
+      // Crack glow pulse flash at impact
+      tl.to('.intro-cracks', {
+        opacity: 0.45,
+        duration: 0.08,
+        yoyo: true,
+        repeat: 1,
+        ease: 'power2.out',
+      }, '-=0.28');
+
+      // Organic crack flicker begins — cracks breathe faintly from here on
+      tl.add(function() { startCrackFlicker(); }, '+=0.1');
+
+      /* ── Scene 3: Symbol Arrival ── */
+      tl.fromTo('.intro-symbol-gt',
+        { attr: { x: -72 }, opacity: 0 },
+        { attr: { x:  38 }, opacity: 1,
+          duration: 0.68, ease: 'power3.out' },
+        '+=0.18'
+      );
+      tl.fromTo('.intro-symbol-us',
+        { attr: { x: 192 }, opacity: 0 },
+        { attr: { x:  72 }, opacity: 1,
+          duration: 0.68, ease: 'power3.out' },
+        '<'
+      );
+
+      /* ── Scene 4: Flex / Breathe ── */
+      tl.to(logoEl, {
+        scale: 1.26,
+        duration: 0.28,
+        ease: 'power2.out',
+        transformOrigin: '50% 50%',
+      }, '+=0.18');
+      tl.to(logoEl, {
+        scale: 1,
+        duration: 0.55,
+        ease: 'elastic.out(1, 0.42)',
+      });
+
+      /* ── Scene 5: The Blink ── */
+      tl.add(function() {
+        var gt = document.querySelector('.intro-symbol-gt');
+        if (!gt) return;
+        gt.textContent = '\u2014'; // em-dash (closed eye)
+        setTimeout(function() { gt.textContent = '>'; }, 200);
+      }, '+=0.12');
+      tl.to({}, { duration: 0.42 }); // hold
+
+      /* ── Scene 6: Welcome Reveal — typing ── */
+      tl.to(welcome, {
+        opacity: 1, duration: 0.25, ease: 'power2.out',
+      });
+      tl.to(cursor, { opacity: 1, duration: 0.08 });
+
+      var str = 'Welcome...';
+      str.split('').forEach(function(ch, i) {
+        tl.add(function() {
+          welcomeTxt.textContent = str.substring(0, i + 1);
+        }, '+=' + (i === 0 ? 0 : 0.078));
+      });
+
+      // Cursor stays blinking a moment after typing
+      tl.to({}, { duration: 0.5 });
+
+      /* ── Scene 7: Fade Out ── */
+      tl.to(overlay, {
+        opacity: 0,
+        duration: 1.05,
+        ease: 'power2.inOut',
+      }, '+=0.28');
+
+      /* ── Skip button ── */
+      if (skipBtn) {
+        skipBtn.addEventListener('click', function() {
+          tl.kill();
+          gsap.killTweensOf('.intro-crack');
+          gsap.to(overlay, {
+            opacity: 0, duration: 0.4, ease: 'power2.out',
+            onComplete: finish,
+          });
+        });
+      }
+
+      function startCrackFlicker() {
+        // Primary cracks — slow luminous pulse
+        gsap.to('.intro-crack.primary', {
+          opacity: 0.55,
+          duration: function() { return 0.8 + Math.random() * 0.5; },
+          yoyo: true,
+          repeat: -1,
+          ease: 'sine.inOut',
+          stagger: { each: 0.18, from: 'random' },
+          repeatDelay: function() { return 0.4 + Math.random() * 1.2; },
+        });
+        // Secondary cracks — slightly faster, dimmer
+        gsap.to('.intro-crack.secondary', {
+          opacity: 0.45,
+          duration: function() { return 0.55 + Math.random() * 0.4; },
+          yoyo: true,
+          repeat: -1,
+          ease: 'sine.inOut',
+          stagger: { each: 0.22, from: 'random' },
+          repeatDelay: function() { return 0.6 + Math.random() * 1.5; },
+        });
+        // Micro cracks — occasional faint flicker
+        gsap.to('.intro-crack.micro', {
+          opacity: 0.25,
+          duration: function() { return 0.3 + Math.random() * 0.3; },
+          yoyo: true,
+          repeat: -1,
+          ease: 'power1.inOut',
+          stagger: { each: 0.3, from: 'random' },
+          repeatDelay: function() { return 0.8 + Math.random() * 2.2; },
+        });
+        // Bright spike on primaries — rare energy burst
+        gsap.to('.intro-crack.primary', {
+          opacity: 1,
+          duration: 0.06,
+          yoyo: true,
+          repeat: 1,
+          ease: 'power3.out',
+          stagger: { each: 0.04, from: 'random' },
+          repeatDelay: function() { return 0.6 + Math.random() * 2.5; },
+          delay: function() { return Math.random() * 1.5; },
+        });
+      }
+
+      function finish() {
+        gsap.killTweensOf('.intro-crack');
+        if (overlay) overlay.style.display = 'none';
+        document.body.classList.remove('intro-active');
+      }
+    }
   })();
   </script>
 </body>

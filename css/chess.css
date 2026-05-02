@@ -43,9 +43,15 @@ body {
   border-radius: 999px; background: rgba(18,18,18,0.55);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 32px rgba(0,0,0,0.5);
-  max-width: 95vw;
+  max-width: 95vw; overflow: hidden;
+  transition: padding 0.45s cubic-bezier(0.16,1,0.3,1);
 }
-.nav-links { flex: 1; display: flex; justify-content: center; gap: 8px; margin: 0 24px; }
+.nav-links {
+  display: flex; justify-content: center; gap: 8px;
+  max-width: 0; opacity: 0; overflow: hidden; margin: 0;
+  transition: max-width 0.45s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease, margin 0.45s cubic-bezier(0.16,1,0.3,1);
+}
+.nav-pill.expanded .nav-links { max-width: 700px; opacity: 1; margin: 0 24px; }
 .nav-link {
   color: rgba(255,255,255,0.55); text-decoration: none; font-size: 14px;
   padding: 8px 18px; border-radius: 999px; cursor: pointer;
@@ -109,9 +115,61 @@ body {
   display: none; min-height: 100vh;
   justify-content: center; align-items: center;
   padding: 80px 24px 20px;
-  opacity: 0; transition: opacity 0.4s ease;
+  /* deep perspective so Z-translation reads as real distance */
+  perspective: 900px;
+  perspective-origin: 50% 38%;
 }
-#game-screen.visible { display: flex; opacity: 1; }
+#game-screen.visible { display: flex; }
+
+/* ─── Board fly-in: deep space → settle ──────────────
+   0%  : tiny dot far in Z-space, heavily tilted, invisible
+   30% : fades in — still small and distant
+   58% : blur clears mid-approach
+   80% : micro-overshoot (spring)
+   91% : settle-rebound
+   100%: perfectly flat, full size
+──────────────────────────────────────────────────── */
+@keyframes boardFlyIn {
+  0% {
+    transform:
+      rotateX(72deg) rotateY(-44deg) rotateZ(28deg)
+      translate3d(120px, -80px, -3200px)
+      scale(0.06);
+    opacity: 0;
+    filter: blur(28px);
+  }
+  30% {
+    opacity: 1;
+  }
+  58% {
+    filter: blur(0);
+  }
+  80% {
+    transform:
+      rotateX(-6deg) rotateY(5deg) rotateZ(-3deg)
+      translate3d(-8px, 8px, 32px)
+      scale(1.04);
+  }
+  91% {
+    transform:
+      rotateX(1.8deg) rotateY(-1.2deg) rotateZ(0.6deg)
+      translate3d(2px, -2px, -8px)
+      scale(0.992);
+  }
+  100% {
+    transform:
+      rotateX(0) rotateY(0) rotateZ(0)
+      translate3d(0, 0, 0)
+      scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+#game-screen.visible .game-container {
+  animation: boardFlyIn 1.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity, filter;
+}
 
 .game-container {
   display: flex; flex-direction: column; align-items: center; gap: 8px;

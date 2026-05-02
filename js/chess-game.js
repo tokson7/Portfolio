@@ -376,11 +376,9 @@ function launchGame() {
   landing.classList.add('hidden');
   setTimeout(function(){
     landing.style.display = 'none';
-    screen.style.display  = 'flex';
-    requestAnimationFrame(function(){
-      screen.classList.add('visible');
-      initGame();
-    });
+    /* Add .visible — CSS animation on .game-container fires immediately */
+    screen.classList.add('visible');
+    initGame();
   }, 350);
 }
 

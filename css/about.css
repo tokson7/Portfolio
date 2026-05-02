@@ -1,0 +1,956 @@
+/* ═══ ABOUT PAGE ═══════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --f-display : 'Instrument Serif', serif;
+  --f-body    : 'DM Sans', sans-serif;
+  --f-anton   : 'Anton', sans-serif;
+  --bg        : #080808;
+  --border    : rgba(255,255,255,0.07);
+  --muted     : rgba(255,255,255,0.35);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: #fff;
+  font-family: var(--f-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+/* ── View transition (same as services/privacy expand) ──────────── */
+@view-transition { navigation: auto; }
+::view-transition-old(root) { animation: none; z-index: 0; }
+::view-transition-new(root) {
+  z-index: 1;
+  animation: aboutExpand 1.6s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes aboutExpand {
+  from { clip-path: inset(44vh 44vw round 14px); opacity: 0.85; }
+  to   { clip-path: inset(0% 0% round 0px);      opacity: 1;    }
+}
+
+/* ── Nav (same pill as chess/index) ────────────────────────────── */
+.nav-pill {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000;
+  display: flex; align-items: center; gap: 0; padding: 10px 20px;
+  border-radius: 999px; background: rgba(18,18,18,0.55);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 4px 32px rgba(0,0,0,0.5);
+  max-width: 95vw; overflow: hidden;
+  transition: padding 0.45s cubic-bezier(0.16,1,0.3,1);
+}
+.nav-links {
+  display: flex; justify-content: center; gap: 8px;
+  max-width: 0; opacity: 0; overflow: hidden; margin: 0;
+  transition: max-width 0.45s cubic-bezier(0.16,1,0.3,1),
+              opacity   0.30s ease,
+              margin    0.45s cubic-bezier(0.16,1,0.3,1);
+}
+.nav-pill.expanded .nav-links { max-width: 700px; opacity: 1; margin: 0 24px; }
+.nav-link {
+  color: rgba(255,255,255,0.55); text-decoration: none; font-size: 14px;
+  padding: 8px 18px; border-radius: 999px; cursor: pointer;
+  transition: all 0.3s ease; background: none; border: none;
+  white-space: nowrap; font-family: var(--f-body);
+}
+.nav-link:hover   { color: #fff; background: rgba(255,255,255,0.06); }
+.nav-link.active  { color: #fff; background: rgba(255,255,255,0.08); }
+
+/* ── Page wrapper ───────────────────────────────────────────────── */
+.about-page {
+  position: relative;
+  min-height: 100vh;
+  /* NO overflow:hidden — it silently kills position:sticky on descendants */
+  overflow: clip; /* clips visually without creating a scroll container */
+}
+
+/* ── Subtle grid background ────────────────────────────────────── */
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 80px 80px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Giant background typography ──────────────────────────────── */
+.bg-text-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0;
+  padding: 96px 32px 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.bg-text-line {
+  font-family: var(--f-anton);
+  font-size: clamp(72px, 12vw, 200px);
+  font-weight: 900;
+  color: rgba(255,255,255,0.92);
+  letter-spacing: -0.01em;
+  line-height: 0.88;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.bg-text-italic {
+  font-family: var(--f-display);
+  font-style: italic;
+  font-weight: 400;
+  text-transform: lowercase;
+  font-size: clamp(52px, 9vw, 150px);
+  color: #7B9EC0;
+  line-height: 1.0;
+}
+
+/* ── Content layer ──────────────────────────────────────────────── */
+.about-content {
+  display: none;
+}
+
+/* Role pill */
+.role-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 999px; padding: 6px 16px;
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(255,255,255,0.5); margin-bottom: 28px;
+  font-weight: 600;
+}
+.role-pill span {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255,255,255,0.4); display: inline-block;
+}
+
+.about-content h1 {
+  font-family: var(--f-display);
+  font-size: clamp(3rem, 7vw, 6rem);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  margin-bottom: 32px;
+}
+.about-content h1 em {
+  font-style: italic;
+  color: rgba(255,255,255,0.6);
+}
+
+.about-lead {
+  font-size: clamp(16px, 2vw, 19px);
+  line-height: 1.75;
+  color: rgba(255,255,255,0.6);
+  max-width: 600px;
+  margin-bottom: 56px;
+}
+
+/* ── Stat grid ─────────────────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 56px;
+}
+.stat-cell {
+  background: rgba(255,255,255,0.025);
+  padding: 28px 24px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.stat-cell:hover { background: rgba(255,255,255,0.04); }
+.stat-number {
+  font-family: var(--f-display);
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.stat-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── Skills ─────────────────────────────────────────────────────── */
+.skills-section { margin-bottom: 56px; }
+.section-heading {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 18px;
+}
+.skills-list {
+  display: flex; flex-wrap: wrap; gap: 10px;
+}
+.skill-chip {
+  padding: 8px 18px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 999px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.65);
+  background: rgba(255,255,255,0.025);
+  transition: all 0.25s;
+}
+.skill-chip:hover {
+  border-color: rgba(255,255,255,0.28);
+  color: #fff;
+  background: rgba(255,255,255,0.06);
+}
+
+/* ── CTA button ────────────────────────────────────────────────── */
+.about-cta {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: #fff; color: #000;
+  padding: 14px 28px; border-radius: 999px;
+  font-size: 14px; font-weight: 600; text-decoration: none;
+  transition: all 0.25s;
+}
+.about-cta:hover { transform: scale(1.03); box-shadow: 0 4px 24px rgba(255,255,255,0.18); }
+
+/* ════════════════════════════════════════════════════════════════
+   PHYSICS STICKER — ELECTRIC CYAN THEME
+   ════════════════════════════════════════════════════════════════ */
+.sticker-physics-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  pointer-events: none;
+  z-index: 200;
+}
+
+#ropeCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ── Sticker DOM element ────────────────────────────────────────── */
+.sticker-element {
+  position: absolute;
+  top: 0; left: 0;
+  width: 280px;
+  pointer-events: auto;
+  cursor: grab;
+  transform-origin: 140px 28px; /* pivot = grommet center */
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+  touch-action: none;
+}
+.sticker-element:active { cursor: grabbing; }
+
+/* ── Grommet (metal ring at top that hook passes through) ────────── */
+.sticker-grommet {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  z-index: 5;
+  display: flex; align-items: center; justify-content: center;
+  /* Outer metal ring */
+  background: conic-gradient(
+    from 45deg,
+    #3c3c3c 0deg, #5a5a5a 60deg, #2a2a2a 120deg,
+    #444    180deg, #606060 240deg, #1e1e1e 300deg, #3c3c3c 360deg
+  );
+  box-shadow: 0 2px 6px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.12);
+}
+.grommet-ring {
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 45deg,
+    #1a1a1a 0deg, #2e2e2e 90deg, #111 180deg, #2a2a2a 270deg, #1a1a1a 360deg
+  );
+}
+.grommet-hole {
+  position: absolute;
+  inset: 9px;
+  border-radius: 50%;
+  background: #04080a;
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.9);
+  z-index: 2;
+}
+
+/* ── Sticker card body — Electric Cyan ──────────────────────────── */
+.sticker-card {
+  width: 100%;
+  background: linear-gradient(138deg, #8fb4d4 0%, #7B9EC0 45%, #6288aa 100%);
+  border-radius: 18px;
+  padding: 46px 26px 24px;  /* top padding clears grommet */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 28px 60px rgba(0,0,0,0.65),
+    0  8px 20px rgba(0,200,240,0.22),
+    0  0  50px rgba(0,200,240,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.28);
+}
+
+/* Radial gloss — top-left catch light */
+.sticker-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 28% 18%,
+    rgba(255,255,255,0.22) 0%,
+    transparent 45%
+  );
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Top gloss strip */
+.sticker-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 42%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 100%);
+  border-radius: 18px 18px 0 0;
+  pointer-events: none;
+}
+
+.sticker-tag-line {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(0,20,40,0.55);
+  margin-bottom: 14px;
+}
+
+.sticker-headline {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.sticker-line {
+  font-family: var(--f-anton);
+  font-size: 36px;
+  line-height: 0.96;
+  text-transform: uppercase;
+  color: #ffffff;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.1), 0 4px 14px rgba(0,0,0,0.18);
+}
+
+.sticker-divider {
+  height: 1px;
+  background: rgba(0,20,40,0.2);
+  margin: 16px 0;
+}
+
+.sticker-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sticker-name {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(0,20,40,0.6);
+}
+
+.sticker-logo-wrap {
+  width: 40px; height: 40px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.sticker-logo-wrap svg { width: 100%; height: 100%; display: block; }
+
+/* Hint text shown beneath sticker */
+.sticker-hint {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -30px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(0,217,255,0.3);
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.5s;
+}
+
+/* ── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .about-content { padding: 140px 24px 160px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .stats-grid .stat-cell:last-child { grid-column: 1 / -1; }
+  .sticker-element { width: 240px; }
+  .sticker-line { font-size: 30px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   APPROACH — STACKING CARDS
+   ═══════════════════════════════════════════════════════════════ */
+.approach-section {
+  position: relative;
+  background: #080808;
+  padding-bottom: 0;
+}
+
+/* Intro header above the stack */
+.approach-intro {
+  padding: 80px clamp(28px, 5vw, 80px) 48px;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.approach-intro-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+}
+
+.approach-intro-title {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(2rem, 4vw, 4rem);
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin: 0;
+}
+
+/* Bounded container — isolation keeps card z-index from leaking into siblings */
+.stack-track {
+  position: relative;
+  isolation: isolate;
+}
+
+/* CSS variables used by JS to drive depth effect per-card */
+.approach-card {
+  --p: 0;
+
+  position: sticky;
+  top: calc(80px + var(--i, 0) * 80px);
+  z-index: calc(var(--i, 0) + 1);
+  width: 100%;
+  min-height: 38vh;
+  background: var(--card-bg);
+  color: var(--card-fg);
+  border-radius: 0;
+  overflow: hidden;
+  transform-origin: 50% 0%;
+  will-change: transform, filter, opacity;
+
+  filter:    blur(calc(var(--p) * 12px));
+  transform: scale(calc(1 - var(--p) * 0.18)) translateZ(0);
+  opacity:   calc(1 - var(--p) * 0.55);
+  /* NO transition — scroll is the interpolator */
+}
+
+.approach-card:first-of-type { border-radius: 20px 20px 0 0; }
+.approach-card:last-of-type  { border-radius: 0 0 20px 20px; }
+
+/* Reduced motion: keep stacking, kill blur/scale/opacity + zoom */
+@media (prefers-reduced-motion: reduce) {
+  .approach-card {
+    filter: none !important;
+    transform: translateZ(0) !important;
+    opacity: 1 !important;
+  }
+  .plus-zoom-text { transform: scale(1) !important; }
+}
+
+.approach-card-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+  padding: 4.5vh clamp(28px, 5vw, 80px);
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Left — label + headline */
+.approach-left {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.approach-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.approach-title {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(1.8rem, 3.4vw, 3.2rem);
+  font-weight: 900;
+  line-height: 0.96;
+  letter-spacing: -0.02em;
+  color: var(--card-fg);
+  margin: 0;
+}
+
+/* Center — description */
+.approach-center {
+  padding-right: clamp(60px, 9vw, 140px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.approach-desc {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  opacity: 0.78;
+  color: var(--card-fg);
+  margin: 0;
+}
+
+.approach-num {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(5rem, 8vw, 8rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  opacity: 0.13;
+  color: var(--card-fg);
+  user-select: none;
+  white-space: nowrap;
+  position: absolute;
+  right: clamp(20px, 3vw, 60px);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.approach-cta {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--card-fg);
+  text-decoration: none;
+  opacity: 0.7;
+  align-self: flex-end;
+  cursor: pointer;
+}
+
+/* ── PLUS ZOOM section — SIBLING of approach-section ──────────────── */
+.plus-zoom-section {
+  position: relative;
+  height: 330vh;   /* ~180vh zoom phase + ~140vh scatter phase, brief hold at end */
+  background: #080808;
+}
+
+.plus-zoom-sticky {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: #080808;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* CSS variable --zoom (0→1) driven by scroll; scale(1 + zoom*75) makes
+   the + fill the entire viewport at zoom=1. transform-origin is set in
+   JS to the geometric center of .plus-marker so the + grows in place. */
+.plus-zoom-text {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28em;
+  font-family: 'Anton', sans-serif;
+  font-size: 8vw;
+  font-weight: 900;
+  color: #F5F5F5;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+  transform: scale(calc(1 + var(--zoom) * 75));
+  will-change: transform;
+  /* No transition — scroll is the interpolator */
+}
+
+/* CSS-drawn cross — NOT a font + glyph.
+   Using background gradients ensures the geometric center of this element
+   IS the visual center of the +, so getBoundingClientRect gives exact coords
+   for transform-origin. A font glyph's baseline offset would drift at 75× scale. */
+.plus-marker {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 1em;
+  height: 1em;
+  background:
+    linear-gradient(#F5F5F5, #F5F5F5) center / 100% 22% no-repeat,
+    linear-gradient(#F5F5F5, #F5F5F5) center / 22% 100% no-repeat;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .approach-card-inner {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 28px 24px 36px;
+  }
+  .approach-card { min-height: 44vh; top: calc(64px + var(--i, 0) * 64px); }
+  .approach-card:first-of-type { border-radius: 12px 12px 0 0; }
+  .approach-card:last-of-type  { border-radius: 0 0 12px 12px; }
+}
+
+/* ── Scatter assembly layers — inside .plus-zoom-sticky ──────────────────
+   Measure layer: hidden flex-wrap, lays words in their final positions so
+   JS can read exact coords. Anim layer: abs-pos word divs mutated by rAF.
+   overflow:hidden on .plus-zoom-sticky clips words that start off-screen
+   (beyond the sticky = beyond the viewport) — the fly-in works correctly. */
+.scatter-measure-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  padding: 100px 17% 80px;
+  gap: 0 0.52em;
+  visibility: hidden;
+  pointer-events: none;
+  box-sizing: border-box;
+  z-index: 5;
+}
+.scatter-measure-layer span {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(24px, 3.1vw, 48px);
+  line-height: 1.22;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.scatter-anim-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+}
+.scatter-anim-layer .scatter-word {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(24px, 3.1vw, 48px);
+  line-height: 1.22;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  transform-origin: center center;
+  will-change: transform, opacity, color;
+}
+@media (max-width: 768px) {
+  .scatter-measure-layer { padding: 60px 8% 40px; }
+  .scatter-measure-layer span,
+  .scatter-anim-layer .scatter-word { font-size: clamp(20px, 5.2vw, 34px); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SKILLS & SERVICES SECTION
+   White section that appears after the scatter text white-out.
+   ═══════════════════════════════════════════════════════════════ */
+.skills-services-section {
+  background: #f5f5f5;
+  padding: 100px clamp(28px, 5vw, 80px) 90px;
+}
+
+.skills-services-inner {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(40px, 6vw, 110px);
+  max-width: 1360px;
+  margin: 0 auto;
+}
+
+.skills-col-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 36px;
+}
+
+.skills-col-num {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(10,10,10,0.32);
+  letter-spacing: 0.04em;
+  padding-top: 10px;
+  min-width: 20px;
+  flex-shrink: 0;
+}
+
+.skills-col-title {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(2rem, 3.6vw, 4rem);
+  font-weight: 900;
+  color: #0a0a0a;
+  letter-spacing: -0.02em;
+  line-height: 0.94;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.skills-list-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.skills-list-items li {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(13px, 1.2vw, 16px);
+  font-weight: 400;
+  color: #1a1a1a;
+  line-height: 1.3;
+}
+
+.skills-scroll-hint {
+  text-align: center;
+  margin-top: 72px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.07em;
+  color: rgba(10,10,10,0.28);
+}
+
+/* ── Skills responsive ────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .skills-services-inner {
+    grid-template-columns: 1fr 1fr;
+  }
+  .skills-col:last-child {
+    grid-column: 1 / -1;
+  }
+  .skills-list-items {
+    column-count: 2;
+    column-gap: 32px;
+    display: block;
+  }
+  .skills-list-items li {
+    margin-bottom: 12px;
+    break-inside: avoid;
+  }
+}
+
+@media (max-width: 580px) {
+  .skills-services-inner {
+    grid-template-columns: 1fr;
+  }
+  .skills-col:last-child {
+    grid-column: auto;
+  }
+  .skills-list-items {
+    column-count: 1;
+    display: flex;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   IDENTITY SECTION — white bg, logo fixed at bottom,
+   text block scrolls downward and splits around the logo.
+   ═══════════════════════════════════════════════════════════════ */
+.identity-section {
+  background: #f5f5f5;
+  height: 200vh;   /* 100vh of scroll travel */
+}
+
+.identity-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Logo — fixed in UPPER portion of sticky; JS drives 3D rotation on this frame ── */
+.id-logo-frame {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transform-style: preserve-3d;
+  opacity: 1;
+  z-index: 3;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* ── 3D Coin ── */
+.coin-3d {
+  width: 58px;
+  height: 58px;
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.coin-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #f8d868 0%, #e4a82a 48%, #f2c040 100%); /* JS overrides per scroll */
+  transform: translateZ(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(0,0,0,0.15);
+}
+
+.coin-face::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255,255,255,0.22);
+  pointer-events: none;
+}
+
+.coin-side {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: var(--coin-edge, #a07010);
+  transform: translateZ(var(--z, 0px));
+}
+
+.id-logo-svg {
+  width: 37px;
+  height: 37px;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Table — JS fully drives vertical position (starts below logo, travels up) ── */
+.id-table {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(640px, 86vw);
+  display: grid;
+  grid-template-columns: 1fr 1fr;  /* two equal cols; JS controls per-row padding */
+  z-index: 2;
+  will-change: transform;
+}
+
+.id-label,
+.id-value {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(10,10,10,0.08);
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(13px, 1.3vw, 16px);
+  transition: padding 0.04s linear; /* silky per-row gap change */
+}
+
+.id-label {
+  justify-content: flex-end;
+  padding-right: 28px;
+  color: rgba(10,10,10,0.38);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.id-value {
+  justify-content: flex-start;
+  padding-left: 28px;
+  color: rgba(10,10,10,0.72);
+}
+
+.id-value a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(10,10,10,0.16);
+  transition: color 0.2s, border-color 0.2s;
+}
+.id-value a:hover {
+  color: #0a0a0a;
+  border-bottom-color: rgba(10,10,10,0.5);
+}
+
+/* ── Identity responsive ─────────────────────────────────────── */
+@media (max-width: 640px) {
+  .id-logo-svg  { width: 60px; height: 60px; }
+  .id-label, .id-value { min-height: 52px; font-size: 12px; }
+  .id-label { padding-right: 14px; }
+  .id-value  { padding-left:  14px; }
+}
+
+/* ── Shader Float Canvas ── */
+#shaderFloat {
+  position: absolute;
+  right: 5%;
+  bottom: 80px;
+  width: 182px;
+  height: 210px;
+  border-radius: 2px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 100;
+  will-change: transform, width, height;
+}
+
+#shaderFloat canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Tornike Zaridze</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      background: #0a0a0a;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      color: #fff;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ══ Cross-document View Transition (Chrome 126+) ══
+       The browser freezes index.html as a screenshot at click time.
+       privacy.html expands from center over it via clip-path.
+    */
+    @view-transition {
+      navigation: auto;
+    }
+
+    /* Old page (index.html snapshot) stays frozen in the back */
+    ::view-transition-old(root) {
+      animation: none;
+      z-index: 0;
+    }
+
+    /* New page (privacy.html) expands from center */
+    ::view-transition-new(root) {
+      z-index: 1;
+      animation: privacyExpand 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes privacyExpand {
+      from {
+        clip-path: inset(44vh 44vw round 14px);
+        opacity: 0.85;
+      }
+      to {
+        clip-path: inset(0% 0% round 0px);
+        opacity: 1;
+      }
+    }
+
+    /* Fallback for browsers that don't support View Transitions */
+    @supports not (view-transition-name: none) {
+      .page {
+        animation: privacyExpand 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+    }
+
+    .page {
+      background: #181818;
+      min-height: 100vh;
+      padding: 72px 80px 140px;
+    }
+
+    /* ── Back link ── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, 0.35);
+      text-decoration: none;
+      font-size: 13px;
+      letter-spacing: 0.05em;
+      font-weight: 400;
+      margin-bottom: 64px;
+      transition: color 0.2s ease;
+    }
+    .back-link:hover { color: rgba(255, 255, 255, 0.85); }
+    .back-link svg { flex-shrink: 0; }
+
+    /* ── Page title ── */
+    .page-title {
+      font-family: 'Bebas Neue', 'Arial Narrow', sans-serif;
+      font-size: clamp(64px, 11.5vw, 168px);
+      font-weight: 400;
+      line-height: 0.9;
+      letter-spacing: 0.01em;
+      color: #fff;
+      white-space: nowrap;
+      margin-bottom: 72px;
+    }
+
+    /* ── Sections ── */
+    .sections {
+      max-width: 760px;
+    }
+
+    .section {
+      padding: 44px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.09);
+    }
+    .section:last-child {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .section-number {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.32);
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+      position: relative;
+      top: -2px;
+    }
+
+    .section-title {
+      font-size: clamp(24px, 3.2vw, 42px);
+      font-weight: 500;
+      color: #fff;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .section-body p {
+      font-size: 15px;
+      line-height: 1.85;
+      color: rgba(255, 255, 255, 0.48);
+      font-weight: 300;
+      margin-bottom: 12px;
+      max-width: 680px;
+    }
+    .section-body p:last-child { margin-bottom: 0; }
+
+    .section-body strong {
+      color: rgba(255, 255, 255, 0.82);
+      font-weight: 500;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .page { padding: 48px 24px 100px; }
+      .section { padding: 36px 0; }
+    }
+    @media (max-width: 480px) {
+      .page { padding: 36px 18px 80px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <a href="index.html" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back to portfolio
+    </a>
+
+    <h1 class="page-title">PRIVACY POLICY</h1>
+
+    <div class="sections">
+
+      <div class="section">
+        <div class="section-heading">
+          <span class="section-number">01.</span>
+          <h2 class="section-title">Identification</h2>
+        </div>
+        <div class="section-body">
+          <p>This is a personal portfolio website. I do not collect, store, or process any personal data.</p>
+          <p>This website does not include contact forms, user accounts, or any input fields. No cookies or tracking technologies are used.</p>
+          <p>This site may contain links to third-party platforms (such as social media). I am not responsible for their content or privacy practices.</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-heading">
+          <span class="section-number">02.</span>
+          <h2 class="section-title">Use of This Website</h2>
+        </div>
+        <div class="section-body">
+          <p>All content on this website, including text, design, and code, is provided for informational purposes only.</p>
+          <p>You may not copy, reproduce, or distribute any content without permission.</p>
+          <p>While I aim to keep the information accurate and up to date, I make no guarantees regarding completeness or reliability. Use of this website is at your own risk.</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-heading">
+          <span class="section-number">03.</span>
+          <h2 class="section-title">Legal Information</h2>
+        </div>
+        <div class="section-body">
+          <p>This is a personal portfolio website created and maintained by <strong>Tornike Zaridze</strong>.</p>
+          <p>Hosting is provided by Vercel.</p>
+          <p>The owner is not responsible for any external websites linked from this site.</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-heading">
+          <span class="section-number">04.</span>
+          <h2 class="section-title">Updates</h2>
+        </div>
+        <div class="section-body">
+          <p>This page may be updated at any time without prior notice. By continuing to use this website, you agree to these terms.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
