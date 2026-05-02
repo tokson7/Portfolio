@@ -292,11 +292,25 @@
   }
 
   // ─── Main loop ───────────────────────────────────────────────────
-  let running = true;
+  let running     = true;
+  let lastTime    = null;
+  let accumulator = 0;
+  const FIXED_DT  = 1 / 60; // physics always runs at 60 Hz equivalent
 
-  function loop() {
+  function loop(ts) {
     if (!running) return;
-    updatePhysics();
+
+    if (lastTime === null) lastTime = ts;
+    const elapsed = Math.min((ts - lastTime) * 0.001, 0.1); // cap at 100ms to avoid spiral
+    lastTime = ts;
+    accumulator += elapsed;
+
+    // Run as many fixed physics steps as needed to catch up with real time
+    while (accumulator >= FIXED_DT) {
+      updatePhysics();
+      accumulator -= FIXED_DT;
+    }
+
     render();
     requestAnimationFrame(loop);
   }
@@ -310,7 +324,7 @@
     ropePoints[ROPE_SEGMENTS].px = anchor.x + 3;
   }, 80);
 
-  loop();
+  requestAnimationFrame(loop);
 
   // Expose for debugging
   window.__stickerPhysics = { ropePoints, anchor };
