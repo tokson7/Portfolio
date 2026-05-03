@@ -63,13 +63,15 @@
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
   }
 
-  var LOOP_START = 3.5;   // skip 7s globalFade=0 black
+  var LOOP_START = 7.0;   // skip 7s globalFade fade-in; at t=7 fade=1.0 (fully bright)
+  var LOOP_LEN   = 90.0;  // full shot sequence is exactly 90s; final else block starts at t=90
   var startTime = null, rafId = null, active = false;
 
   function render(ts) {
     if (!active) return;
     if (startTime === null) startTime = ts;
-    var t = LOOP_START + (ts - startTime) * 0.001;
+    // t runs 7→97, then wraps back to 7. globalFade=1.0 at both ends — no black flash.
+    var t = LOOP_START + ((ts - startTime) * 0.001) % LOOP_LEN;
     resize();
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.uniform1f(uTime, t);

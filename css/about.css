@@ -20,7 +20,7 @@ body {
   color: #fff;
   font-family: var(--f-body);
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: clip; /* clip ≠ hidden: does NOT create a scroll container, so position:sticky still works */
   -webkit-font-smoothing: antialiased;
   position: relative;
 }
@@ -592,11 +592,12 @@ body {
   top: 0;
   width: 100%;
   height: 100vh;
-  overflow: hidden;
+  overflow: clip; /* clip prevents scroll container; scatter layers clip their own children */
   background: #080808;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 10; /* above approach cards (max z-index 5) so sticky cards don't overlay zoom text */
 }
 
 /* CSS variable --zoom (0→1) driven by scroll; scale(1 + zoom*75) makes
@@ -665,6 +666,7 @@ body {
   pointer-events: none;
   box-sizing: border-box;
   z-index: 5;
+  overflow: hidden; /* clips measure spans to container */
 }
 .scatter-measure-layer span {
   font-family: 'DM Sans', system-ui, sans-serif;
@@ -679,6 +681,7 @@ body {
   inset: 0;
   pointer-events: none;
   z-index: 6;
+  overflow: hidden; /* clips fly-in words starting off-screen */
 }
 .scatter-anim-layer .scatter-word {
   position: absolute;
@@ -932,6 +935,57 @@ body {
   .id-label, .id-value { min-height: 52px; font-size: 12px; }
   .id-label { padding-right: 14px; }
   .id-value  { padding-left:  14px; }
+}
+
+/* ── Shader Caption (pen typewriter) ── */
+@keyframes charInk {
+  0%   { opacity: 0; transform: scale(1.25) translateY(-4px); }
+  55%  { transform: scale(1.04) translateY(-1px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+#shaderCaption {
+  position: absolute;
+  left: 5%;
+  bottom: 200px;
+  width: min(380px, 34vw);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 100;
+}
+
+#shaderCaptionText {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(21px, 2.1vw, 30px);
+  color: #1a1a1a;
+  line-height: 1.9;
+  position: relative;
+}
+
+.caption-line {
+  display: block;
+}
+
+.caption-char {
+  display: inline;
+  opacity: 0;
+  transform-origin: bottom center;
+}
+
+.caption-char-visible {
+  animation: charInk 0.18s ease-out forwards;
+}
+
+#penCursor {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  opacity: 0;
+  pointer-events: none;
+  /* nib is at (2px, 20px) inside the 22×22 SVG element — rotate around it */
+  transform-origin: 2px 20px;
+  transform: rotate(-40deg);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
 }
 
 /* ── Shader Float Canvas ── */

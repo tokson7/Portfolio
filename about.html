@@ -6,7 +6,7 @@
   <title>About Me — Tornike Zaridze</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@400;600&family=DM+Sans:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/about.css" />
 </head>
 <body>
@@ -1032,6 +1032,9 @@
               sf.style.width         = bigW + 'px';
               sf.style.height        = bigH + 'px';
               sf.style.borderRadius  = '18px';
+
+              // Start pen typewriter on the opposite side
+              if (typeof window.startShaderCaption === 'function') window.startShaderCaption();
             }, 360);
             return;
           }
@@ -1047,7 +1050,106 @@
       window.launchShaderFloat = launchShaderFloat;
     })();
 
+    // ── Shader caption: pen typewriter ──────────────────────────────
+    (function () {
+      var LINES = [
+        'Every project starts as a sheep on a dark road.',
+        'You either steer around it —',
+        'or ship it into production and call it a feature.'
+      ];
+
+      var allChars = [];
+      var writeTimer = null;
+
+      function buildChars(textEl) {
+        textEl.innerHTML = '';
+        allChars = [];
+        LINES.forEach(function (line) {
+          var lineDiv = document.createElement('div');
+          lineDiv.className = 'caption-line';
+          for (var i = 0; i < line.length; i++) {
+            var span = document.createElement('span');
+            span.className = 'caption-char';
+            span.textContent = line[i] === ' ' ? '\u00a0' : line[i];
+            lineDiv.appendChild(span);
+            allChars.push(span);
+          }
+          textEl.appendChild(lineDiv);
+        });
+      }
+
+      function movePen(span, captionEl, penEl) {
+        var sr = span.getBoundingClientRect();
+        var cr = captionEl.getBoundingClientRect();
+        /* Nib tip at (2px, 20px) inside element — offset so nib sits on text baseline */
+        var wobbleX = (Math.random() - 0.5) * 2.2;  /* ±1.1px horizontal jitter */
+        var wobbleY = (Math.random() - 0.5) * 1.6;  /* ±0.8px vertical jitter */
+        var angle   = -40 + (Math.random() - 0.5) * 6; /* ~-40° ± 3° tilt jitter */
+        penEl.style.left      = (sr.right - cr.left - 2 + wobbleX) + 'px';
+        penEl.style.top       = (sr.top   - cr.top  + sr.height * 0.82 - 20 + wobbleY) + 'px';
+        penEl.style.transform = 'rotate(' + angle + 'deg)';
+      }
+
+      function startCaption() {
+        // Look up elements here — DOM exists by the time this is called
+        var captionEl = document.getElementById('shaderCaption');
+        var textEl    = document.getElementById('shaderCaptionText');
+        var penEl     = document.getElementById('penCursor');
+        if (!captionEl || !textEl || !penEl) return;
+
+        buildChars(textEl);
+        captionEl.style.opacity = '1';
+        allChars.forEach(function (s) { s.style.opacity = '0'; s.classList.remove('caption-char-visible'); });
+        penEl.style.opacity    = '0';
+        penEl.style.transition = 'none';
+        penEl.style.transform  = 'rotate(-40deg)';
+        if (writeTimer) { clearTimeout(writeTimer); writeTimer = null; }
+
+        // Small delay so the canvas expand is visible first
+        setTimeout(function () {
+          penEl.style.opacity = '1';
+          if (allChars.length > 0) movePen(allChars[0], captionEl, penEl);
+
+          var i = 0;
+          var DELAY = 50; /* 42 * 1.20 ≈ 50ms → 20% slower */
+
+          function writeNext() {
+            if (i >= allChars.length) {
+              // Pen lifts away
+              penEl.style.transition = 'opacity 0.6s ease, top 0.6s ease';
+              penEl.style.opacity = '0';
+              var curTop = parseFloat(penEl.style.top) || 0;
+              penEl.style.top = (curTop - 16) + 'px';
+              return;
+            }
+            var span = allChars[i];
+            span.classList.add('caption-char-visible');
+            penEl.style.transition = 'left ' + (DELAY * 0.8) + 'ms linear, top ' + (DELAY * 0.8) + 'ms linear, transform ' + (DELAY * 0.6) + 'ms ease';
+            movePen(span, captionEl, penEl);
+            i++;
+            writeTimer = setTimeout(writeNext, DELAY);
+          }
+
+          writeNext();
+        }, 300);
+      }
+
+      window.startShaderCaption = startCaption;
+    })();
+
   </script>
+  <!-- ── Shader Caption (pen typewriter, opposite side) ───────── -->
+  <div id="shaderCaption" aria-hidden="true">
+    <div id="shaderCaptionText"></div>
+    <div id="penCursor">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"
+              stroke="#1a1a1a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="m15 5 4 4" stroke="#1a1a1a" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+
   <!-- ── Shader Float Canvas (revealed with photo burst) ──────── -->
   <div id="shaderFloat" aria-hidden="true">
     <canvas id="shaderDemoCanvas"></canvas>
