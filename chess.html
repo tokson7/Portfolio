@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chess — Tornike Zaridze</title>
+  <title>Schach — Tornike Zaridze</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
@@ -26,11 +26,11 @@
       </svg>
     </a>
     <div class="nav-links">
-      <a href="index.html#projects" class="nav-link">Projects</a>
-      <a href="index.html#services" class="nav-link">Services</a>
-      <a href="about.html" class="nav-link">About Me</a>
-      <a href="index.html#contact" class="nav-link">Contact</a>
-      <a href="chess.html" class="nav-link active">Play Chess</a>
+      <a href="index.html#projects" class="nav-link">Projekte</a>
+      <a href="index.html#services" class="nav-link">Leistungen</a>
+      <a href="about.html" class="nav-link">Über mich</a>
+      <a href="index.html#contact" class="nav-link">Kontakt</a>
+      <a href="chess.html" class="nav-link active">Schach spielen</a>
     </div>
   </nav>
 
@@ -38,29 +38,29 @@
   <div id="landing">
     <div class="landing-content">
     <div class="chess-icon">&#9823;</div>
-    <h1 class="landing-title">Think you can beat me?</h1>
-    <div class="section-label" style="margin-top:8px">Choose your side</div>
+    <h1 class="landing-title">Glaubst du, du kannst mich schlagen?</h1>
+    <div class="section-label" style="margin-top:8px">Wähle deine Seite</div>
     <div class="side-selector">
-      <button class="side-option selected" data-side="w"><span style="color:#D4A843">&#9812;</span> Gold <span style="opacity:0.4;font-size:12px">(you go first)</span></button>
-      <button class="side-option" data-side="b"><span style="color:#1B3A5C">&#9818;</span> Blue <span style="opacity:0.4;font-size:12px">(Tornike goes first)</span></button>
+      <button class="side-option selected" data-side="w"><span style="color:#D4A843">&#9812;</span> Gold <span style="opacity:0.4;font-size:12px">(du fängst an)</span></button>
+      <button class="side-option" data-side="b"><span style="color:#1B3A5C">&#9818;</span> Blau <span style="opacity:0.4;font-size:12px">(Tornike fängt an)</span></button>
     </div>
 
-    <button class="btn-primary" id="start-btn" style="margin-top:8px">Play now</button>
+    <button class="btn-primary" id="start-btn" style="margin-top:8px">Jetzt spielen</button>
 
-    <!-- Game history -->
+    <!-- Spielverlauf -->
     <div class="game-history-section">
-      <h3>Game History</h3>
+      <h3>Spielverlauf</h3>
       <div id="game-history"></div>
     </div>
     </div><!-- /.landing-content -->
   </div>
 
-  <!-- Name modal -->
+  <!-- Name-Modal -->
   <div id="name-modal">
     <div class="name-modal-box">
-      <label class="name-modal-label" for="player-name-input">Enter your name</label>
-      <input id="player-name-input" class="name-input" type="text" placeholder="Your name..." maxlength="24" autocomplete="off" />
-      <button class="btn-primary" id="confirm-name-btn" style="margin-top:8px">Start Game</button>
+      <label class="name-modal-label" for="player-name-input">Gib deinen Namen ein</label>
+      <input id="player-name-input" class="name-input" type="text" placeholder="Dein Name..." maxlength="24" autocomplete="off" />
+      <button class="btn-primary" id="confirm-name-btn" style="margin-top:8px">Spiel starten</button>
     </div>
   </div>
 
@@ -68,11 +68,11 @@
   <div id="game-screen">
     <div class="game-container">
 
-      <!-- 1. Buttons -->
+      <!-- 1. Schaltflächen -->
       <div class="game-buttons">
-        <button id="undo-btn">Undo</button>
-        <button id="resign-btn">Resign</button>
-        <button id="new-game-btn">New Game</button>
+        <button id="undo-btn">Rückgängig</button>
+        <button id="resign-btn">Aufgeben</button>
+        <button id="new-game-btn">Neues Spiel</button>
       </div>
 
       <!-- 2. Board area with side captures -->
@@ -88,7 +88,7 @@
       </div>
 
       <!-- 3. Status -->
-      <div id="status" class="status-text">Your move</div>
+      <div id="status" class="status-text">Dein Zug</div>
 
     </div>
   </div>
@@ -98,10 +98,10 @@
     <h2 id="game-over-title"></h2>
     <p id="game-over-sub"></p>
     <div class="game-over-actions">
-      <button class="btn-primary" id="rematch-btn">Rematch</button>
-      <a href="index.html#contact" class="btn-secondary">Hire me instead</a>
+      <button class="btn-primary" id="rematch-btn">Revanche</button>
+      <a href="index.html#contact" class="btn-secondary">Lieber mich einstellen</a>
     </div>
-    <p style="color:rgba(255,255,255,0.28);font-size:13px;margin-top:4px">Enjoyed the game? Imagine what I can build for you.</p>
+    <p style="color:rgba(255,255,255,0.28);font-size:13px;margin-top:4px">Hat dir das Spiel gefallen? Stell dir vor, was ich für dich bauen kann.</p>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>

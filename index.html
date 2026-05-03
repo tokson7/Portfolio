@@ -1,15 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tornike Zaridze — Fullstack Developer</title>
+  <title>Tornike Zaridze — Fullstack-Entwickler</title>
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
   <style>
+    /* ── Language Switcher (shared across all pages) ── */
+    .lang-switcher { display: flex; gap: 5px; align-items: center; }
+    .lang-btn {
+      padding: 4px 11px; border-radius: 999px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.08em; cursor: pointer; font-family: inherit;
+      background: transparent; border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.38); transition: all 0.2s ease;
+    }
+    .lang-btn-active {
+      background: rgba(255,255,255,0.12) !important;
+      border-color: rgba(255,255,255,0.28) !important;
+      color: #fff !important;
+    }
+    .lang-btn:hover { border-color: rgba(255,255,255,0.22); color: rgba(255,255,255,0.7); }
     html, body { background: #0a0a0a; }
 
     @view-transition { navigation: auto; }
@@ -332,6 +346,160 @@
   <div id="root"></div>
   <script type="text/babel">
     const { useState, useEffect, useRef, useCallback } = React;
+
+    /* ─── LANGUAGE / TRANSLATIONS ─────────────────────────────── */
+    const TRANSLATIONS = {
+      en: {
+        title:"Tornike Zaridze — Fullstack Developer",
+        nav_projects:"Projects", nav_services:"Services", nav_about:"About Me", nav_contact:"Contact", nav_chess:"Play Chess",
+        mob_projects:"Projects", mob_contact:"Contact", mob_about:"About Me", mob_services:"Services", mob_chess:"Play Chess",
+        hero_pill:"FULLSTACK DEVELOPER",
+        hero_desc:"I'm a versatile fullstack developer specializing in frontend, backend, and product development to help grow your business. Let's build something great!",
+        hero_btn1:"See All Projects", hero_btn2:"Contact Now",
+        test1:'"Working with him was a game changer — delivered beyond expectations!"',
+        test2:'"Exceptional quality & communication throughout."',
+        test3:'"We increased our conversions by 200% after the new site launched."',
+        hero_card:"Building platforms to drive", hero_card_em:"Results",
+        about_pill:"Expert Developer",
+        about_h:"Tornike Zaridze,", about_h_em:"Your Developer",
+        about_sub:"Brief initial presentation of myself and my previous experiences.",
+        available:"Available for work",
+        hello:"Hello I am", based_in:"Fullstack Developer Based in Vienna.",
+        cv_btn:"Download CV", about_label:"(about me)",
+        bio:"I'm Tornike Zaridze, a dedicated Fullstack Developer based in Vienna, Austria. I specialize in creative frontend development with seamless backend execution to craft exceptional digital experiences.",
+        ai_label:"AI Integration",
+        ai_text:"I bring AI into real products — not as a buzzword, but as a tool that actually solves problems. From building custom chatbots and AI agents that handle real customer needs, to integrating intelligent automation into existing platforms — I help businesses work smarter. Whether it's a conversational assistant, a data-driven recommendation engine, or a workflow that used to take hours and now takes seconds, I make AI practical and accessible for any business.",
+        mission_label:"My Mission",
+        mission_text:"My goal is simple — I want to help businesses grow by building exactly what they envision. I listen to your ideas, understand your goals, and turn them into polished, functional platforms that make a real difference. Every project I take on is a partnership, not just a transaction. I care about your success as much as you do, because the best work comes from genuine collaboration and a shared vision.",
+        why_pill:"Why choose me", why_h:"Why me as", why_h_em:"Developer",
+        why_sub:"Why Partner with Me for Development Excellence",
+        wm1ph:"Skilled Professional", wm1pp:"Gain access to top-tier talent with years of experience, ensuring flawless execution and production-ready results.",
+        wm1nh:"Amateur Developer", wm1np:"Lack of experience may result in code inconsistencies and overlooked details that compound into technical debt.",
+        wm2ph:"Future-Ready Solutions", wm2pp:"Crafting modern, scalable applications that grow with your business and stay ahead of industry trends.",
+        wm2nh:"Outdated Tech Stack", wm2np:"Stale technologies that don't reflect current standards or your evolving business needs.",
+        wm3ph:"Client-Centric Collaboration", wm3pp:"Your vision leads the way — I work closely with you to bring ideas to life with precision and creativity.",
+        wm3nh:"Detached Communication", wm3np:"Lack of collaboration and poor feedback loops can result in misaligned outcomes and frustration.",
+        wm4ph:"Timely Project Tracking", wm4pp:"Stay informed with regular progress updates and timely deliverables — no surprises, just results.",
+        wm4nh:"Unstructured & Unreliable Work", wm4np:"Inconsistent timelines and last-minute changes can compromise quality and erode trust.",
+        proj_pill:"Recent Projects",
+        proj_h:"Elevating Brands", proj_h_em:"to Drive\nSuccess and Impact",
+        proj_btn:"Contact Now",
+        faq_pill:"FAQ Section", faq_h:"Questions,", faq_h_em:"Answers",
+        faq_sub:"Get quick answers to your most pressing questions",
+        faq_btn1:"See All Projects", faq_btn2:"Contact Now",
+        faq:[
+          {q:"What services do you offer?",a:"I specialize in frontend development, backend systems, API design, and fullstack application development, creating modern, user-friendly experiences tailored to your needs.",open:true},
+          {q:"How do I start working with you?",a:"Simply reach out via the contact form or email. We'll discuss your project requirements, timeline, and budget, then I'll prepare a detailed proposal to get things started."},
+          {q:"What tech stack do you use?",a:"I primarily work with React, Next.js, TypeScript on the frontend; Node.js, Python, and Express on the backend; and PostgreSQL, MongoDB for databases."},
+          {q:"How long does a project take?",a:"Timelines vary based on complexity. A simple landing page takes 1–2 weeks, while a full-featured application can take 2–3 months. I provide a detailed timeline after our discovery call."},
+          {q:"Do you provide revisions?",a:"Absolutely. I include revision rounds in every project to ensure the final product meets your expectations perfectly before final delivery."},
+          {q:"Do you offer maintenance services?",a:"Yes, I offer ongoing maintenance and support packages to keep your applications running smoothly, securely, and up-to-date after launch."},
+          {q:"What is your pricing structure?",a:"Pricing depends on project scope and complexity. I offer both fixed-price projects and hourly rates, with full transparency in every proposal."},
+          {q:"Can you rebuild my existing application?",a:"Definitely. I can audit your existing codebase, identify improvements, and rebuild or modernize it with current technologies without disrupting your operations."},
+        ],
+        arc:["BE","CREATIVE","WITH","ME"],
+        foot_proj:"Projects", foot_about:"About Me", foot_serv:"Services", foot_chess:"Play Chess", foot_priv:"Privacy Policy",
+        copyright:"©2026 Tornike Zaridze. All rights reserved.",
+        modal_title:"Let's Work Together",
+        modal_sub:"Reach out to discuss collaborations, inquiries or any project opportunities. We're just a message away.",
+        lbl_name:"Your Name", ph_name:"Jane Smith",
+        lbl_phone:"Your Phone", ph_phone:"(044) 123-456-789",
+        lbl_email:"Your Email ID", ph_email:"janesmith@email.com",
+        lbl_int:"I'm Interested In", sel_def:"Select a service",
+        opt1:"Frontend Development", opt2:"Backend Development", opt3:"Fullstack Development",
+        opt4:"AI Integration / Chatbots", opt5:"UI/UX Design", opt6:"Graphic Design", opt7:"Consulting / Other",
+        lbl_msg:"More About The Project",
+        submit:"Submit Now",
+        sending:"Sending…", sent:"✓ Message sent! I'll be in touch soon.", err:"Something went wrong...",
+        ctexts:["contact now","reach out","book now","work together","get in touch"],
+      },
+      de: {
+        title:"Tornike Zaridze — Fullstack-Entwickler",
+        nav_projects:"Projekte", nav_services:"Leistungen", nav_about:"Über mich", nav_contact:"Kontakt", nav_chess:"Schach spielen",
+        mob_projects:"Projekte", mob_contact:"Kontakt", mob_about:"Über mich", mob_services:"Leistungen", mob_chess:"Schach spielen",
+        hero_pill:"FULLSTACK-ENTWICKLER",
+        hero_desc:"Ich bin ein vielseitiger Fullstack-Entwickler, spezialisiert auf Frontend, Backend und Produktentwicklung, um Ihr Unternehmen voranzubringen. Lassen Sie uns etwas Großartiges aufbauen!",
+        hero_btn1:"Alle Projekte ansehen", hero_btn2:"Jetzt kontaktieren",
+        test1:'"Die Zusammenarbeit war wegweisend — übertraf alle Erwartungen!"',
+        test2:'"Außergewöhnliche Qualität & Kommunikation."',
+        test3:'"Nach dem Relaunch stieg unsere Conversion-Rate um 200%."',
+        hero_card:"Plattformen entwickeln, die", hero_card_em:"Ergebnisse",
+        about_pill:"Experten-Entwickler",
+        about_h:"Tornike Zaridze,", about_h_em:"Ihr Entwickler",
+        about_sub:"Kurze Vorstellung meiner Person und meiner bisherigen Erfahrungen.",
+        available:"Verfügbar für Projekte",
+        hello:"Hallo, ich bin", based_in:"Fullstack-Entwickler mit Sitz in Wien.",
+        cv_btn:"Lebenslauf herunterladen", about_label:"(über mich)",
+        bio:"Ich bin Tornike Zaridze, ein engagierter Fullstack-Entwickler mit Sitz in Wien, Österreich. Ich spezialisiere mich auf kreative Frontend-Entwicklung mit nahtloser Backend-Ausführung, um außergewöhnliche digitale Erlebnisse zu schaffen.",
+        ai_label:"KI-Integration",
+        ai_text:"Ich integriere KI in echte Produkte — nicht als Schlagwort, sondern als Werkzeug, das wirklich Probleme löst. Von maßgeschneiderten Chatbots und KI-Agenten, die echte Kundenanliegen bearbeiten, bis zur intelligenten Automatisierung bestehender Plattformen — ich helfe Unternehmen, smarter zu arbeiten. Ob konversationeller Assistent, datengesteuerter Empfehlungsmotor oder Prozesse, die früher Stunden dauerten und jetzt Sekunden benötigen: Ich mache KI praktisch und zugänglich für jedes Unternehmen.",
+        mission_label:"Meine Mission",
+        mission_text:"Mein Ziel ist einfach — ich möchte Unternehmen beim Wachsen helfen, indem ich genau das umsetzt, was sie sich vorstellen. Ich höre Ihren Ideen zu, verstehe Ihre Ziele und verwandle sie in ausgefeilte, funktionale Plattformen, die wirklich etwas verändern. Jedes Projekt, das ich übernehme, ist eine Partnerschaft, keine reine Transaktion. Mir liegt Ihr Erfolg genauso am Herzen wie Ihnen selbst, denn die besten Ergebnisse entstehen aus echter Zusammenarbeit und einer gemeinsamen Vision.",
+        why_pill:"Warum ich", why_h:"Warum ich als", why_h_em:"Entwickler",
+        why_sub:"Warum mit mir für Entwicklungsexzellenz",
+        wm1ph:"Erfahrener Profi", wm1pp:"Zugang zu erstklassigem Talent mit jahrelanger Erfahrung, für fehlerlose Umsetzung und produktionsreife Ergebnisse.",
+        wm1nh:"Unerfahrener Entwickler", wm1np:"Mangelnde Erfahrung kann zu Code-Inkonsistenzen und übersehenen Details führen, die sich zu technischer Schuld summieren.",
+        wm2ph:"Zukunftssichere Lösungen", wm2pp:"Entwicklung moderner, skalierbarer Anwendungen, die mit Ihrem Unternehmen wachsen und Branchentrends immer einen Schritt voraus sind.",
+        wm2nh:"Veralteter Technologie-Stack", wm2np:"Veraltete Technologien, die aktuelle Standards oder Ihre sich weiterentwickelnden Geschäftsanforderungen nicht widerspiegeln.",
+        wm3ph:"Kundenorientierte Zusammenarbeit", wm3pp:"Ihre Vision führt den Weg — ich arbeite eng mit Ihnen zusammen, um Ideen mit Präzision und Kreativität zum Leben zu erwecken.",
+        wm3nh:"Unzuverlässige Kommunikation", wm3np:"Mangelnde Zusammenarbeit und schlechte Feedback-Schleifen können zu nicht ausgerichteten Ergebnissen und Frustration führen.",
+        wm4ph:"Strukturiertes Projektmanagement", wm4pp:"Bleiben Sie mit regelmäßigen Fortschrittsupdates und pünktlichen Lieferungen informiert — keine Überraschungen, nur Ergebnisse.",
+        wm4nh:"Unstrukturierte & unzuverlässige Arbeit", wm4np:"Inkonsistente Zeitpläne und Last-Minute-Änderungen können die Qualität beeinträchtigen und das Vertrauen untergraben.",
+        proj_pill:"Aktuelle Projekte",
+        proj_h:"Marken stärken,", proj_h_em:"um Erfolg und\nWirkung zu erzielen",
+        proj_btn:"Jetzt kontaktieren",
+        faq_pill:"FAQ", faq_h:"Fragen,", faq_h_em:"Antworten",
+        faq_sub:"Schnelle Antworten auf Ihre wichtigsten Fragen",
+        faq_btn1:"Alle Projekte ansehen", faq_btn2:"Jetzt kontaktieren",
+        faq:[
+          {q:"Welche Leistungen bieten Sie an?",a:"Ich bin spezialisiert auf Frontend-Entwicklung, Backend-Systeme, API-Design und Fullstack-Anwendungsentwicklung und schaffe moderne, benutzerfreundliche Erlebnisse, die auf Ihre Bedürfnisse zugeschnitten sind.",open:true},
+          {q:"Wie starte ich eine Zusammenarbeit?",a:"Nehmen Sie einfach über das Kontaktformular oder per E-Mail Kontakt auf. Wir besprechen Ihre Projektanforderungen, den Zeitplan und das Budget, dann erstelle ich einen detaillierten Vorschlag."},
+          {q:"Welchen Tech-Stack verwenden Sie?",a:"Ich arbeite hauptsächlich mit React, Next.js, TypeScript im Frontend; Node.js, Python und Express im Backend; sowie PostgreSQL und MongoDB als Datenbanken."},
+          {q:"Wie lange dauert ein Projekt?",a:"Die Dauer hängt von der Komplexität ab. Eine einfache Landing Page dauert 1–2 Wochen, eine vollwertige Anwendung kann 2–3 Monate in Anspruch nehmen. Nach unserem Erstgespräch erstelle ich einen detaillierten Zeitplan."},
+          {q:"Bieten Sie Überarbeitungen an?",a:"Absolut. Ich schließe Überarbeitungsrunden in jedes Projekt ein, um sicherzustellen, dass das Endprodukt Ihre Erwartungen vor der finalen Lieferung perfekt erfüllt."},
+          {q:"Bieten Sie Wartungsleistungen an?",a:"Ja, ich biete laufende Wartungs- und Supportpakete an, um Ihre Anwendungen nach dem Launch reibungslos, sicher und aktuell zu halten."},
+          {q:"Wie ist Ihre Preisstruktur?",a:"Die Preise hängen vom Projektumfang und der Komplexität ab. Ich biete sowohl Festpreisprojekte als auch Stundensätze an, mit voller Transparenz in jedem Angebot."},
+          {q:"Können Sie meine bestehende Anwendung neu aufbauen?",a:"Definitiv. Ich kann Ihre bestehende Codebasis prüfen, Verbesserungen identifizieren und sie mit aktuellen Technologien neu aufbauen oder modernisieren, ohne Ihren Betrieb zu unterbrechen."},
+        ],
+        arc:["SEI","KREATIV","MIT","MIR"],
+        foot_proj:"Projekte", foot_about:"Über mich", foot_serv:"Leistungen", foot_chess:"Schach spielen", foot_priv:"Datenschutz",
+        copyright:"©2026 Tornike Zaridze. Alle Rechte vorbehalten.",
+        modal_title:"Lass uns zusammenarbeiten",
+        modal_sub:"Nehmen Sie Kontakt auf, um Kooperationen, Anfragen oder Projektmöglichkeiten zu besprechen. Wir sind nur eine Nachricht entfernt.",
+        lbl_name:"Ihr Name", ph_name:"Max Mustermann",
+        lbl_phone:"Ihre Telefonnummer", ph_phone:"(044) 123-456-789",
+        lbl_email:"Ihre E-Mail-Adresse", ph_email:"max@email.com",
+        lbl_int:"Ich interessiere mich für", sel_def:"Dienstleistung wählen",
+        opt1:"Frontend-Entwicklung", opt2:"Backend-Entwicklung", opt3:"Fullstack-Entwicklung",
+        opt4:"KI-Integration / Chatbots", opt5:"UI/UX-Design", opt6:"Grafikdesign", opt7:"Beratung / Sonstiges",
+        lbl_msg:"Mehr über das Projekt",
+        submit:"Jetzt absenden",
+        sending:"Wird gesendet…", sent:"✓ Nachricht gesendet! Ich melde mich bald bei Ihnen.", err:"Etwas ist schiefgelaufen...",
+        ctexts:["jetzt kontaktieren","kontakt aufnehmen","jetzt buchen","zusammenarbeiten","kontaktieren"],
+      }
+    };
+
+    /* ─── LANGUAGE SWITCHER COMPONENT ─────────────────────────── */
+    function LangSwitcher({ lang, onSwitch }) {
+      return (
+        <div style={{display:"flex",gap:6,alignItems:"center"}}>
+          {['en','de'].map(l=>(
+            <button key={l}
+              onClick={()=> onSwitch(l)}
+              style={{
+                padding:"5px 13px", borderRadius:999, fontSize:11, fontWeight:700,
+                letterSpacing:"0.08em", cursor:"pointer",
+                fontFamily:"var(--f-body)",
+                background: lang===l ? "rgba(255,255,255,0.12)" : "transparent",
+                border: lang===l ? "1px solid rgba(255,255,255,0.3)" : "1px solid rgba(255,255,255,0.15)",
+                color: lang===l ? "#fff" : "rgba(255,255,255,0.42)",
+                transition:"all 0.2s ease",
+              }}
+            >{l.toUpperCase()}</button>
+          ))}
+        </div>
+      );
+    }
 
     /* ─── SCROLL ANIMATION HOOK ─────────────────────────────── */
     function useScrollAnimation(threshold = 0.1) {
@@ -1138,7 +1306,7 @@ if __name__ == "__main__":
     }
 
     /* ─── HERO ARROW BUTTON ─────────────────────────────────── */
-    function HeroArrowButton() {
+    function HeroArrowButton({ label }) {
       const [hovered, setHovered] = React.useState(false);
 
       function handleEnter() { setHovered(true); }
@@ -1222,7 +1390,7 @@ if __name__ == "__main__":
               textShadow: "0 2px 12px rgba(0,0,0,0.8)",
               letterSpacing: "0.01em",
             }}
-          >(about me)</span>
+          >{label}</span>
         </span>
       );
     }
@@ -1439,9 +1607,11 @@ if __name__ == "__main__":
     }
 
     /* ─── ARC TEXT BANNER ───────────────────────────────────── */
-    function ArcTextBanner() {
+    function ArcTextBanner({ arc }) {
       const canvasRef = useRef(null);
       const stateRef  = useRef({ offset: 0, dir: -1, prevY: 0, lastT: null });
+      const arcRef    = useRef(arc);
+      useEffect(() => { arcRef.current = arc; }, [arc]);
 
       useEffect(() => {
         const canvas = canvasRef.current;
@@ -1473,17 +1643,20 @@ if __name__ == "__main__":
         setup();
         window.addEventListener('resize', setup);
 
-        /* text segments — type:'txt' or type:'ast' */
-        const SEGS = [
-          { type:'txt', t:'BE',       col:'#ffffff' },
-          { type:'ast', col:'#7B9EC0' },
-          { type:'txt', t:'CREATIVE', col:'#ffffff' },
-          { type:'ast', col:'#7B9EC0' },
-          { type:'txt', t:'WITH',     col:'#ffffff' },
-          { type:'ast', col:'#7B9EC0' },
-          { type:'txt', t:'ME',       col:'#ffffff' },
-          { type:'ast', col:'#7B9EC0' },
-        ];
+        /* text segments — rebuilt each frame from arcRef so lang switch updates instantly */
+        function buildSegs() {
+          const a = arcRef.current;
+          return [
+            { type:'txt', t:a[0], col:'#ffffff' },
+            { type:'ast', col:'#7B9EC0' },
+            { type:'txt', t:a[1], col:'#ffffff' },
+            { type:'ast', col:'#7B9EC0' },
+            { type:'txt', t:a[2], col:'#ffffff' },
+            { type:'ast', col:'#7B9EC0' },
+            { type:'txt', t:a[3], col:'#ffffff' },
+            { type:'ast', col:'#7B9EC0' },
+          ];
+        }
 
         /* draw a sharp-tipped 6-arm asterisk — each arm is a filled
            tapered triangle: wide at center, pointed at tip            */
@@ -1520,6 +1693,7 @@ if __name__ == "__main__":
 
           ctx.clearRect(0, 0, W, H);
 
+          const SEGS = buildSegs();
           const fs   = Math.round(H * 0.21);
           const ls   = Math.round(fs * 0.05);
           const astW = Math.round(fs * 1.00); /* asterisk slot width  */
@@ -1647,8 +1821,29 @@ if __name__ == "__main__":
       const [loaded, setLoaded] = useState(false);
       const [mobileNav, setMobileNav] = useState(false);
       const [navHovered, setNavHovered] = useState(true);
+      const [lang, setLang] = useState(localStorage.getItem('portfolio-lang') || 'de');
+      const T = TRANSLATIONS[lang];
+
+      function switchLang(l) {
+        if (l === lang) return;
+        localStorage.setItem('portfolio-lang', l);
+        setLang(l);
+      }
 
       useEffect(() => { setLoaded(true); }, []);
+
+      useEffect(() => {
+        document.title = T.title;
+        document.documentElement.lang = lang;
+        window._T = { sending: T.sending, sent: T.sent, err: T.err, ctexts: T.ctexts };
+        // Apply translations to non-React modal HTML
+        document.querySelectorAll('[data-i18n-' + lang + ']').forEach(function(el) {
+          el.textContent = el.getAttribute('data-i18n-' + lang);
+        });
+        document.querySelectorAll('[data-ph-' + lang + ']').forEach(function(el) {
+          el.placeholder = el.getAttribute('data-ph-' + lang);
+        });
+      }, [lang]);
 
       const go = useCallback((id) => {
         document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -2047,11 +2242,11 @@ if __name__ == "__main__":
               <TerminalLogo size={36} />
             </div>
             <div className="nav-links">
-              <button className="nav-link" onClick={()=>go("projects")}>Projects</button>
-              <a className="nav-link" href="services.html">Services</a>
-              <a className="nav-link" href="about.html">About Me</a>
-              <button className="nav-link" onClick={(e)=>{e.preventDefault();if(window.__openContactModal)window.__openContactModal();else go("contact");}}>Contact</button>
-              <button className="nav-link" onClick={()=>window.location.href="chess.html"}>Play Chess</button>
+              <button className="nav-link" onClick={()=>go("projects")}>{T.nav_projects}</button>
+              <a className="nav-link" href="services.html">{T.nav_services}</a>
+              <a className="nav-link" href="about.html">{T.nav_about}</a>
+              <button className="nav-link" onClick={(e)=>{e.preventDefault();if(window.__openContactModal)window.__openContactModal();else go("contact");}}>{T.nav_contact}</button>
+              <button className="nav-link" onClick={()=>window.location.href="chess.html"}>{T.nav_chess}</button>
             </div>
             <button className="mob-toggle" onClick={()=>setMobileNav(!mobileNav)}
               style={{display:"none",background:"none",border:"none",color:"#fff",fontSize:22,cursor:"pointer",padding:"4px 8px",marginLeft:12}}>
@@ -2063,11 +2258,11 @@ if __name__ == "__main__":
             <div className="mob-menu" style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(10,10,10,0.97)",backdropFilter:"blur(20px)",zIndex:999,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:28}}>
               <button style={{position:"absolute",top:22,right:24,background:"none",border:"none",color:"rgba(255,255,255,0.6)",fontSize:26,cursor:"pointer"}} onClick={()=>setMobileNav(false)}>✕</button>
               {["projects","contact"].map(s=>(
-                <button key={s} className="nav-link" onClick={()=>go(s)} style={{fontSize:22,textTransform:"capitalize"}}>{s==="projects"?"Projects":"Contact"}</button>
+                <button key={s} className="nav-link" onClick={()=>go(s)} style={{fontSize:22,textTransform:"capitalize"}}>{s==="projects"?T.mob_projects:T.mob_contact}</button>
               ))}
-              <a className="nav-link" href="about.html" style={{fontSize:22}}>About Me</a>
-              <a className="nav-link" href="services.html" style={{fontSize:22}}>Services</a>
-              <button className="nav-link" onClick={()=>window.location.href="chess.html"} style={{fontSize:22}}>Play Chess</button>
+              <a className="nav-link" href="about.html" style={{fontSize:22}}>{T.mob_about}</a>
+              <a className="nav-link" href="services.html" style={{fontSize:22}}>{T.mob_services}</a>
+              <button className="nav-link" onClick={()=>window.location.href="chess.html"} style={{fontSize:22}}>{T.mob_chess}</button>
             </div>
           )}
 
@@ -2081,26 +2276,25 @@ if __name__ == "__main__":
                   <Anim delay={100}>
                     <div style={{...pill,fontSize:12,letterSpacing:"0.09em",textTransform:"uppercase",fontWeight:600}}>
                       <span style={{width:7,height:7,borderRadius:"50%",background:"rgba(255,255,255,0.45)",display:"inline-block"}}/>
-                      FULLSTACK DEVELOPER
+                      {T.hero_pill}
                     </div>
                   </Anim>
                   <Anim delay={250}>
                     <h1 style={{fontFamily:"var(--f-display)",fontSize:"clamp(3.2rem,8vw,6.8rem)",fontWeight:400,lineHeight:1.02,marginBottom:8,letterSpacing:"-0.025em"}}>
                       <span style={{fontWeight:700}}>Tornike</span>{" "}
                       <span style={{fontWeight:300,color:"rgba(255,255,255,0.7)"}}>Zaridze</span>
-                      <HeroArrowButton />
+                      <HeroArrowButton label={T.about_label} />
                     </h1>
                   </Anim>
                   <Anim delay={400}>
                     <p style={{color:"rgba(255,255,255,0.42)",fontSize:16,lineHeight:1.8,maxWidth:520,marginBottom:36,marginTop:22}}>
-                      I'm a versatile fullstack developer specializing in frontend, backend,
-                      and product development to help grow your business. Let's build something great!
+                      {T.hero_desc}
                     </p>
                   </Anim>
                   <Anim delay={550}>
                     <div style={{display:"flex",gap:14,flexWrap:"wrap"}}>
-                      <button className="btn-secondary" onClick={()=>go("projects")}>See All Projects</button>
-                      <button className="btn-primary" onClick={()=>go("contact")}>Contact Now</button>
+                      <button className="btn-secondary" onClick={()=>go("projects")}>{T.hero_btn1}</button>
+                      <button className="btn-primary" onClick={()=>go("contact")}>{T.hero_btn2}</button>
                     </div>
                   </Anim>
                 </div>
@@ -2109,21 +2303,21 @@ if __name__ == "__main__":
                     <div style={{display:"flex",gap:2,marginBottom:12}}>
                       {[...Array(5)].map((_,i)=><span key={i} style={{color:"#c9a84c",fontSize:13}}>★</span>)}
                     </div>
-                    <p style={{fontFamily:"var(--f-display)",fontStyle:"italic",fontSize:15,color:"rgba(255,255,255,0.8)",lineHeight:1.55,marginBottom:14}}>"Working with him was a game changer — delivered beyond expectations!"</p>
+                    <p style={{fontFamily:"var(--f-display)",fontStyle:"italic",fontSize:15,color:"rgba(255,255,255,0.8)",lineHeight:1.55,marginBottom:14}}>{T.test1}</p>
                     <span style={{color:"rgba(255,255,255,0.3)",fontSize:13}}>— Michaela</span>
                   </div>
                   <div className="tcard" style={{top:170,left:0,width:244,animation:"float2 5s ease-in-out infinite",zIndex:2}}>
                     <div style={{display:"flex",gap:2,marginBottom:12,alignItems:"center"}}>
                       {[...Array(5)].map((_,i)=><span key={i} style={{color:"#c9a84c",fontSize:13}}>★</span>)}
                     </div>
-                    <p style={{fontFamily:"var(--f-display)",fontStyle:"italic",fontSize:15,color:"rgba(255,255,255,0.8)",lineHeight:1.55,marginBottom:14}}>"Exceptional quality &amp; communication throughout."</p>
+                    <p style={{fontFamily:"var(--f-display)",fontStyle:"italic",fontSize:15,color:"rgba(255,255,255,0.8)",lineHeight:1.55,marginBottom:14}}>{T.test2}</p>
                     <span style={{color:"rgba(255,255,255,0.3)",fontSize:13}}>— Irakli</span>
                   </div>
                   <div className="tcard" style={{bottom:0,right:16,width:254,animation:"float3 4s ease-in-out infinite"}}>
                     <div style={{display:"flex",gap:2,marginBottom:12,alignItems:"center"}}>
                       {[...Array(5)].map((_,i)=><span key={i} style={{color:"#c9a84c",fontSize:13}}>★</span>)}
                     </div>
-                    <p style={{fontFamily:"var(--f-display)",fontStyle:"italic",fontSize:15,color:"rgba(255,255,255,0.8)",lineHeight:1.55,marginBottom:14}}>"We increased our conversions by 200% after the new site launched."</p>
+                    <p style={{fontFamily:"var(--f-display)",fontStyle:"italic",fontSize:15,color:"rgba(255,255,255,0.8)",lineHeight:1.55,marginBottom:14}}>{T.test3}</p>
                     <span style={{color:"rgba(255,255,255,0.3)",fontSize:13}}>— Georg</span>
                   </div>
                 </div>
@@ -2143,7 +2337,7 @@ if __name__ == "__main__":
                       {/* Layer 3 — card text content */}
                       <div style={{position:"relative",zIndex:2}}>
                         <h3 style={{fontFamily:"var(--f-display)",fontSize:26,fontWeight:400,lineHeight:1.2}}>
-                          Building platforms to drive <em style={{color:"rgba(255,255,255,0.4)"}}>Results</em>
+                          {T.hero_card} <em style={{color:"rgba(255,255,255,0.4)"}}>{T.hero_card_em}</em>
                         </h3>
                       </div>
                     </div>
@@ -2157,9 +2351,9 @@ if __name__ == "__main__":
           <SectionFrame id="about">
             <Anim>
               <div style={{textAlign:"center",marginBottom:56}}>
-                <div style={{...pill,margin:"0 auto 20px",display:"inline-flex",alignItems:"center",gap:6}}><span style={{width:10,height:10,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.5)",display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{width:4,height:4,borderRadius:"50%",background:"rgba(255,255,255,0.9)",display:"block"}}/></span>Expert Developer</div>
-                <h2 style={heading}>Tornike Zaridze, <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>Your Developer</em></h2>
-                <p style={{color:"rgba(255,255,255,0.36)",fontSize:15}}>Brief initial presentation of myself and my previous experiences.</p>
+                <div style={{...pill,margin:"0 auto 20px",display:"inline-flex",alignItems:"center",gap:6}}><span style={{width:10,height:10,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.5)",display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{width:4,height:4,borderRadius:"50%",background:"rgba(255,255,255,0.9)",display:"block"}}/></span>{T.about_pill}</div>
+                <h2 style={heading}>{T.about_h} <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>{T.about_h_em}</em></h2>
+                <p style={{color:"rgba(255,255,255,0.36)",fontSize:15}}>{T.about_sub}</p>
               </div>
             </Anim>
             <div className="about-grid" style={{display:"grid",gridTemplateColumns:"1fr 1.3fr",gap:40}}>
@@ -2170,15 +2364,15 @@ if __name__ == "__main__":
                     <LiquidRevealPhoto baseImage="/Tornike.PNG" revealImage="/baiker2.png" />
                     <div style={{position:"absolute",bottom:16,left:"50%",transform:"translateX(-50%)",display:"inline-flex",alignItems:"center",gap:8,background:"rgba(0,0,0,0.7)",backdropFilter:"blur(8px)",padding:"7px 16px",borderRadius:999,fontSize:13,whiteSpace:"nowrap",zIndex:10}}>
                       <span style={{width:8,height:8,borderRadius:"50%",background:"#4ade80",animation:"pulse 2s infinite",display:"inline-block"}}/>
-                      Available for work
+                      {T.available}
                     </div>
                   </div>
                   {/* Divider */}
                   <div style={{height:1,background:"rgba(255,255,255,0.06)",width:"100%"}} />
                   {/* Name & title */}
                   <div style={{padding:"0 4px"}}>
-                    <h3 style={{fontSize:19,fontWeight:600,marginBottom:6,color:"#fff"}}>Hello I am <span style={{fontFamily:"var(--f-display)",fontWeight:400}}>Tornike Zaridze</span></h3>
-                    <p style={{color:"#fff",fontSize:14,marginBottom:0}}>Fullstack Developer Based in Vienna.</p>
+                    <h3 style={{fontSize:19,fontWeight:600,marginBottom:6,color:"#fff"}}>{T.hello} <span style={{fontFamily:"var(--f-display)",fontWeight:400}}>Tornike Zaridze</span></h3>
+                    <p style={{color:"#fff",fontSize:14,marginBottom:0}}>{T.based_in}</p>
                   </div>
                   {/* Social icons */}
                   <div style={{display:"flex",gap:0,alignItems:"center",padding:"0 4px"}}>
@@ -2200,12 +2394,13 @@ if __name__ == "__main__":
                   {/* Divider before button */}
                   <div style={{height:1,background:"rgba(255,255,255,0.06)",width:"100%",margin:"4px 0"}} />
                   {/* Contact button */}
-                  <button onClick={()=>document.getElementById("contact")?.scrollIntoView({behavior:"smooth"})}
-                    style={{alignSelf:"flex-start",padding:"14px 28px",borderRadius:999,background:"rgba(18,18,18,0.55)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",border:"1px solid rgba(255,255,255,0.08)",color:"#ffffff",opacity:1,fontSize:14,fontWeight:600,fontFamily:"var(--f-body)",cursor:"pointer",transition:"all 0.3s ease",marginLeft:4}}
-                    onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.2)";e.currentTarget.style.background="rgba(28,28,28,0.7)";e.currentTarget.style.color="#fff";}}
-                    onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.08)";e.currentTarget.style.background="rgba(18,18,18,0.55)";e.currentTarget.style.color="#fff";}}>
-                    Contact with me
-                  </button>
+                  <a href="#" download
+                    style={{alignSelf:"flex-start",padding:"14px 28px",borderRadius:999,background:"rgba(18,18,18,0.55)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",border:"1px solid rgba(255,255,255,0.08)",color:"#ffffff",opacity:1,fontSize:14,fontWeight:600,fontFamily:"var(--f-body)",cursor:"pointer",transition:"all 0.3s ease",marginLeft:4,textDecoration:"none",display:"inline-flex",alignItems:"center",gap:8}}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.2)";e.currentTarget.style.background="rgba(28,28,28,0.7)";}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.08)";e.currentTarget.style.background="rgba(18,18,18,0.55)";}}>
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 1v9M4 7l4 4 4-4M2 13h12" stroke="#ffffff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    {T.cv_btn}
+                  </a>
                 </div>
               </Anim>
               <div>
@@ -2213,7 +2408,7 @@ if __name__ == "__main__":
                   <PoloCard hoverable={true}>
                     <div style={{padding:30,display:"flex",flexDirection:"column",gap:0}}>
                       {/* Bio */}
-                      <p style={{color:"rgba(255,255,255,0.52)",fontSize:15,lineHeight:1.85,marginBottom:24}}>I'm Tornike Zaridze, a dedicated Fullstack Developer based in Vienna, Austria. I specialize in creative frontend development with seamless backend execution to craft exceptional digital experiences.</p>
+                      <p style={{color:"rgba(255,255,255,0.52)",fontSize:15,lineHeight:1.85,marginBottom:24}}>{T.bio}</p>
                       {/* Frontend tags */}
                       <p style={{fontSize:11,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10}}>Frontend</p>
                       <div style={{display:"flex",flexWrap:"wrap",gap:10,marginBottom:20}}>
@@ -2225,11 +2420,11 @@ if __name__ == "__main__":
                         {["Node.js","Python","PostgreSQL","Express","REST API","MongoDB","Django / FastAPI","SQL","MySQL","Redis","Prisma ORM","Docker","Git & Version Control"].map(s=>(<span key={s} className="skill-tag">{s}</span>))}
                       </div>
                       {/* AI Integration */}
-                      <p style={{fontSize:11,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10}}>AI Integration</p>
-                      <p style={{color:"rgba(255,255,255,0.52)",fontSize:15,lineHeight:1.7,marginBottom:28}}>I bring AI into real products — not as a buzzword, but as a tool that actually solves problems. From building custom chatbots and AI agents that handle real customer needs, to integrating intelligent automation into existing platforms — I help businesses work smarter. Whether it's a conversational assistant, a data-driven recommendation engine, or a workflow that used to take hours and now takes seconds, I make AI practical and accessible for any business.</p>
+                      <p style={{fontSize:11,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10}}>{T.ai_label}</p>
+                      <p style={{color:"rgba(255,255,255,0.52)",fontSize:15,lineHeight:1.7,marginBottom:28}}>{T.ai_text}</p>
                       {/* Mission */}
-                      <p style={{fontSize:11,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10}}>My Mission</p>
-                      <p style={{color:"rgba(255,255,255,0.52)",fontSize:15,lineHeight:1.7,marginBottom:0}}>My goal is simple — I want to help businesses grow by building exactly what they envision. I listen to your ideas, understand your goals, and turn them into polished, functional platforms that make a real difference. Every project I take on is a partnership, not just a transaction. I care about your success as much as you do, because the best work comes from genuine collaboration and a shared vision.</p>
+                      <p style={{fontSize:11,color:"rgba(255,255,255,0.3)",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10}}>{T.mission_label}</p>
+                      <p style={{color:"rgba(255,255,255,0.52)",fontSize:15,lineHeight:1.7,marginBottom:0}}>{T.mission_text}</p>
                     </div>
                   </PoloCard>
                 </Anim>
@@ -2251,9 +2446,9 @@ if __name__ == "__main__":
           <div style={{position:"relative",maxWidth:1280,margin:"0 auto",width:"100%",overflow:"visible"}}>
             {/* Header */}
             <div style={{textAlign:"center",marginBottom:72}}>
-              <Anim><div style={{...pill,margin:"0 auto 20px",display:"inline-flex",alignItems:"center",gap:6}}><span style={{width:10,height:10,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.5)",display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{width:4,height:4,borderRadius:"50%",background:"rgba(255,255,255,0.9)",display:"block"}}/></span>Why choose me</div></Anim>
-              <Anim delay={150}><h2 style={heading}>Why me as <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>Developer</em></h2></Anim>
-              <Anim delay={250}><p style={{color:"rgba(255,255,255,0.36)",fontSize:15}}>Why Partner with Me for Development Excellence</p></Anim>
+              <Anim><div style={{...pill,margin:"0 auto 20px",display:"inline-flex",alignItems:"center",gap:6}}><span style={{width:10,height:10,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.5)",display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{width:4,height:4,borderRadius:"50%",background:"rgba(255,255,255,0.9)",display:"block"}}/></span>{T.why_pill}</div></Anim>
+              <Anim delay={150}><h2 style={heading}>{T.why_h} <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>{T.why_h_em}</em></h2></Anim>
+              <Anim delay={250}><p style={{color:"rgba(255,255,255,0.36)",fontSize:15}}>{T.why_sub}</p></Anim>
             </div>
 
             {/* Sticky stack */}
@@ -2263,14 +2458,14 @@ if __name__ == "__main__":
               <div className="wm-card" data-card="1">
                 <div className="wm-side">
                   <div className="wm-icon pos"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
-                  <h3>Skilled Professional</h3>
-                  <p>Gain access to top-tier talent with years of experience, ensuring flawless execution and production-ready results.</p>
+                  <h3>{T.wm1ph}</h3>
+                  <p>{T.wm1pp}</p>
                 </div>
                 <div className="wm-divider"></div>
                 <div className="wm-side">
                   <div className="wm-icon neg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
-                  <h3>Amateur Developer</h3>
-                  <p>Lack of experience may result in code inconsistencies and overlooked details that compound into technical debt.</p>
+                  <h3>{T.wm1nh}</h3>
+                  <p>{T.wm1np}</p>
                 </div>
               </div>
 
@@ -2278,14 +2473,14 @@ if __name__ == "__main__":
               <div className="wm-card" data-card="2">
                 <div className="wm-side">
                   <div className="wm-icon pos"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
-                  <h3>Future-Ready Solutions</h3>
-                  <p>Crafting modern, scalable applications that grow with your business and stay ahead of industry trends.</p>
+                  <h3>{T.wm2ph}</h3>
+                  <p>{T.wm2pp}</p>
                 </div>
                 <div className="wm-divider"></div>
                 <div className="wm-side">
                   <div className="wm-icon neg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
-                  <h3>Outdated Tech Stack</h3>
-                  <p>Stale technologies that don't reflect current standards or your evolving business needs.</p>
+                  <h3>{T.wm2nh}</h3>
+                  <p>{T.wm2np}</p>
                 </div>
               </div>
 
@@ -2293,14 +2488,14 @@ if __name__ == "__main__":
               <div className="wm-card" data-card="3">
                 <div className="wm-side">
                   <div className="wm-icon pos"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
-                  <h3>Client-Centric Collaboration</h3>
-                  <p>Your vision leads the way — I work closely with you to bring ideas to life with precision and creativity.</p>
+                  <h3>{T.wm3ph}</h3>
+                  <p>{T.wm3pp}</p>
                 </div>
                 <div className="wm-divider"></div>
                 <div className="wm-side">
                   <div className="wm-icon neg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
-                  <h3>Detached Communication</h3>
-                  <p>Lack of collaboration and poor feedback loops can result in misaligned outcomes and frustration.</p>
+                  <h3>{T.wm3nh}</h3>
+                  <p>{T.wm3np}</p>
                 </div>
               </div>
 
@@ -2308,14 +2503,14 @@ if __name__ == "__main__":
               <div className="wm-card" data-card="4">
                 <div className="wm-side">
                   <div className="wm-icon pos"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
-                  <h3>Timely Project Tracking</h3>
-                  <p>Stay informed with regular progress updates and timely deliverables — no surprises, just results.</p>
+                  <h3>{T.wm4ph}</h3>
+                  <p>{T.wm4pp}</p>
                 </div>
                 <div className="wm-divider"></div>
                 <div className="wm-side">
                   <div className="wm-icon neg"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></div>
-                  <h3>Unstructured &amp; Unreliable Work</h3>
-                  <p>Inconsistent timelines and last-minute changes can compromise quality and erode trust.</p>
+                  <h3>{T.wm4nh}</h3>
+                  <p>{T.wm4np}</p>
                 </div>
               </div>
 
@@ -2354,9 +2549,9 @@ if __name__ == "__main__":
           {/* ── PROJECTS ─────────────────────────────────────────── */}
           <SectionFrame id="projects">
             <div style={{textAlign:"center",marginBottom:56}}>
-              <Anim><div style={{...pill,margin:"0 auto 20px",display:"inline-flex",alignItems:"center",gap:6}}><span style={{width:10,height:10,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.5)",display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{width:4,height:4,borderRadius:"50%",background:"rgba(255,255,255,0.9)",display:"block"}}/></span>Recent Projects</div></Anim>
-              <Anim delay={150}><h2 style={heading}>Elevating Brands <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>to Drive<br/>Success and Impact</em></h2></Anim>
-              <Anim delay={300}><button className="btn-primary" onClick={()=>go("contact")} style={{marginTop:20}}>Contact Now</button></Anim>
+              <Anim><div style={{...pill,margin:"0 auto 20px",display:"inline-flex",alignItems:"center",gap:6}}><span style={{width:10,height:10,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.5)",display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{width:4,height:4,borderRadius:"50%",background:"rgba(255,255,255,0.9)",display:"block"}}/></span>{T.proj_pill}</div></Anim>
+              <Anim delay={150}><h2 style={heading}>{T.proj_h} <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>{T.proj_h_em}</em></h2></Anim>
+              <Anim delay={300}><button className="btn-primary" onClick={()=>go("contact")} style={{marginTop:20}}>{T.proj_btn}</button></Anim>
             </div>
             <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
               {[
@@ -2393,9 +2588,9 @@ if __name__ == "__main__":
           <SectionFrame id="testimonials">
             <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 0.85fr",gap:60,alignItems:"flex-start"}}>
               <div>
-                <Anim><div style={{...pill,display:"inline-flex",alignItems:"center",gap:6}}><span style={{width:10,height:10,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.5)",display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{width:4,height:4,borderRadius:"50%",background:"rgba(255,255,255,0.9)",display:"block"}}/></span>FAQ Section</div></Anim>
-                <Anim delay={100}><h2 style={{...heading,marginBottom:12}}>Questions, <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>Answers</em></h2></Anim>
-                <Anim delay={200}><p style={{color:"rgba(255,255,255,0.36)",fontSize:15,marginBottom:40}}>Get quick answers to your most pressing questions</p></Anim>
+                <Anim><div style={{...pill,display:"inline-flex",alignItems:"center",gap:6}}><span style={{width:10,height:10,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.5)",display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{width:4,height:4,borderRadius:"50%",background:"rgba(255,255,255,0.9)",display:"block"}}/></span>{T.faq_pill}</div></Anim>
+                <Anim delay={100}><h2 style={{...heading,marginBottom:12}}>{T.faq_h} <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>{T.faq_h_em}</em></h2></Anim>
+                <Anim delay={200}><p style={{color:"rgba(255,255,255,0.36)",fontSize:15,marginBottom:40}}>{T.faq_sub}</p></Anim>
                 <Anim delay={300}>
                   <div style={{marginBottom:28}}>
                     <TestimonialCodeBlock />
@@ -2403,46 +2598,37 @@ if __name__ == "__main__":
                 </Anim>
                 <Anim delay={400}>
                   <div style={{display:"flex",gap:14,flexWrap:"wrap"}}>
-                    <button className="btn-secondary" onClick={()=>go("projects")}>See All Projects</button>
-                    <button className="btn-primary" onClick={()=>go("contact")}>Contact Now</button>
+                    <button className="btn-secondary" onClick={()=>go("projects")}>{T.faq_btn1}</button>
+                    <button className="btn-primary" onClick={()=>go("contact")}>{T.faq_btn2}</button>
                   </div>
                 </Anim>
               </div>
               <Anim delay={200}>
                 <div>
-                  <FAQList items={[
-                    {q:"What services do you offer?",a:"I specialize in frontend development, backend systems, API design, and fullstack application development, creating modern, user-friendly experiences tailored to your needs.",open:true},
-                    {q:"How do I start working with you?",a:"Simply reach out via the contact form or email. We'll discuss your project requirements, timeline, and budget, then I'll prepare a detailed proposal to get things started."},
-                    {q:"What tech stack do you use?",a:"I primarily work with React, Next.js, TypeScript on the frontend; Node.js, Python, and Express on the backend; and PostgreSQL, MongoDB for databases."},
-                    {q:"How long does a project take?",a:"Timelines vary based on complexity. A simple landing page takes 1–2 weeks, while a full-featured application can take 2–3 months. I provide a detailed timeline after our discovery call."},
-                    {q:"Do you provide revisions?",a:"Absolutely. I include revision rounds in every project to ensure the final product meets your expectations perfectly before final delivery."},
-                    {q:"Do you offer maintenance services?",a:"Yes, I offer ongoing maintenance and support packages to keep your applications running smoothly, securely, and up-to-date after launch."},
-                    {q:"What is your pricing structure?",a:"Pricing depends on project scope and complexity. I offer both fixed-price projects and hourly rates, with full transparency in every proposal."},
-                    {q:"Can you rebuild my existing application?",a:"Definitely. I can audit your existing codebase, identify improvements, and rebuild or modernize it with current technologies without disrupting your operations."},
-                  ]} />
+                  <FAQList items={T.faq} />
                 </div>
               </Anim>
             </div>
           </SectionFrame>
 
           {/* ── ARC TEXT BANNER (replaces Get in touch heading) ── */}
-          <ArcTextBanner />
+          <ArcTextBanner arc={T.arc} />
 
           {/* ── CONTACT / FOOTER ─────────────────────────────────── */}
           <SectionFrame id="contact" innerStyle={{overflow:"visible",background:"#0a0a0a",WebkitMaskImage:"none",maskImage:"none",borderTopLeftRadius:0,borderTopRightRadius:0,padding:"0 80px 0"}}>
             <div id="gravity-footer" className="gravity-section">
               <div className="footer-globe-wrap"><GlobeSpinner /></div>
               <div className="gravity-group gravity-left">
-                <a href="#projects" className="gravity-button" data-x="8" data-y="15" data-rot="-4">Projects</a>
-                <a href="#about" className="gravity-button" data-x="5" data-y="38" data-rot="-2">About Me</a>
-                <a href="#services" className="gravity-button" data-x="20" data-y="58" data-rot="6">Services</a>
-                <a href="chess.html" className="gravity-button" data-x="12" data-y="75" data-rot="3">Play Chess</a>
+                <a href="#projects" className="gravity-button" data-x="8" data-y="15" data-rot="-4">{T.foot_proj}</a>
+                <a href="#about" className="gravity-button" data-x="5" data-y="38" data-rot="-2">{T.foot_about}</a>
+                <a href="services.html" className="gravity-button" data-x="20" data-y="58" data-rot="6">{T.foot_serv}</a>
+                <a href="chess.html" className="gravity-button" data-x="12" data-y="75" data-rot="3">{T.foot_chess}</a>
               </div>
               <div className="gravity-group gravity-right">
                 <a href="https://www.linkedin.com/in/tornike-zaridze-48052b36a/" target="_blank" rel="noopener noreferrer" className="gravity-button" data-x="55" data-y="8" data-rot="5">LinkedIn</a>
                 <a href="https://instagram.com/tornike.zaridze" target="_blank" rel="noopener noreferrer" className="gravity-button" data-x="68" data-y="33" data-rot="-3">Instagram</a>
                 <a href="https://github.com/tokson7" target="_blank" rel="noopener noreferrer" className="gravity-button" data-x="52" data-y="57" data-rot="4">GitHub</a>
-                <a href="privacy.html" className="gravity-button" data-x="62" data-y="78" data-rot="-2">Privacy Policy</a>
+                <a href="privacy.html" className="gravity-button" data-x="62" data-y="78" data-rot="-2">{T.foot_priv}</a>
               </div>
             </div>
             <div style={{borderTop:"1px solid rgba(255,255,255,0.06)"}}>
@@ -2451,7 +2637,10 @@ if __name__ == "__main__":
                   <LocationClock />
                   <span style={{color:"rgba(255,255,255,0.28)",fontSize:13}}>zaridze2909@gmail.com</span>
                 </div>
-                <span style={{color:"rgba(255,255,255,0.28)",fontSize:13}}>©2026 Tornike Zaridze. All rights reserved.</span>
+                <div style={{display:"flex",alignItems:"center",gap:18}}>
+                  <LangSwitcher lang={lang} onSwitch={switchLang} />
+                  <span style={{color:"rgba(255,255,255,0.28)",fontSize:13}}>{T.copyright}</span>
+                </div>
               </div>
             </div>
           </SectionFrame>
@@ -2476,43 +2665,43 @@ if __name__ == "__main__":
       </button>
       <div class="modal-content">
         <div class="modal-info">
-          <h2 id="modal-title">Let's Work Together</h2>
-          <p>Reach out to discuss collaborations, inquiries or any project opportunities. We're just a message away.</p>
+          <h2 id="modal-title" data-i18n-en="Let's Work Together" data-i18n-de="Lass uns zusammenarbeiten">Lass uns zusammenarbeiten</h2>
+          <p data-i18n-en="Reach out to discuss collaborations, inquiries or any project opportunities. We're just a message away." data-i18n-de="Kontaktieren Sie mich für Kooperationen, Anfragen oder Projektmöglichkeiten. Wir sind nur eine Nachricht entfernt.">Kontaktieren Sie mich für Kooperationen, Anfragen oder Projektmöglichkeiten. Wir sind nur eine Nachricht entfernt.</p>
         </div>
         <form class="modal-form" id="contact-form" novalidate>
           <div class="form-row two-col">
             <div class="form-field">
-              <label for="cf-name">Your Name</label>
-              <input type="text" id="cf-name" name="name" placeholder="Jane Smith" required />
+              <label for="cf-name" data-i18n-en="Your Name" data-i18n-de="Ihr Name">Ihr Name</label>
+              <input type="text" id="cf-name" name="name" placeholder="Jana Mustermann" data-ph-en="Jane Smith" data-ph-de="Jana Mustermann" required />
             </div>
             <div class="form-field">
-              <label for="cf-phone">Your Phone</label>
+              <label for="cf-phone" data-i18n-en="Your Phone" data-i18n-de="Ihre Telefonnummer">Ihre Telefonnummer</label>
               <input type="tel" id="cf-phone" name="phone" placeholder="(044) 123-456-789" />
             </div>
           </div>
           <div class="form-field">
-            <label for="cf-email">Your Email ID</label>
-            <input type="email" id="cf-email" name="email" placeholder="janesmith@email.com" required />
+            <label for="cf-email" data-i18n-en="Your Email ID" data-i18n-de="Ihre E-Mail-Adresse">Ihre E-Mail-Adresse</label>
+            <input type="email" id="cf-email" name="email" placeholder="janesmith@email.com" data-ph-en="janesmith@email.com" data-ph-de="max@email.com" required />
           </div>
           <div class="form-field">
-            <label for="cf-interest">I'm Interested In</label>
+            <label for="cf-interest" data-i18n-en="I'm Interested In" data-i18n-de="Ich interessiere mich für">Ich interessiere mich für</label>
             <select id="cf-interest" name="interest" required>
-              <option value="" disabled selected>Select a service</option>
-              <option value="frontend">Frontend Development</option>
-              <option value="backend">Backend Development</option>
-              <option value="fullstack">Full-stack Development</option>
-              <option value="ai">AI Integration / Chatbots</option>
-              <option value="uiux">UI/UX Design</option>
-              <option value="graphic">Graphic Design</option>
-              <option value="other">Consultation / Other</option>
+              <option value="" disabled selected data-i18n-en="Select a service" data-i18n-de="Dienstleistung wählen">Dienstleistung wählen</option>
+              <option value="frontend" data-i18n-en="Frontend Development" data-i18n-de="Frontend-Entwicklung">Frontend-Entwicklung</option>
+              <option value="backend" data-i18n-en="Backend Development" data-i18n-de="Backend-Entwicklung">Backend-Entwicklung</option>
+              <option value="fullstack" data-i18n-en="Fullstack Development" data-i18n-de="Fullstack-Entwicklung">Fullstack-Entwicklung</option>
+              <option value="ai" data-i18n-en="AI Integration / Chatbots" data-i18n-de="KI-Integration / Chatbots">KI-Integration / Chatbots</option>
+              <option value="uiux" data-i18n-en="UI/UX Design" data-i18n-de="UI/UX-Design">UI/UX-Design</option>
+              <option value="graphic" data-i18n-en="Graphic Design" data-i18n-de="Grafikdesign">Grafikdesign</option>
+              <option value="other" data-i18n-en="Consulting / Other" data-i18n-de="Beratung / Sonstiges">Beratung / Sonstiges</option>
             </select>
           </div>
           <div class="form-field">
-            <label for="cf-message">More About The Project</label>
-            <textarea id="cf-message" name="message" placeholder="Type Here..." rows="5" required></textarea>
+            <label for="cf-message" data-i18n-en="More About The Project" data-i18n-de="Mehr über das Projekt">Mehr über das Projekt</label>
+            <textarea id="cf-message" name="message" placeholder="Hier eingeben..." data-ph-en="Tell me more..." data-ph-de="Hier eingeben..." rows="5" required></textarea>
           </div>
           <button type="submit" class="form-submit">
-            Submit Now
+            <span data-i18n-en="Submit Now" data-i18n-de="Jetzt absenden">Jetzt absenden</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
@@ -2577,7 +2766,11 @@ if __name__ == "__main__":
     });
 
     // Event delegation — catches React-rendered buttons regardless of timing
-    var CONTACT_TEXTS = ['contact now','get in touch','hire me','contact with me','contact me'];
+    var CONTACT_TEXTS = ['jetzt kontaktieren','kontakt aufnehmen','jetzt buchen','zusammenarbeiten','kontaktieren','contact now','reach out','book now','work together','get in touch'];
+    // Dynamically pick from _T if lang changes without reload
+    document.body.addEventListener('_langchange', function() {
+      if (window._T && window._T.ctexts) CONTACT_TEXTS = window._T.ctexts;
+    });
     document.body.addEventListener('click', function(e) {
       var el = e.target;
       // Walk up to find a button or <a>
@@ -2600,7 +2793,7 @@ if __name__ == "__main__":
       var submitBtn = form.querySelector('.form-submit');
       var originalHTML = submitBtn.innerHTML;
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Sending…';
+      submitBtn.textContent = (window._T && window._T.sending) ? window._T.sending : 'Sending…';
       statusEl.textContent = '';
       statusEl.className = 'form-status';
 
@@ -2614,12 +2807,14 @@ if __name__ == "__main__":
       })
       .then(function(res) {
         if (!res.ok) throw new Error('failed');
-        statusEl.textContent = '✓ Message sent! I\'ll get back to you soon.';
+        statusEl.textContent = (window._T && window._T.sent) ? window._T.sent : '✓ Message sent!';
         statusEl.className = 'form-status success';
         setTimeout(closeModal, 2000);
       })
       .catch(function() {
-        statusEl.textContent = 'Something went wrong. Please email me directly at tornikezaridze@gmail.com';
+        statusEl.textContent = 'Etwas ist schiefgelaufen. Bitte schreiben Sie mir direkt an tornikezaridze@gmail.com';
+        // lang-aware fallback
+        if (window._T && window._T.err) statusEl.textContent = window._T.err;
         statusEl.className = 'form-status error';
       })
       .finally(function() {
@@ -2997,6 +3192,28 @@ if __name__ == "__main__":
         document.body.classList.remove('intro-active');
       }
     }
+  })();
+  </script>
+
+  <!-- ── MODAL TRANSLATION + LANG SYNC ──────────────────────── -->
+  <script>
+  (function() {
+    var lang = localStorage.getItem('portfolio-lang') || 'de';
+    /* Apply data-i18n-en / data-i18n-de to all modal elements */
+    document.querySelectorAll('[data-i18n-' + lang + ']').forEach(function(el) {
+      el.textContent = el.getAttribute('data-i18n-' + lang);
+    });
+    document.querySelectorAll('[data-ph-' + lang + ']').forEach(function(el) {
+      el.placeholder = el.getAttribute('data-ph-' + lang);
+    });
+    /* Expose _T for form submit handler */
+    window._T = {
+      sending: lang === 'en' ? 'Sending\u2026' : 'Wird gesendet\u2026',
+      sent:    lang === 'en' ? '\u2713 Message sent! I\u2019ll be in touch soon.' : '\u2713 Nachricht gesendet! Ich melde mich bald bei Ihnen.',
+      err:     lang === 'en' ? 'Something went wrong...' : 'Etwas ist schiefgelaufen...'
+    };
+    /* Set html lang attribute */
+    document.documentElement.lang = lang;
   })();
   </script>
 </body>
