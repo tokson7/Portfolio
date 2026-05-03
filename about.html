@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" id="html-root">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Über mich — Tornike Zaridze</title>
+  <title data-i18n-title="about">Über mich — Tornike Zaridze</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@400;600&family=DM+Sans:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
@@ -23,11 +23,11 @@
       </svg>
     </a>
     <div class="nav-links">
-      <a href="index.html#projects" class="nav-link">Projekte</a>
-      <a href="services.html"        class="nav-link">Leistungen</a>
-      <a href="about.html"           class="nav-link active">Über mich</a>
-      <a href="index.html#contact"   class="nav-link">Kontakt</a>
-      <a href="chess.html"           class="nav-link">Schach spielen</a>
+      <a href="index.html#projects" class="nav-link" data-i18n="nav_proj">Projekte</a>
+      <a href="services.html"        class="nav-link" data-i18n="nav_serv">Leistungen</a>
+      <a href="about.html"           class="nav-link active" data-i18n="nav_about">Über mich</a>
+      <a href="index.html" onclick="sessionStorage.setItem('openContact','1')" class="nav-link" data-i18n="nav_contact">Kontakt</a>
+      <a href="chess.html"           class="nav-link" data-i18n="nav_chess">Schach spielen</a>
     </div>
   </nav>
 
@@ -38,15 +38,15 @@
     <div class="bg-grid"></div>
 
     <div class="bg-text-layer" aria-hidden="true">
-      <div class="bg-text-line">KREATIVE VISION</div>
-      <div class="bg-text-line bg-text-italic">ohne Grenzen</div>
+      <div class="bg-text-line" data-i18n="bg_line1">KREATIVE VISION</div>
+      <div class="bg-text-line bg-text-italic" data-i18n="bg_line2">ohne Grenzen</div>
     </div>
 
     <!-- ── Real content ────────────────────────────────────────── -->
     <div class="about-content">
 
       <div class="role-pill">
-        <span></span>Fullstack-Entwickler
+        <span></span><span data-i18n="role">Fullstack-Entwickler</span>
       </div>
 
       <h1>
@@ -54,7 +54,7 @@
         <em>Zaridze.</em>
       </h1>
 
-      <p class="about-lead">
+      <p class="about-lead" data-i18n="lead">
         Wohnhaft zwischen Wien &amp; Tbilisi. Ich gestalte und entwickle digitale Produkte,
         die so durchdacht wirken, wie sie aussehen — von null bis Produktion, über
         Frontend, Backend und alles dazwischen.
@@ -64,15 +64,15 @@
       <div class="stats-grid">
         <div class="stat-cell">
           <div class="stat-number">5+</div>
-          <div class="stat-label">Jahre Erfahrung</div>
+          <div class="stat-label" data-i18n="stat1">Jahre Erfahrung</div>
         </div>
         <div class="stat-cell">
           <div class="stat-number">30+</div>
-          <div class="stat-label">Projekte umgesetzt</div>
+          <div class="stat-label" data-i18n="stat2">Projekte umgesetzt</div>
         </div>
         <div class="stat-cell">
           <div class="stat-number">2</div>
-          <div class="stat-label">Städte, eine Zeitzone</div>
+          <div class="stat-label" data-i18n="stat3">Städte, eine Zeitzone</div>
         </div>
       </div>
 
@@ -96,7 +96,7 @@
 
       <!-- CTA -->
       <a href="index.html#contact" class="about-cta">
-        Lass uns zusammenarbeiten
+        <span data-i18n="cta">Lass uns zusammenarbeiten</span>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -113,8 +113,8 @@
   <section class="approach-section">
 
     <div class="approach-intro">
-      <span class="approach-intro-eyebrow">Strategie</span>
-      <h2 class="approach-intro-title">Wie ich jedes Projekt angehe?</h2>
+      <span class="approach-intro-eyebrow" data-i18n="approach_eyebrow">Strategie</span>
+      <h2 class="approach-intro-title" data-i18n="approach_title">Wie ich jedes Projekt angehe?</h2>
     </div>
 
     <div class="stack-track">
@@ -122,11 +122,11 @@
     <div class="approach-card" data-card="0" style="--card-bg:#EAEAEA;--card-fg:#0A0A0A;--i:0;">
       <div class="approach-card-inner">
         <div class="approach-left">
-          <span class="approach-label">Leistung</span>
-          <h2 class="approach-title">LEISTUNG<br>ZUERST</h2>
+          <span class="approach-label" data-i18n="c1label">Leistung</span>
+          <h2 class="approach-title" data-i18n-html="c1title">LEISTUNG<br>ZUERST</h2>
         </div>
         <div class="approach-center">
-          <p class="approach-desc">Jede Entscheidung, die ich treffe — vom Laden der Assets bis zum Rendern der Komponenten — wird gegen die Performance abgewogen. Schnelle Seiten konvertieren besser, ranken höher und wirken einfach vertrauenswürdiger.</p>
+          <p class="approach-desc" data-i18n="c1desc">Jede Entscheidung, die ich treffe — vom Laden der Assets bis zum Rendern der Komponenten — wird gegen die Performance abgewogen. Schnelle Seiten konvertieren besser, ranken höher und wirken einfach vertrauenswürdiger.</p>
         </div>
         <span class="approach-num">01</span>
       </div>
@@ -135,11 +135,11 @@
     <div class="approach-card" data-card="1" style="--card-bg:#7B9EC0;--card-fg:#0A0A0A;--i:1;">
       <div class="approach-card-inner">
         <div class="approach-left">
-          <span class="approach-label">Codequalität</span>
-          <h2 class="approach-title">SAUBER &amp;<br>SKALIERBAR</h2>
+          <span class="approach-label" data-i18n="c2label">Codequalität</span>
+          <h2 class="approach-title" data-i18n-html="c2title">SAUBER &amp;<br>SKALIERBAR</h2>
         </div>
         <div class="approach-center">
-          <p class="approach-desc">Ich schreibe Code, den der nächste Entwickler — oder mein zukünftiges Ich — wirklich versteht. Klare Struktur, konsistente Muster und sinnvolle Abstraktionen machen Projekte einfacher zu wachsen und zu debuggen.</p>
+          <p class="approach-desc" data-i18n="c2desc">Ich schreibe Code, den der nächste Entwickler — oder mein zukünftiges Ich — wirklich versteht. Klare Struktur, konsistente Muster und sinnvolle Abstraktionen machen Projekte einfacher zu wachsen und zu debuggen.</p>
         </div>
         <span class="approach-num">02</span>
       </div>
@@ -148,11 +148,11 @@
     <div class="approach-card" data-card="2" style="--card-bg:#EAEAEA;--card-fg:#0A0A0A;--i:2;">
       <div class="approach-card-inner">
         <div class="approach-left">
-          <span class="approach-label">Design &amp; UX</span>
-          <h2 class="approach-title">MODERNES<br>UI &amp; UX</h2>
+          <span class="approach-label" data-i18n="c3label">Design &amp; UX</span>
+          <h2 class="approach-title" data-i18n-html="c3title">MODERNES<br>UI &amp; UX</h2>
         </div>
         <div class="approach-center">
-          <p class="approach-desc">Gutes UI ist kein Dekor — es ist das Produkt. Ich gestalte und baue Interfaces, die intuitiv genug sind, um ohne Nachdenken genutzt zu werden, mit Layouts und Interaktionen, die in jeder Bildschirmgröße durchdacht wirken.</p>
+          <p class="approach-desc" data-i18n="c3desc">Gutes UI ist kein Dekor — es ist das Produkt. Ich gestalte und baue Interfaces, die intuitiv genug sind, um ohne Nachdenken genutzt zu werden, mit Layouts und Interaktionen, die in jeder Bildschirmgröße durchdacht wirken.</p>
         </div>
         <span class="approach-num">03</span>
       </div>
@@ -161,11 +161,11 @@
     <div class="approach-card" data-card="3" style="--card-bg:#7B9EC0;--card-fg:#0A0A0A;--i:3;">
       <div class="approach-card-inner">
         <div class="approach-left">
-          <span class="approach-label">Sichtbarkeit</span>
-          <h2 class="approach-title">SEO &amp; BEST<br>PRACTICES</h2>
+          <span class="approach-label" data-i18n="c4label">Sichtbarkeit</span>
+          <h2 class="approach-title" data-i18n-html="c4title">SEO &amp; BEST<br>PRACTICES</h2>
         </div>
         <div class="approach-center">
-          <p class="approach-desc">SEO und Barrierefreiheit sind von Anfang an eingebaut, nicht nachträglich hinzugefügt. Semantisches Markup, korrekte Überschriftenhierarchie und leistungsbewusste Entscheidungen geben jedem Projekt eine echte Grundlage für Sichtbarkeit.</p>
+          <p class="approach-desc" data-i18n="c4desc">SEO und Barrierefreiheit sind von Anfang an eingebaut, nicht nachträglich hinzugefügt. Semantisches Markup, korrekte Überschriftenhierarchie und leistungsbewusste Entscheidungen geben jedem Projekt eine echte Grundlage für Sichtbarkeit.</p>
         </div>
         <span class="approach-num">04</span>
       </div>
@@ -174,11 +174,11 @@
     <div class="approach-card" data-card="4" style="--card-bg:#EAEAEA;--card-fg:#0A0A0A;--i:4;">
       <div class="approach-card-inner">
         <div class="approach-left">
-          <span class="approach-label">Lieferung</span>
-          <h2 class="approach-title">ZUVERLÄSSIG<br>LIEFERN</h2>
+          <span class="approach-label" data-i18n="c5label">Lieferung</span>
+          <h2 class="approach-title" data-i18n-html="c5title">ZUVERLÄSSIG<br>LIEFERN</h2>
         </div>
         <div class="approach-center">
-          <p class="approach-desc">Zuverlässige Lieferung bedeutet keine Überraschungen. Ich kommuniziere frühzeitig, plane sorgfältig und teste gründlich — damit das, was live geht, dem Vereinbarten entspricht und das Vertrauen in das Ergebnis nie in Frage steht.</p>
+          <p class="approach-desc" data-i18n="c5desc">Zuverlässige Lieferung bedeutet keine Überraschungen. Ich kommuniziere frühzeitig, plane sorgfältig und teste gründlich — damit das, was live geht, dem Vereinbarten entspricht und das Vertrauen in das Ergebnis nie in Frage steht.</p>
         </div>
         <span class="approach-num">05</span>
       </div>
@@ -194,9 +194,9 @@
   <section class="plus-zoom-section">
     <div class="plus-zoom-sticky">
       <div class="plus-zoom-text" style="--zoom:0">
-        <span>KLARHEIT</span>
+        <span data-i18n="zoom_l">KLARHEIT</span>
         <span class="plus-marker" aria-label="+"></span>
-        <span>LEISTUNG</span>
+        <span data-i18n="zoom_r">LEISTUNG</span>
       </div>
       <!-- Scatter layers — shared sticky, driven by plus-zoom IIFE -->
       <div id="scatterMeasure" class="scatter-measure-layer"></div>
@@ -211,40 +211,40 @@
       <div class="skills-col">
         <div class="skills-col-header">
           <span class="skills-col-num">01</span>
-          <h3 class="skills-col-title">DESIGN</h3>
+          <h3 class="skills-col-title" data-i18n="scol1">DESIGN</h3>
         </div>
         <ul class="skills-list-items">
-          <li>Markenidentität</li>
-          <li>Webdesign</li>
-          <li>Logo</li>
-          <li>UX &amp; UI Design</li>
-          <li>Interaktionsdesign</li>
-          <li>Wireframe</li>
-          <li>Grafikdesign</li>
+          <li data-i18n="s1i1">Markenidentität</li>
+          <li data-i18n="s1i2">Webdesign</li>
+          <li data-i18n="s1i3">Logo</li>
+          <li data-i18n="s1i4">UX &amp; UI Design</li>
+          <li data-i18n="s1i5">Interaktionsdesign</li>
+          <li data-i18n="s1i6">Wireframe</li>
+          <li data-i18n="s1i7">Grafikdesign</li>
         </ul>
       </div>
 
       <div class="skills-col">
         <div class="skills-col-header">
           <span class="skills-col-num">02</span>
-          <h3 class="skills-col-title">ENTWICKLUNG</h3>
+          <h3 class="skills-col-title" data-i18n="scol2">ENTWICKLUNG</h3>
         </div>
         <ul class="skills-list-items">
-          <li>Frontend-Entwicklung</li>
-          <li>Backend-Entwicklung</li>
-          <li>Datenbankdesign &amp; -verwaltung</li>
-          <li>Suchmaschinenoptimierung (SEO)</li>
-          <li>Responsive Development</li>
-          <li>API-Integration</li>
-          <li>Deployment &amp; Hosting</li>
-          <li>Animationen &amp; Micro-Interactions</li>
+          <li data-i18n="s2i1">Frontend-Entwicklung</li>
+          <li data-i18n="s2i2">Backend-Entwicklung</li>
+          <li data-i18n="s2i3">Datenbankdesign &amp; -verwaltung</li>
+          <li data-i18n="s2i4">Suchmaschinenoptimierung (SEO)</li>
+          <li data-i18n="s2i5">Responsive Development</li>
+          <li data-i18n="s2i6">API-Integration</li>
+          <li data-i18n="s2i7">Deployment &amp; Hosting</li>
+          <li data-i18n="s2i8">Animationen &amp; Micro-Interactions</li>
         </ul>
       </div>
 
       <div class="skills-col">
         <div class="skills-col-header">
           <span class="skills-col-num">03</span>
-          <h3 class="skills-col-title">TECHNOLOGIEN</h3>
+          <h3 class="skills-col-title" data-i18n="scol3">TECHNOLOGIEN</h3>
         </div>
         <ul class="skills-list-items">
           <li>React</li>
@@ -305,35 +305,35 @@
       <!-- Two-column grid. No gap column — per-row gaps driven by JS padding. -->
       <div class="id-table" id="idTable">
 
-        <div class="id-label">Identität</div>
+        <div class="id-label" data-i18n="id1">Identität</div>
         <div class="id-value">Tornike Zaridze</div>
 
-        <div class="id-label">Wohnhaft in</div>
+        <div class="id-label" data-i18n="id2">Wohnhaft in</div>
         <div class="id-value">Europe, Austria</div>
 
-        <div class="id-label">Aktuelle Zeit</div>
+        <div class="id-label" data-i18n="id3">Aktuelle Zeit</div>
         <div class="id-value" id="idClock">— : — : —</div>
 
-        <div class="id-label">Allgemeine Anfragen</div>
+        <div class="id-label" data-i18n="id4">Allgemeine Anfragen</div>
         <div class="id-value">
           <a href="mailto:zaridze2909@gmail.com">zaridze2909@gmail.com</a>
         </div>
 
-        <div class="id-label">Zusammenarbeit</div>
-        <div class="id-value">Freiberuflich &amp; Partner</div>
+        <div class="id-label" data-i18n="id5">Zusammenarbeit</div>
+        <div class="id-value" data-i18n="id5v">Freiberuflich &amp; Partner</div>
 
-        <div class="id-label">LinkedIn</div>
+        <div class="id-label" data-i18n="id6">LinkedIn</div>
         <div class="id-value">
           <a href="https://linkedin.com/in/tornike-zaridze" target="_blank" rel="noopener noreferrer">Tornike Zaridze</a>
         </div>
 
-        <div class="id-label">Instagram</div>
+        <div class="id-label" data-i18n="id7">Instagram</div>
         <div class="id-value">
           <a href="https://instagram.com/tornike.zaridze." target="_blank" rel="noopener noreferrer">tornike.zaridze.</a>
         </div>
 
-        <div class="id-label">Ausbildung</div>
-        <div class="id-value">Bachelorabschluss</div>
+        <div class="id-label" data-i18n="id8">Ausbildung</div>
+        <div class="id-value" data-i18n="id8v">Bachelorabschluss</div>
 
       </div>
     </div>
@@ -448,9 +448,9 @@
         <div class="sticker-tag-line">Portfolio · 2026</div>
 
         <div class="sticker-headline">
-          <div class="sticker-line">ALLES</div>
-          <div class="sticker-line">UNMÖGLICHE</div>
-          <div class="sticker-line">IST MÖGLICH</div>
+          <div class="sticker-line" data-i18n="sticker_l1">ALLES</div>
+          <div class="sticker-line" data-i18n="sticker_l2">UNMÖGLICHE</div>
+          <div class="sticker-line" data-i18n="sticker_l3">IST MÖGLICH</div>
         </div>
 
         <div class="sticker-divider"></div>
@@ -469,7 +469,7 @@
           </div>
         </div>
 
-        <div class="sticker-hint">zieh mich</div>
+        <div class="sticker-hint" data-i18n="sticker_hint">zieh mich</div>
       </div>
     </div>
   </div>
@@ -566,7 +566,9 @@
       var TARGET_RATIO = 0.99; // text fills 99% of viewport width
 
       // ── Scatter word-assembly (phase 2: rawP 0.48 → 1.0) ─────────────────
-      var SCATTER_TEXT   = 'Wenn ich ein neues Projekt beginne, denke ich daran, wie alles funktionieren, wirken und skalieren soll. Mit Erfahrung in Design und Entwicklung wähle ich Werkzeuge, die Leistung, Klarheit und langfristiges Wachstum unterstützen.';
+      var SCATTER_TEXT   = localStorage.getItem('portfolio-lang') === 'en'
+        ? 'When I start a new project, I think about how everything should function, feel, and scale. With experience in design and development, I choose tools that support performance, clarity, and long-term growth.'
+        : 'Wenn ich ein neues Projekt beginne, denke ich daran, wie alles funktionieren, wirken und skalieren soll. Mit Erfahrung in Design und Entwicklung wähle ich Werkzeuge, die Leistung, Klarheit und langfristiges Wachstum unterstützen.';
       var SCATTER_TOKENS = SCATTER_TEXT.split(' ');
       var measureLayer     = document.getElementById('scatterMeasure');
       var animLayer        = document.getElementById('scatterAnim');
@@ -656,6 +658,7 @@
         text.style.fontSize = '';
         void text.offsetWidth; // force layout flush
         var naturalWidth = text.scrollWidth;
+        if (!naturalWidth) return;
         var targetWidth  = window.innerWidth * TARGET_RATIO;
         // Always rescale — both up AND down — to hit the target width exactly
         var cssSize    = parseFloat(getComputedStyle(text).fontSize);
@@ -723,6 +726,7 @@
 
       window.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('resize', onResize, { passive: true });
+      window._plusZoomRefit = function() { fitText(); updateOrigin(); initScatter(); };
     })();
 
     // ── Identity: logo FIXED at top (35vh), text travels UPWARD past it ────────
@@ -1157,6 +1161,113 @@
 
   <script src="js/shader-demo.js" defer></script>
 
+  <script>
+  // ── Bilingual support ─────────────────────────────────────────
+  (function () {
+    var T = {
+      en: {
+        title:            'About Me \u2014 Tornike Zaridze',
+        nav_proj:         'Projects',
+        nav_serv:         'Services',
+        nav_about:        'About Me',
+        nav_contact:      'Contact',
+        nav_chess:        'Play Chess',
+        role:             'Fullstack Developer',
+        lead:             'Based between Vienna \u0026 Tbilisi. I design and build digital products that work as good as they look \u2014 from zero to production, across frontend, backend, and everything in between.',
+        stat1:            'Years of experience',
+        stat2:            'Projects delivered',
+        stat3:            'Cities, one timezone',
+        cta:              "Let's work together",
+        approach_eyebrow: 'Strategy',
+        approach_title:   'How I approach every project?',
+        c1label: 'Performance', c1title: 'PERFORMANCE<br>FIRST',
+        c1desc:  'Every decision I make \u2014 from loading assets to rendering components \u2014 is weighed against performance. Fast pages convert better, rank higher, and simply feel more trustworthy.',
+        c2label: 'Code quality', c2title: 'CLEAN &amp;<br>SCALABLE',
+        c2desc:  'I write code that the next developer \u2014 or my future self \u2014 can actually understand. Clear structure, consistent patterns, and meaningful abstractions make projects easier to grow and debug.',
+        c3label: 'Design &amp; UX', c3title: 'MODERN<br>UI &amp; UX',
+        c3desc:  'Good UI is not decoration \u2014 it is the product. I design and build interfaces intuitive enough to use without thinking, with layouts and interactions that feel considered at every screen size.',
+        c4label: 'Visibility', c4title: 'SEO &amp; BEST<br>PRACTICES',
+        c4desc:  'SEO and accessibility are baked in from the start, not bolted on later. Semantic markup, correct heading hierarchy, and performance-conscious decisions give every project a real foundation for visibility.',
+        c5label: 'Delivery', c5title: 'RELIABLE<br>DELIVERY',
+        c5desc:  'Reliable delivery means no surprises. I communicate early, plan carefully, and test thoroughly \u2014 so what goes live matches what was agreed, and confidence in the outcome is never in question.',
+        zoom_l: 'CLARITY', zoom_r: 'PERFORMANCE',
+        bg_line1: 'CREATIVE VISION', bg_line2: 'without limits',
+        scol1: 'DESIGN', scol2: 'DEVELOPMENT', scol3: 'TECHNOLOGIES',
+        s1i1: 'Brand Identity', s1i2: 'Web Design', s1i3: 'Logo',
+        s1i4: 'UX &amp; UI Design', s1i5: 'Interaction Design',
+        s1i6: 'Wireframe', s1i7: 'Graphic Design',
+        s2i1: 'Frontend Development', s2i2: 'Backend Development',
+        s2i3: 'Database Design &amp; Management', s2i4: 'Search Engine Optimization (SEO)',
+        s2i5: 'Responsive Development', s2i6: 'API Integration',
+        s2i7: 'Deployment &amp; Hosting', s2i8: 'Animations &amp; Micro-Interactions',
+        id1: 'Identity', id2: 'Based in', id3: 'Current time',
+        id4: 'General inquiries', id5: 'Collaboration', id5v: 'Freelance &amp; Partners',
+        id6: 'LinkedIn', id7: 'Instagram', id8: 'Education', id8v: "Bachelor's degree",
+        sticker_l1: 'ALL THE', sticker_l2: 'IMPOSSIBLE', sticker_l3: 'IS POSSIBLE',
+        sticker_hint: 'drag me'
+      },
+      de: {
+        title:            '\u00dcber mich \u2014 Tornike Zaridze',
+        nav_proj:         'Projekte',
+        nav_serv:         'Leistungen',
+        nav_about:        '\u00dcber mich',
+        nav_contact:      'Kontakt',
+        nav_chess:        'Schach spielen',
+        role:             'Fullstack-Entwickler',
+        lead:             'Wohnhaft zwischen Wien &amp; Tbilisi. Ich gestalte und entwickle digitale Produkte, die so durchdacht wirken, wie sie aussehen \u2014 von null bis Produktion, \u00fcber Frontend, Backend und alles dazwischen.',
+        stat1:            'Jahre Erfahrung',
+        stat2:            'Projekte umgesetzt',
+        stat3:            'St\u00e4dte, eine Zeitzone',
+        cta:              'Lass uns zusammenarbeiten',
+        approach_eyebrow: 'Strategie',
+        approach_title:   'Wie ich jedes Projekt angehe?',
+        c1label: 'Leistung', c1title: 'LEISTUNG<br>ZUERST',
+        c1desc:  'Jede Entscheidung, die ich treffe \u2014 vom Laden der Assets bis zum Rendern der Komponenten \u2014 wird gegen die Performance abgewogen. Schnelle Seiten konvertieren besser, ranken h\u00f6her und wirken einfach vertrauensw\u00fcrdiger.',
+        c2label: 'Codequalit\u00e4t', c2title: 'SAUBER &amp;<br>SKALIERBAR',
+        c2desc:  'Ich schreibe Code, den der n\u00e4chste Entwickler \u2014 oder mein zuk\u00fcnftiges Ich \u2014 wirklich versteht. Klare Struktur, konsistente Muster und sinnvolle Abstraktionen machen Projekte einfacher zu wachsen und zu debuggen.',
+        c3label: 'Design &amp; UX', c3title: 'MODERNES<br>UI &amp; UX',
+        c3desc:  'Gutes UI ist kein Dekor \u2014 es ist das Produkt. Ich gestalte und baue Interfaces, die intuitiv genug sind, um ohne Nachdenken genutzt zu werden, mit Layouts und Interaktionen, die in jeder Bildschirmgr\u00f6\u00dfe durchdacht wirken.',
+        c4label: 'Sichtbarkeit', c4title: 'SEO &amp; BEST<br>PRACTICES',
+        c4desc:  'SEO und Barrierefreiheit sind von Anfang an eingebaut, nicht nachtr\u00e4glich hinzugef\u00fcgt. Semantisches Markup, korrekte \u00dcberschriftenhierarchie und leistungsbewusste Entscheidungen geben jedem Projekt eine echte Grundlage f\u00fcr Sichtbarkeit.',
+        c5label: 'Lieferung', c5title: 'ZUVERL\u00c4SSIG<br>LIEFERN',
+        c5desc:  'Zuverl\u00e4ssige Lieferung bedeutet keine \u00dcberraschungen. Ich kommuniziere fr\u00fchzeitig, plane sorgf\u00e4ltig und teste gr\u00fcndlich \u2014 damit das, was live geht, dem Vereinbarten entspricht und das Vertrauen in das Ergebnis nie in Frage steht.',
+        zoom_l: 'KLARHEIT', zoom_r: 'LEISTUNG',
+        bg_line1: 'KREATIVE VISION', bg_line2: 'ohne Grenzen',
+        scol1: 'DESIGN', scol2: 'ENTWICKLUNG', scol3: 'TECHNOLOGIEN',
+        s1i1: 'Markenidentit\u00e4t', s1i2: 'Webdesign', s1i3: 'Logo',
+        s1i4: 'UX &amp; UI Design', s1i5: 'Interaktionsdesign',
+        s1i6: 'Wireframe', s1i7: 'Grafikdesign',
+        s2i1: 'Frontend-Entwicklung', s2i2: 'Backend-Entwicklung',
+        s2i3: 'Datenbankdesign &amp; -verwaltung', s2i4: 'Suchmaschinenoptimierung (SEO)',
+        s2i5: 'Responsive Development', s2i6: 'API-Integration',
+        s2i7: 'Deployment &amp; Hosting', s2i8: 'Animationen &amp; Micro-Interactions',
+        id1: 'Identit\u00e4t', id2: 'Wohnhaft in', id3: 'Aktuelle Zeit',
+        id4: 'Allgemeine Anfragen', id5: 'Zusammenarbeit', id5v: 'Freiberuflich &amp; Partner',
+        id6: 'LinkedIn', id7: 'Instagram', id8: 'Ausbildung', id8v: 'Bachelorabschluss',
+        sticker_l1: 'ALLES', sticker_l2: 'UNM\u00d6GLICHE', sticker_l3: 'IST M\u00d6GLICH',
+        sticker_hint: 'zieh mich'
+      }
+    };
+
+    function applyLang(l) {
+      var t = T[l] || T.de;
+      document.getElementById('html-root').lang = l;
+      document.title = t.title;
+      document.querySelectorAll('[data-i18n]').forEach(function(el) {
+        var key = el.getAttribute('data-i18n');
+        if (t[key] !== undefined) el.textContent = t[key];
+      });
+      document.querySelectorAll('[data-i18n-html]').forEach(function(el) {
+        var key = el.getAttribute('data-i18n-html');
+        if (t[key] !== undefined) el.innerHTML = t[key];
+      });
+    }
+
+    var lang = localStorage.getItem('portfolio-lang') || 'de';
+    applyLang(lang);
+    if (window._plusZoomRefit) window._plusZoomRefit();
+  })();
+  </script>
 
 </body>
 </html>

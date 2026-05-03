@@ -177,7 +177,7 @@ function minimax(depth, alpha, beta, isMax) {
 
 function makeAiMove() {
   if (game.game_over()) return;
-  setStatus('Tornike is thinking...');
+  setStatus((window.CHESS_T || {}).ai_thinking || 'Tornike is thinking…');
 
   var depth     = DEPTH_MAP[difficulty] || 3;
   var aiIsWhite = playerColor !== 'w';  /* AI is opposite of player */
@@ -212,13 +212,14 @@ function setStatus(msg) {
 }
 
 function updateStatus() {
-  var t = game.turn(), yours = t === playerColor;
-  var name = playerName || 'Du';
-  if      (game.in_checkmate()) setStatus(yours ? 'Schachmatt — Tornike gewinnt!' : 'Schachmatt — ' + name + ' gewinnt!');
-  else if (game.in_draw())      setStatus('Remis!');
-  else if (game.in_stalemate()) setStatus('Patt — Remis.');
-  else if (game.in_check())     setStatus(yours ? 'Schach! ' + name + ' ist am Zug.' : 'Schach — Tornike denkt nach...');
-  else                          setStatus(yours ? name + ' ist am Zug'             : 'Tornike denkt nach...');
+  var turn = game.turn(), yours = turn === playerColor;
+  var tr = window.CHESS_T || {};
+  var name = playerName || tr.anon || 'Du';
+  if      (game.in_checkmate()) setStatus(yours ? (tr.checkmate_ai || 'Schachmatt — Tornike gewinnt!') : (tr.checkmate_player_pre || 'Schachmatt — ') + name + (tr.checkmate_player_suf || ' gewinnt!'));
+  else if (game.in_draw())      setStatus(tr.draw_status || 'Remis!');
+  else if (game.in_stalemate()) setStatus(tr.stalemate_status || 'Patt — Remis.');
+  else if (game.in_check())     setStatus(yours ? (tr.check_prefix || 'Schach! ') + name + (tr.check_your_turn || ' ist am Zug.') : (tr.check_ai || 'Schach — Tornike denkt nach...'));
+  else                          setStatus(yours ? name + (tr.your_turn || ' ist am Zug') : (tr.ai_thinking || 'Tornike denkt nach...'));
 }
 
 function updateMoveHistory() {
@@ -266,7 +267,7 @@ function saveGameResult(result) {
   var history = JSON.parse(localStorage.getItem('chessHistory') || '[]');
   history.unshift({
     id: Date.now(),
-    playerName: playerName || 'Anonym',
+    playerName: playerName || (window.CHESS_T || {}).anon_name || 'Anonym',
     result: result,
     side: playerColor === 'w' ? 'gold' : 'blue',
     moves: game ? game.history().length : 0,
@@ -280,20 +281,21 @@ function renderGameHistory() {
   var history = JSON.parse(localStorage.getItem('chessHistory') || '[]');
   var container = document.getElementById('game-history');
   if (!container) return;
+  var tr = window.CHESS_T || {};
   if (history.length === 0) {
-    container.innerHTML = '<p class="no-games">Noch keine Spiele. Sei der Erste!</p>';
+    container.innerHTML = '<p class="no-games">' + (tr.no_games || 'Noch keine Spiele. Sei der Erste!') + '</p>';
     return;
   }
   var wins   = history.filter(function(g){ return g.result === 'win';  }).length;
   var losses = history.filter(function(g){ return g.result === 'loss'; }).length;
   var draws  = history.filter(function(g){ return g.result === 'draw'; }).length;
   var html = '<table class="history-table">';
-  html += '<thead><tr><th>#</th><th>Spieler</th><th>Seite</th><th>Ergebnis</th><th>Züge</th><th>Datum</th></tr></thead><tbody>';
+  html += '<thead><tr><th>#</th><th>' + (tr.th_player || 'Spieler') + '</th><th>' + (tr.th_side || 'Seite') + '</th><th>' + (tr.th_result || 'Ergebnis') + '</th><th>' + (tr.th_moves || 'Züge') + '</th><th>' + (tr.th_date || 'Datum') + '</th></tr></thead><tbody>';
   history.forEach(function(g, i) {
     var d = new Date(g.date);
-    var dateStr = d.toLocaleDateString('de-DE', { month: 'short', day: 'numeric' });
+    var dateStr = d.toLocaleDateString(tr.date_locale || 'de-DE', { month: 'short', day: 'numeric' });
     var rc = g.result === 'win' ? 'result-win' : g.result === 'loss' ? 'result-loss' : 'result-draw';
-    var rt = g.result === 'win' ? 'Gewonnen' : g.result === 'loss' ? 'Verloren' : 'Remis';
+    var rt = g.result === 'win' ? (tr.res_win || 'Gewonnen') : g.result === 'loss' ? (tr.res_loss || 'Verloren') : (tr.res_draw || 'Remis');
     html += '<tr>';
     html += '<td class="game-num">' + (i+1) + '</td>';
     html += '<td class="player-name">' + g.playerName + '</td>';
@@ -305,10 +307,10 @@ function renderGameHistory() {
   });
   html += '</tbody></table>';
   html += '<div class="history-stats">';
-  html += '<span>Gesamt: ' + history.length + ' Spiele</span>';
-  html += '<span>Tornike: ' + losses + ' Siege</span>';
-  html += '<span>Spieler: ' + wins + ' Siege</span>';
-  html += '<span>Remis: ' + draws + '</span>';
+  html += '<span>' + (tr.stats_total_pre || 'Gesamt: ') + history.length + (tr.stats_total_suf || ' Spiele') + '</span>';
+  html += '<span>' + (tr.stats_tornike_pre || 'Tornike: ') + losses + (tr.stats_wins_suf || ' Siege') + '</span>';
+  html += '<span>' + (tr.stats_player_pre || 'Spieler: ') + wins + (tr.stats_wins_suf || ' Siege') + '</span>';
+  html += '<span>' + (tr.stats_draws_pre || 'Remis: ') + draws + '</span>';
   html += '</div>';
   container.innerHTML = html;
 }
@@ -317,14 +319,16 @@ function renderGameHistory() {
 function checkGameOver() {
   if (!game.game_over()) return false;
   var title, sub;
+  var tr = window.CHESS_T || {};
   if (game.in_checkmate()) {
     var won = game.turn() !== playerColor;
-    title = won ? (playerName || 'Du') + ' hat gewonnen!' : 'Tornike gewinnt.';
-    sub   = won ? 'Beeindruckend. Du hast die Engine überlistet.' : 'Beim nächsten Mal klappt es.';
+    title = won ? (playerName || tr.anon || 'Du') + (tr.gameover_player_suf || ' hat gewonnen!') : (tr.gameover_tornike || 'Tornike gewinnt.');
+    sub   = won ? (tr.gameover_impressive || 'Beeindruckend. Du hast die Engine überlistet.') : (tr.gameover_better || 'Beim nächsten Mal klappt es.');
     saveGameResult(won ? 'win' : 'loss');
     if (won) spawnParticles();
   } else {
-    title = 'Remis.'; sub = game.in_stalemate() ? 'Patt.' : 'Das Spiel endete remis.';
+    title = tr.gameover_draw || 'Remis.';
+    sub = game.in_stalemate() ? (tr.gameover_stale || 'Patt.') : (tr.gameover_draw_sub || 'Das Spiel endete remis.');
     saveGameResult('draw');
   }
   document.getElementById('game-over-title').textContent = title;
@@ -431,9 +435,10 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   document.getElementById('resign-btn').addEventListener('click', function(){
-    var name = playerName || 'You';
-    document.getElementById('game-over-title').textContent = name + ' hat aufgegeben.';
-    document.getElementById('game-over-sub').textContent   = 'Tornike gewinnt. Noch eine Runde?';
+    var tr = window.CHESS_T || {};
+    var name = playerName || tr.anon || 'You';
+    document.getElementById('game-over-title').textContent = name + (tr.resign_suf || ' hat aufgegeben.');
+    document.getElementById('game-over-sub').textContent   = tr.resign_tornike || 'Tornike gewinnt. Noch eine Runde?';
     document.getElementById('game-over').classList.add('visible');
     saveGameResult('loss');
   });

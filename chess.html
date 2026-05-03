@@ -26,11 +26,11 @@
       </svg>
     </a>
     <div class="nav-links">
-      <a href="index.html#projects" class="nav-link">Projekte</a>
-      <a href="index.html#services" class="nav-link">Leistungen</a>
-      <a href="about.html" class="nav-link">Über mich</a>
-      <a href="index.html#contact" class="nav-link">Kontakt</a>
-      <a href="chess.html" class="nav-link active">Schach spielen</a>
+      <a href="index.html#projects" class="nav-link" data-i18n="nav_proj">Projekte</a>
+      <a href="index.html#services" class="nav-link" data-i18n="nav_serv">Leistungen</a>
+      <a href="about.html" class="nav-link" data-i18n="nav_about">Über mich</a>
+      <a href="index.html" onclick="sessionStorage.setItem('openContact','1')" class="nav-link" data-i18n="nav_contact">Kontakt</a>
+      <a href="chess.html" class="nav-link active" data-i18n="nav_chess">Schach spielen</a>
     </div>
   </nav>
 
@@ -38,18 +38,18 @@
   <div id="landing">
     <div class="landing-content">
     <div class="chess-icon">&#9823;</div>
-    <h1 class="landing-title">Glaubst du, du kannst mich schlagen?</h1>
-    <div class="section-label" style="margin-top:8px">Wähle deine Seite</div>
+    <h1 class="landing-title" data-i18n="landing_title">Glaubst du, du kannst mich schlagen?</h1>
+    <div class="section-label" style="margin-top:8px" data-i18n="side_label">Wähle deine Seite</div>
     <div class="side-selector">
-      <button class="side-option selected" data-side="w"><span style="color:#D4A843">&#9812;</span> Gold <span style="opacity:0.4;font-size:12px">(du fängst an)</span></button>
-      <button class="side-option" data-side="b"><span style="color:#1B3A5C">&#9818;</span> Blau <span style="opacity:0.4;font-size:12px">(Tornike fängt an)</span></button>
+      <button class="side-option selected" data-side="w"><span style="color:#D4A843">&#9812;</span> <span data-i18n="gold_name">Gold</span> <span data-i18n="gold_first" style="opacity:0.4;font-size:12px">(du fängst an)</span></button>
+      <button class="side-option" data-side="b"><span style="color:#1B3A5C">&#9818;</span> <span data-i18n="blue_name">Blau</span> <span data-i18n="blue_first" style="opacity:0.4;font-size:12px">(Tornike fängt an)</span></button>
     </div>
 
-    <button class="btn-primary" id="start-btn" style="margin-top:8px">Jetzt spielen</button>
+    <button class="btn-primary" id="start-btn" style="margin-top:8px" data-i18n="play_btn">Jetzt spielen</button>
 
-    <!-- Spielverlauf -->
+    <!-- Game history -->
     <div class="game-history-section">
-      <h3>Spielverlauf</h3>
+      <h3 data-i18n="history_title">Spielverlauf</h3>
       <div id="game-history"></div>
     </div>
     </div><!-- /.landing-content -->
@@ -58,9 +58,9 @@
   <!-- Name-Modal -->
   <div id="name-modal">
     <div class="name-modal-box">
-      <label class="name-modal-label" for="player-name-input">Gib deinen Namen ein</label>
-      <input id="player-name-input" class="name-input" type="text" placeholder="Dein Name..." maxlength="24" autocomplete="off" />
-      <button class="btn-primary" id="confirm-name-btn" style="margin-top:8px">Spiel starten</button>
+      <label class="name-modal-label" for="player-name-input" data-i18n="name_label">Gib deinen Namen ein</label>
+      <input id="player-name-input" class="name-input" type="text" placeholder="Dein Name..." data-i18n-ph="name_ph" maxlength="24" autocomplete="off" />
+      <button class="btn-primary" id="confirm-name-btn" style="margin-top:8px" data-i18n="start_game_btn">Spiel starten</button>
     </div>
   </div>
 
@@ -70,9 +70,9 @@
 
       <!-- 1. Schaltflächen -->
       <div class="game-buttons">
-        <button id="undo-btn">Rückgängig</button>
-        <button id="resign-btn">Aufgeben</button>
-        <button id="new-game-btn">Neues Spiel</button>
+        <button id="undo-btn" data-i18n="undo_btn">Rückgängig</button>
+        <button id="resign-btn" data-i18n="resign_btn">Aufgeben</button>
+        <button id="new-game-btn" data-i18n="new_game_btn">Neues Spiel</button>
       </div>
 
       <!-- 2. Board area with side captures -->
@@ -88,7 +88,7 @@
       </div>
 
       <!-- 3. Status -->
-      <div id="status" class="status-text">Dein Zug</div>
+      <div id="status" class="status-text" data-i18n="status_initial">Dein Zug</div>
 
     </div>
   </div>
@@ -98,12 +98,114 @@
     <h2 id="game-over-title"></h2>
     <p id="game-over-sub"></p>
     <div class="game-over-actions">
-      <button class="btn-primary" id="rematch-btn">Revanche</button>
-      <a href="index.html#contact" class="btn-secondary">Lieber mich einstellen</a>
+      <button class="btn-primary" id="rematch-btn" data-i18n="rematch_btn">Revanche</button>
+      <a href="index.html" onclick="sessionStorage.setItem('openContact','1')" class="btn-secondary" data-i18n="hire_btn">Lieber mich einstellen</a>
     </div>
-    <p style="color:rgba(255,255,255,0.28);font-size:13px;margin-top:4px">Hat dir das Spiel gefallen? Stell dir vor, was ich für dich bauen kann.</p>
+    <p style="color:rgba(255,255,255,0.28);font-size:13px;margin-top:4px" data-i18n="game_footer">Hat dir das Spiel gefallen? Stell dir vor, was ich für dich bauen kann.</p>
   </div>
 
+  <script>
+  /* ── i18n — must run before chess-game.js ─────────────────────── */
+  (function () {
+    var lang = localStorage.getItem('portfolio-lang') || 'de';
+    var TRANSLATIONS = {
+      en: {
+        page_title: 'Chess — Tornike Zaridze',
+        nav_proj: 'Projects', nav_serv: 'Services', nav_about: 'About Me',
+        nav_contact: 'Contact', nav_chess: 'Play Chess',
+        landing_title: 'Think you can beat me?',
+        side_label: 'Choose your side',
+        gold_name: 'Gold', gold_first: '(you go first)',
+        blue_name: 'Blue', blue_first: '(Tornike goes first)',
+        play_btn: 'Play now',
+        history_title: 'Game history',
+        name_label: 'Enter your name',
+        name_ph: 'Your name…',
+        start_game_btn: 'Start game',
+        undo_btn: 'Undo', resign_btn: 'Resign', new_game_btn: 'New game',
+        status_initial: 'Your turn',
+        rematch_btn: 'Rematch',
+        hire_btn: 'Hire me instead',
+        game_footer: 'Enjoyed the game? Imagine what I could build for you.',
+        ai_thinking: 'Tornike is thinking…',
+        checkmate_ai: 'Checkmate — Tornike wins!',
+        checkmate_player_pre: 'Checkmate — ', checkmate_player_suf: ' wins!',
+        draw_status: 'Draw!', stalemate_status: 'Stalemate — Draw.',
+        check_prefix: 'Check! ', check_your_turn: ' to move.',
+        check_ai: 'Check — Tornike is thinking…',
+        your_turn: ' to move', anon: 'You', anon_name: 'Anonymous',
+        no_games: 'No games yet. Be the first!',
+        th_player: 'Player', th_side: 'Side', th_result: 'Result', th_moves: 'Moves', th_date: 'Date',
+        res_win: 'Won', res_loss: 'Lost', res_draw: 'Draw',
+        date_locale: 'en-US',
+        stats_total_pre: 'Total: ', stats_total_suf: ' games',
+        stats_tornike_pre: 'Tornike: ', stats_wins_suf: ' wins',
+        stats_player_pre: 'Player: ', stats_draws_pre: 'Draw: ',
+        gameover_player_suf: ' won!',
+        gameover_tornike: 'Tornike wins.',
+        gameover_impressive: 'Impressive. You outwitted the engine.',
+        gameover_better: 'Better luck next time.',
+        gameover_draw: 'Draw.', gameover_stale: 'Stalemate.', gameover_draw_sub: 'The game ended in a draw.',
+        resign_suf: ' resigned.',
+        resign_tornike: 'Tornike wins. Another round?'
+      },
+      de: {
+        page_title: 'Schach — Tornike Zaridze',
+        nav_proj: 'Projekte', nav_serv: 'Leistungen', nav_about: 'Über mich',
+        nav_contact: 'Kontakt', nav_chess: 'Schach spielen',
+        landing_title: 'Glaubst du, du kannst mich schlagen?',
+        side_label: 'Wähle deine Seite',
+        gold_name: 'Gold', gold_first: '(du fängst an)',
+        blue_name: 'Blau', blue_first: '(Tornike fängt an)',
+        play_btn: 'Jetzt spielen',
+        history_title: 'Spielverlauf',
+        name_label: 'Gib deinen Namen ein',
+        name_ph: 'Dein Name…',
+        start_game_btn: 'Spiel starten',
+        undo_btn: 'Rückgängig', resign_btn: 'Aufgeben', new_game_btn: 'Neues Spiel',
+        status_initial: 'Dein Zug',
+        rematch_btn: 'Revanche',
+        hire_btn: 'Lieber mich einstellen',
+        game_footer: 'Hat dir das Spiel gefallen? Stell dir vor, was ich für dich bauen kann.',
+        ai_thinking: 'Tornike denkt nach…',
+        checkmate_ai: 'Schachmatt — Tornike gewinnt!',
+        checkmate_player_pre: 'Schachmatt — ', checkmate_player_suf: ' gewinnt!',
+        draw_status: 'Remis!', stalemate_status: 'Patt — Remis.',
+        check_prefix: 'Schach! ', check_your_turn: ' ist am Zug.',
+        check_ai: 'Schach — Tornike denkt nach…',
+        your_turn: ' ist am Zug', anon: 'Du', anon_name: 'Anonym',
+        no_games: 'Noch keine Spiele. Sei der Erste!',
+        th_player: 'Spieler', th_side: 'Seite', th_result: 'Ergebnis', th_moves: 'Züge', th_date: 'Datum',
+        res_win: 'Gewonnen', res_loss: 'Verloren', res_draw: 'Remis',
+        date_locale: 'de-DE',
+        stats_total_pre: 'Gesamt: ', stats_total_suf: ' Spiele',
+        stats_tornike_pre: 'Tornike: ', stats_wins_suf: ' Siege',
+        stats_player_pre: 'Spieler: ', stats_draws_pre: 'Remis: ',
+        gameover_player_suf: ' hat gewonnen!',
+        gameover_tornike: 'Tornike gewinnt.',
+        gameover_impressive: 'Beeindruckend. Du hast die Engine überlistet.',
+        gameover_better: 'Beim nächsten Mal klappt es.',
+        gameover_draw: 'Remis.', gameover_stale: 'Patt.', gameover_draw_sub: 'Das Spiel endete remis.',
+        resign_suf: ' hat aufgegeben.',
+        resign_tornike: 'Tornike gewinnt. Noch eine Runde?'
+      }
+    };
+    window.CHESS_T = TRANSLATIONS[lang] || TRANSLATIONS.de;
+    document.addEventListener('DOMContentLoaded', function () {
+      var t = window.CHESS_T;
+      document.title = t.page_title;
+      document.documentElement.lang = lang;
+      document.querySelectorAll('[data-i18n]').forEach(function (el) {
+        var key = el.getAttribute('data-i18n');
+        if (t[key] !== undefined) el.textContent = t[key];
+      });
+      document.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
+        var key = el.getAttribute('data-i18n-ph');
+        if (t[key] !== undefined) el.placeholder = t[key];
+      });
+    });
+  })();
+  </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
   <script src="js/chess-game.js"></script>
   <script src="js/shader-bg.js"></script>
