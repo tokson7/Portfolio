@@ -1056,10 +1056,14 @@
 
     // ── Shader caption: pen typewriter ──────────────────────────────
     (function () {
-      var LINES = [
+      var LINES = localStorage.getItem('portfolio-lang') === 'en' ? [
         'Every project starts as a sheep on a dark road.',
         'You either steer around it —',
         'or ship it into production and call it a feature.'
+      ] : [
+        'Jedes Projekt beginnt als Schaf auf einer dunklen Straße.',
+        'Du weichst entweder aus —',
+        'oder du shippst es in Produktion und nennst es ein Feature.'
       ];
 
       var allChars = [];

@@ -38,7 +38,7 @@
   <div id="landing">
     <div class="landing-content">
     <div class="chess-icon">&#9823;</div>
-    <h1 class="landing-title" data-i18n="landing_title">Glaubst du, du kannst mich schlagen?</h1>
+    <h1 class="landing-title" data-i18n="landing_title">Jedes Spiel erzählt eine Geschichte.</h1>
     <div class="section-label" style="margin-top:8px" data-i18n="side_label">Wähle deine Seite</div>
     <div class="side-selector">
       <button class="side-option selected" data-side="w"><span style="color:#D4A843">&#9812;</span> <span data-i18n="gold_name">Gold</span> <span data-i18n="gold_first" style="opacity:0.4;font-size:12px">(du fängst an)</span></button>
@@ -113,7 +113,7 @@
         page_title: 'Chess — Tornike Zaridze',
         nav_proj: 'Projects', nav_serv: 'Services', nav_about: 'About Me',
         nav_contact: 'Contact', nav_chess: 'Play Chess',
-        landing_title: 'Think you can beat me?',
+        landing_title: 'Every game tells a story.',
         side_label: 'Choose your side',
         gold_name: 'Gold', gold_first: '(you go first)',
         blue_name: 'Blue', blue_first: '(Tornike goes first)',
@@ -153,7 +153,7 @@
         page_title: 'Schach — Tornike Zaridze',
         nav_proj: 'Projekte', nav_serv: 'Leistungen', nav_about: 'Über mich',
         nav_contact: 'Kontakt', nav_chess: 'Schach spielen',
-        landing_title: 'Glaubst du, du kannst mich schlagen?',
+        landing_title: 'Jedes Spiel erzählt eine Geschichte.',
         side_label: 'Wähle deine Seite',
         gold_name: 'Gold', gold_first: '(du fängst an)',
         blue_name: 'Blau', blue_first: '(Tornike fängt an)',
@@ -190,19 +190,17 @@
         resign_tornike: 'Tornike gewinnt. Noch eine Runde?'
       }
     };
-    window.CHESS_T = TRANSLATIONS[lang] || TRANSLATIONS.de;
-    document.addEventListener('DOMContentLoaded', function () {
-      var t = window.CHESS_T;
-      document.title = t.page_title;
-      document.documentElement.lang = lang;
-      document.querySelectorAll('[data-i18n]').forEach(function (el) {
-        var key = el.getAttribute('data-i18n');
-        if (t[key] !== undefined) el.textContent = t[key];
-      });
-      document.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
-        var key = el.getAttribute('data-i18n-ph');
-        if (t[key] !== undefined) el.placeholder = t[key];
-      });
+    var t = TRANSLATIONS[lang] || TRANSLATIONS.de;
+    window.CHESS_T = t;
+    document.title = t.page_title;
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      var key = el.getAttribute('data-i18n');
+      if (t[key] !== undefined) el.textContent = t[key];
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
+      var key = el.getAttribute('data-i18n-ph');
+      if (t[key] !== undefined) el.placeholder = t[key];
     });
   })();
   </script>
