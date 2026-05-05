@@ -217,6 +217,17 @@
     @media (max-width: 600px) {
       .section-header { flex-direction: column; }
       h1.heading { font-size: 32px; }
+      .services-grid { padding: 0 16px 60px; }
+      .support-section { padding: 0 16px 60px; }
+      .page-hero { padding: 100px 16px 48px; }
+      .nav { padding: 14px 16px; }
+    }
+    @media (max-width: 480px) {
+      html, body { overflow-x: hidden; }
+      h1.heading { font-size: 26px; }
+      h2.support-heading { font-size: clamp(1.6rem, 7vw, 2rem); }
+      .tier-panel-inner { padding: 24px 20px 20px; }
+      .how-step-inner { padding: 20px; }
     }
 
     /* ══════════════════════════════════════════════════
@@ -424,6 +435,9 @@
       .support-section { padding: 0 28px 80px; }
       .tier-grid { grid-template-columns: 1fr; }
       .how-strip { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .support-section { padding: 0 16px 60px; }
     }
 
     /* ===== CONTACT MODAL ===== */

@@ -181,13 +181,16 @@
         width: 320px;
         height: 320px;
       }
+      .intro-logo-wrapper {
+        transform: translateY(-8vh);
+      }
       .intro-logo-wrapper::before {
         width: 400px;
         height: 400px;
       }
       .intro-welcome {
         font-size: 32px;
-        top: calc(50% + 88px);
+        top: calc(50% + 190px);
       }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -196,6 +199,9 @@
       body.intro-active > *:not(.intro-overlay) { visibility: visible; }
     }
   </style>
+  <script>/* ── BACK-NAV: block root before first paint ── */
+  (function(){try{var r=sessionStorage.getItem('portfolio-proj-scroll');if(!r)return;var d=JSON.parse(r);if(!d.y||Date.now()-d.ts>300000)return;var isBack=false;try{var ne=performance.getEntriesByType('navigation');var nt=ne.length?ne[0].type:(performance.navigation?['navigate','reload','','back_forward'][performance.navigation.type]:'');if(nt==='back_forward')isBack=true;if(!isBack&&nt==='navigate'&&document.referrer){try{if(new URL(document.referrer).origin===location.origin)isBack=true;}catch(e2){}}}catch(e1){}if(!isBack)return;window.__restoreY=d.y;var s=document.createElement('style');s.id='sr-block';s.textContent='#root{visibility:hidden!important}';document.head.appendChild(s);}catch(e){}})();
+  </script>
 </head>
 <body class="intro-active">
 
@@ -554,16 +560,19 @@
             aria-expanded={isOpen}
             aria-controls={answerId}
             onClick={onToggle}
+            className="faq-btn"
             style={{
               width: "100%", display: "flex", justifyContent: "space-between",
               alignItems: "center", padding: "16px 28px",
               background: "none", border: "none", cursor: "pointer", textAlign: "left", gap: 16,
             }}
           >
-            <span style={{ color: "rgba(255,255,255,0.88)", fontSize: 16, fontWeight: 500, fontFamily: "var(--f-body)", lineHeight: 1.4 }}>{question}</span>
+            <span style={{ color: "rgba(255,255,255,0.88)", fontSize: 16, fontWeight: 500, fontFamily: "var(--f-body)", lineHeight: 1.4, minWidth: 0 }}>{question}</span>
             <span style={{
               color: "rgba(255,255,255,0.45)", fontSize: 22, flexShrink: 0,
-              display: "inline-block", lineHeight: 1,
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+              width: 28, height: 28,
+              lineHeight: 1,
               transition: "transform 0.2s ease-out",
               transform: isOpen ? "rotate(45deg)" : "rotate(0deg)",
             }}>+</span>
@@ -580,7 +589,7 @@
             }}
           >
             <div style={{ overflow: "hidden" }}>
-              <p style={{
+              <p className="faq-answer-text" style={{
                 color: "rgba(255,255,255,0.55)", fontSize: 15, lineHeight: 1.65,
                 padding: "0 28px 16px", fontFamily: "var(--f-body)", margin: 0,
               }}>{answer}</p>
@@ -1014,9 +1023,11 @@ if __name__ == "__main__":
       const [hovered, setHovered] = useState(false);
       return (
         <div
-          className={"polo-card-wrap " + className}
+          className={"polo-card-wrap" + (hovered ? " polo-card-active" : "") + (className ? " " + className : "")}
           onMouseEnter={() => hoverable && setHovered(true)}
           onMouseLeave={() => hoverable && setHovered(false)}
+          onTouchStart={() => hoverable && setHovered(true)}
+          onTouchEnd={() => hoverable && setHovered(false)}
           onClick={onClick}
           style={{
             background: "#060606",
@@ -1070,7 +1081,7 @@ if __name__ == "__main__":
                   transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
               >
-                ↗
+                <span className="arr-emoji">{"↗︎"}</span><span className="arr-svg-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H8M17 7V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
               </div>
             )}
           </div>
@@ -1203,7 +1214,7 @@ if __name__ == "__main__":
           void main() { gl_Position = vec4(a_position, 0.0, 1.0); }
         `;
         const FS = `
-          precision highp float;
+          precision mediump float;
           uniform float iTime;
           uniform vec2 iResolution;
           #define TURB_NUM 10.0
@@ -1228,7 +1239,7 @@ if __name__ == "__main__":
             vec3 col = 0.5*exp(0.1*p.x*vec3(-1.0, 0.0, 2.0));
             col /= dot(cos(p*3.0), sin(-p.yx*3.0*0.618)) + 2.0;
             col = 1.0 - exp(-col);
-            col *= 0.45;
+            col *= 0.60;
             gl_FragColor = vec4(col, 1.0);
           }
         `;
@@ -1316,6 +1327,8 @@ if __name__ == "__main__":
         <span
           onMouseEnter={handleEnter}
           onMouseLeave={handleLeave}
+          onTouchStart={handleEnter}
+          onTouchEnd={handleLeave}
           onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
           style={{
             display: "inline-flex",
@@ -1353,8 +1366,9 @@ if __name__ == "__main__":
                 transition: "transform 0.45s cubic-bezier(0.65,0,0.35,1), opacity 0.45s cubic-bezier(0.65,0,0.35,1)",
                 transform: hovered ? "translate(22px,-22px)" : "translate(0,0)",
                 opacity: hovered ? 0 : 1,
+                display: "flex", alignItems: "center", justifyContent: "center",
               }}
-            >↗</span>
+            ><span className="arr-emoji">{"↗︎"}</span><span className="arr-svg-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H8M17 7V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span></span>
             {/* Replacement arrow that slides in from bottom-left */}
             <span
               style={{
@@ -1364,8 +1378,9 @@ if __name__ == "__main__":
                 transition: "transform 0.45s cubic-bezier(0.65,0,0.35,1) 0.08s, opacity 0.45s cubic-bezier(0.65,0,0.35,1) 0.08s",
                 transform: hovered ? "translate(0,0)" : "translate(-22px,22px)",
                 opacity: hovered ? 1 : 0,
+                display: "flex", alignItems: "center", justifyContent: "center",
               }}
-            >↗</span>
+            ><span className="arr-emoji">{"↗︎"}</span><span className="arr-svg-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H8M17 7V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span></span>
           </span>
           {/* "(about me)" label — tilted, snappy spring */}
           <span
@@ -2091,7 +2106,6 @@ if __name__ == "__main__":
             }
 
             .mob-toggle{display:none !important;}
-            .mob-menu{display:none !important;}
 
             /* ── Polo Card responsive ─────────────── */
             @media(max-width:767px){
@@ -2104,22 +2118,37 @@ if __name__ == "__main__":
             @media(max-width:1023px){
               .hero-grid{flex-direction:column !important;gap:60px !important;}
               .hero-right{min-height:380px !important;display:block !important;}
-              .two-col{grid-template-columns:1fr !important;}
+              .two-col{grid-template-columns:minmax(0,1fr) !important;}
               .about-grid{grid-template-columns:1fr !important;}
             }
             @media(max-width:767px){
+              html,body{overflow-x:clip !important;}
               .nav-links{display:none !important;}
               .mob-toggle{display:flex !important;}
               .hero-right{display:none !important;}
-              .two-col{grid-template-columns:1fr !important;}
+              .two-col{grid-template-columns:minmax(0,1fr) !important;}
               .about-grid{grid-template-columns:1fr !important;}
               .footer-big{font-size:clamp(2.4rem,9vw,4.5rem) !important;}
               .btn-primary,.btn-secondary{padding:11px 24px !important;font-size:13px !important;}
-              section{ padding: 0 16px !important; margin-top: 40px !important; }
+              /* exclude hero-section and polo-section so their own padding rules stay intact */
+              section:not(.hero-section):not(.polo-section){ padding: 0 16px !important; margin-top: 40px !important; }
+              /* hero: enough top clearance to sit below fixed nav (top:20px + ~56px height = 76px) */
+              .hero-section{ padding-top: 96px !important; padding-left: 20px !important; padding-right: 20px !important; margin-top: 0 !important; }
+              /* Gravity/float cards must not overflow viewport */
+              .tcard{max-width:calc(100vw - 40px) !important;}
+              /* FAQ cards: tighter padding so + sign stays visible on small screens */
+              .faq-btn{ padding: 14px 18px !important; }
+              .faq-answer-text{ padding: 0 18px 14px !important; }
+              /* Disable polo-panel fade mask on mobile so bottom content stays fully visible */
+              #testimonials .polo-panel,
+              #about .polo-panel{ -webkit-mask-image: none !important; mask-image: none !important; }
             }
             @media(max-width:479px){
               .nav-pill{padding:8px 8px 8px 16px !important;}
-              section{ padding: 0 12px !important; }
+              section:not(.hero-section):not(.polo-section){ padding: 0 12px !important; }
+              .hero-section{ padding-top: 88px !important; }
+              /* Footer large text — prevent horizontal overflow */
+              .footer-big{font-size:clamp(2rem,8vw,3.5rem) !important;}
             }
 
             /* ── Why Me Stack ────────────────────── */
@@ -2169,15 +2198,32 @@ if __name__ == "__main__":
             .wm-side h3{font-family:var(--f-display);font-size:22px;font-weight:500;color:#fff;letter-spacing:-0.01em;margin:0 0 10px;}
             .wm-side p{font-size:14px;color:rgba(255,255,255,0.4);line-height:1.6;max-width:92%;margin:0;}
             @media(max-width:767px){
-              .wm-stack-wrapper{padding-bottom:0 !important;}
+              .wm-stack-wrapper{padding-bottom:160px !important;}
               .wm-card{
-                position:relative !important;top:auto !important;
                 grid-template-columns:1fr !important;padding:24px 20px !important;
                 margin-bottom:12px !important;
               }
               .wm-divider{width:80% !important;height:1px !important;margin:16px auto !important;
                 background:linear-gradient(to right,transparent,rgba(255,255,255,0.1),transparent) !important;}
               .wm-side h3{font-size:18px !important;}
+
+              /* ── Gravity footer: 4-corner layout avoiding the globe ── */
+              .gravity-section{ min-height:520px !important; }
+              .gravity-button{ padding:10px 16px !important; font-size:13px !important; }
+              /* Left group — 2 top-left, 2 bottom-left */
+              .gravity-left .gravity-button:nth-child(1){ left:3% !important; top:4% !important; }
+              .gravity-left .gravity-button:nth-child(2){ left:3% !important; top:16% !important; }
+              .gravity-left .gravity-button:nth-child(3){ left:3% !important; top:75% !important; }
+              .gravity-left .gravity-button:nth-child(4){ left:3% !important; top:87% !important; }
+              /* Right group — right-anchored so they never overflow screen */
+              .gravity-right .gravity-button:nth-child(1){ left:auto !important; right:3% !important; top:4% !important; }
+              .gravity-right .gravity-button:nth-child(2){ left:auto !important; right:3% !important; top:16% !important; }
+              .gravity-right .gravity-button:nth-child(3){ left:auto !important; right:3% !important; top:75% !important; }
+              .gravity-right .gravity-button:nth-child(4){ left:auto !important; right:3% !important; top:87% !important; }
+              /* Footer bar: clock(left)+lang(right) on same row, copyright centered below */
+              #contact .polo-panel > div:last-child > div:last-child > div{ flex-direction:row !important; justify-content:space-between !important; align-items:flex-start !important; flex-wrap:nowrap !important; gap:8px !important; position:relative !important; padding-bottom:28px !important; }
+              #contact .polo-panel > div:last-child > div:last-child > div > div:last-child{ flex-direction:column !important; align-items:flex-end !important; gap:0 !important; }
+              #contact .polo-panel > div:last-child > div:last-child > div > div:last-child > span{ position:absolute !important; bottom:0 !important; left:0 !important; right:0 !important; text-align:center !important; }
             }
             /* ===== PROJECT IMAGE CARDS ===== */
             .proj-img-wrap{position:absolute;inset:0;z-index:0;border-radius:inherit;overflow:hidden;background:#0a0a0a;}
@@ -2194,6 +2240,42 @@ if __name__ == "__main__":
             .polo-card-wrap:hover .proj-arrow-btn{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.35);}
             .proj-arrow-btn:hover .arr-out{transform:translate(18px,-18px);opacity:0;}
             .proj-arrow-btn:hover .arr-in{transform:translate(0,0);opacity:1;}
+            .arr-emoji{display:inline-flex;align-items:center;justify-content:center;}
+            .arr-svg-icon{display:none;align-items:center;justify-content:center;}
+            @media(max-width:767px){.arr-emoji{display:none !important;}.arr-svg-icon{display:inline-flex !important;}}
+            @media(max-width:767px){
+              /* Guarantee nav stays fixed at top on iOS Safari after intro */
+              .nav-pill{
+                position: fixed !important;
+                top: 20px !important;
+                -webkit-transform: translateX(-50%) translateZ(0) !important;
+                transform: translateX(-50%) translateZ(0) !important;
+                -webkit-backface-visibility: hidden;
+                backface-visibility: hidden;
+              }
+            }
+            @media(max-width:767px){
+              /* Colorize on touch via React class toggle */
+              .polo-card-active .proj-img-wrap img{filter:grayscale(0%) brightness(1) !important;transform:scale(1.03) !important;}
+              .polo-card-active .proj-img-overlay{background:linear-gradient(to top,rgba(0,0,0,0.65) 0%,rgba(0,0,0,0.2) 60%,transparent 100%) !important;}
+              /* Darken images in default state */
+              .proj-img-wrap img{filter:grayscale(100%) brightness(0.2) !important;}
+              /* Bottom half fully opaque black — no bleed-through under the title for any card */
+              .proj-img-overlay{background:linear-gradient(to top,#000 0%,#000 50%,rgba(0,0,0,0.55) 75%,transparent 100%) !important;}
+              /* No black rectangle — transparent content area */
+              .proj-img-content{background:transparent !important;position:relative !important;}
+              /* Hide tech stack text on mobile */
+              .proj-img-content > p{display:none !important;}
+              /* Force bright white on project titles */
+              .proj-img-content .proj-footer h3,
+              .proj-footer h3{
+                color:#ffffff !important;
+                font-weight:700 !important;
+                opacity:1 !important;
+                -webkit-text-fill-color:#ffffff !important;
+                text-shadow:none !important;
+              }
+            }
 
             /* ===== CONTACT MODAL ===== */
             .contact-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;visibility:hidden;transition:opacity 0.3s ease,visibility 0.3s ease;}
@@ -2249,25 +2331,24 @@ if __name__ == "__main__":
               <button className="nav-link" onClick={()=>window.location.href="chess.html"}>{T.nav_chess}</button>
             </div>
             <button className="mob-toggle" onClick={()=>setMobileNav(!mobileNav)}
-              style={{display:"none",background:"none",border:"none",color:"#fff",fontSize:22,cursor:"pointer",padding:"4px 8px",marginLeft:12}}>
+              style={{background:"none",border:"none",color:"#fff",fontSize:22,cursor:"pointer",padding:"4px 8px",marginLeft:12,lineHeight:1}}>
               {mobileNav?"✕":"☰"}
             </button>
           </nav>
 
           {mobileNav&&(
-            <div className="mob-menu" style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(10,10,10,0.97)",backdropFilter:"blur(20px)",zIndex:999,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:28}}>
-              <button style={{position:"absolute",top:22,right:24,background:"none",border:"none",color:"rgba(255,255,255,0.6)",fontSize:26,cursor:"pointer"}} onClick={()=>setMobileNav(false)}>✕</button>
-              {["projects","contact"].map(s=>(
-                <button key={s} className="nav-link" onClick={()=>go(s)} style={{fontSize:22,textTransform:"capitalize"}}>{s==="projects"?T.mob_projects:T.mob_contact}</button>
-              ))}
-              <a className="nav-link" href="about.html" style={{fontSize:22}}>{T.mob_about}</a>
-              <a className="nav-link" href="services.html" style={{fontSize:22}}>{T.mob_services}</a>
-              <button className="nav-link" onClick={()=>window.location.href="chess.html"} style={{fontSize:22}}>{T.mob_chess}</button>
+            <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(10,10,10,0.97)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",zIndex:9999,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:32}}>
+              <button style={{position:"absolute",top:24,right:24,background:"none",border:"none",color:"rgba(255,255,255,0.7)",fontSize:28,cursor:"pointer",lineHeight:1}} onClick={()=>setMobileNav(false)}>✕</button>
+              <button className="nav-link" onClick={()=>{setMobileNav(false);go("projects");}} style={{fontSize:24,fontWeight:500}}>{T.mob_projects}</button>
+              <a className="nav-link" href="services.html" style={{fontSize:24,fontWeight:500}} onClick={()=>setMobileNav(false)}>{T.mob_services}</a>
+              <a className="nav-link" href="about.html" style={{fontSize:24,fontWeight:500}} onClick={()=>setMobileNav(false)}>{T.mob_about}</a>
+              <button className="nav-link" style={{fontSize:24,fontWeight:500}} onClick={()=>{setMobileNav(false);if(window.__openContactModal)window.__openContactModal();else go("contact");}}>{T.mob_contact}</button>
+              <a className="nav-link" href="chess.html" style={{fontSize:24,fontWeight:500}} onClick={()=>setMobileNav(false)}>{T.mob_chess}</a>
             </div>
           )}
 
           {/* ── HERO — full-width, no frame ───────────────────────── */}
-          <section style={{width:"100%",paddingTop:150,paddingBottom:80,position:"relative",overflow:"hidden",marginBottom:0}}>
+          <section className="hero-section" style={{width:"100%",paddingTop:150,paddingBottom:80,position:"relative",overflow:"hidden",marginBottom:0}}>
             <TurbulentBackground />
             <div style={{position:"absolute",inset:0,zIndex:1,pointerEvents:"none",background:"radial-gradient(ellipse at center, transparent 0%, rgba(10,10,10,0.6) 70%, rgba(10,10,10,0.9) 100%)"}}/>
             <div className="sec-inner" style={{position:"relative",zIndex:2}}>
@@ -2571,10 +2652,10 @@ if __name__ == "__main__":
                           <a className="proj-arrow-btn" href={p.url||"#"} target={p.url&&p.url.startsWith("http")?"_blank":"_self"} rel="noopener noreferrer"
                             onClick={e=>e.stopPropagation()}
                             aria-label={`Open ${p.title}`}>
-                            <span className="arr-out">↗</span>
-                            <span className="arr-in">↗</span>
+                            <span className="arr-out"><span className="arr-emoji">{"↗︎"}</span><span className="arr-svg-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H8M17 7V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span></span>
+                            <span className="arr-in"><span className="arr-emoji">{"↗︎"}</span><span className="arr-svg-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H8M17 7V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span></span>
                           </a>
-                          <h3 style={{fontFamily:"var(--f-display)",fontSize:24,fontWeight:400,margin:0}}>{p.title}</h3>
+                          <h3 style={{fontFamily:"var(--f-display)",fontSize:24,fontWeight:400,margin:0,color:"#fff"}}>{p.title}</h3>
                         </div>
                       </div>
                     </div>
@@ -2586,13 +2667,13 @@ if __name__ == "__main__":
 
           {/* ── TESTIMONIALS + FAQ ────────────────────────────────── */}
           <SectionFrame id="testimonials">
-            <div className="two-col" style={{display:"grid",gridTemplateColumns:"1fr 0.85fr",gap:60,alignItems:"flex-start"}}>
-              <div>
+            <div className="two-col" style={{display:"grid",gridTemplateColumns:"minmax(0,1fr) minmax(0,0.85fr)",gap:60,alignItems:"flex-start"}}>
+              <div style={{minWidth:0}}>
                 <Anim><div style={{...pill,display:"inline-flex",alignItems:"center",gap:6}}><span style={{width:10,height:10,borderRadius:"50%",border:"1.5px solid rgba(255,255,255,0.5)",display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{width:4,height:4,borderRadius:"50%",background:"rgba(255,255,255,0.9)",display:"block"}}/></span>{T.faq_pill}</div></Anim>
                 <Anim delay={100}><h2 style={{...heading,marginBottom:12}}>{T.faq_h} <em style={{color:"rgba(255,255,255,0.28)",fontWeight:300}}>{T.faq_h_em}</em></h2></Anim>
                 <Anim delay={200}><p style={{color:"rgba(255,255,255,0.36)",fontSize:15,marginBottom:40}}>{T.faq_sub}</p></Anim>
                 <Anim delay={300}>
-                  <div style={{marginBottom:28}}>
+                  <div style={{marginBottom:28,overflow:"hidden"}}>
                     <TestimonialCodeBlock />
                   </div>
                 </Anim>
@@ -2603,7 +2684,7 @@ if __name__ == "__main__":
                   </div>
                 </Anim>
               </div>
-              <Anim delay={200}>
+              <Anim delay={200} style={{minWidth:0}}>
                 <div>
                   <FAQList items={T.faq} />
                 </div>
@@ -3190,9 +3271,90 @@ if __name__ == "__main__":
         gsap.killTweensOf('.intro-crack');
         if (overlay) overlay.style.display = 'none';
         document.body.classList.remove('intro-active');
+
+        // On fresh/reload: force top; on back navigation: let scroll restoration handle it
+        var isBack = false;
+        try {
+          var ne = performance.getEntriesByType('navigation');
+          var nt = ne.length ? ne[0].type : (performance.navigation ? ['navigate','reload','','back_forward'][performance.navigation.type] : '');
+          isBack = (nt === 'back_forward');
+          if (!isBack && nt === 'navigate' && document.referrer) {
+            try { if (new URL(document.referrer).origin === location.origin) isBack = true; } catch(e2) {}
+          }
+        } catch(e) {}
+
+        if (!isBack) {
+          window.scrollTo(0, 0);
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
+        }
       }
     }
   })();
+
+// ── SCROLL RESTORATION — zero visible scroll ──────────────────────────
+  history.scrollRestoration = 'manual';
+
+  // Remove the head-injected CSS block, set scroll, make root visible — all in one sync call
+  function _unblock(y) {
+    var s = document.getElementById('sr-block');
+    if (s) s.parentNode.removeChild(s);
+    if (y) window.scrollTo(0, y);
+    var r = document.getElementById('root');
+    if (r) r.style.visibility = '';
+  }
+
+  // Poll until page is tall enough for y, then unblock atomically
+  function _pollUnblock(y) {
+    var attempts = 0;
+    (function poll() {
+      var h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+      if (h >= y + window.innerHeight * 0.5 || attempts >= 60) {
+        _unblock(y); return;
+      }
+      attempts++;
+      setTimeout(poll, 50);
+    })();
+  }
+
+  // Safety: if something goes wrong, always unblock within 3s
+  if (window.__restoreY) setTimeout(function() { _unblock(0); }, 3000);
+
+  // Save scroll Y the moment a same-origin link is clicked (capture phase — before stopPropagation)
+  document.addEventListener('click', function(e) {
+    var a = e.target.closest('a[href]');
+    if (!a) return;
+    var href = a.getAttribute('href') || '';
+    if (!href || href.charAt(0) === '#' || /^(https?:|\/\/|mailto:|tel:)/.test(href)) return;
+    sessionStorage.setItem('portfolio-proj-scroll', JSON.stringify({ y: window.scrollY, ts: Date.now() }));
+  }, true);
+
+  // pagehide: update Y to final scroll position right before page unloads
+  window.addEventListener('pagehide', function() {
+    var raw = sessionStorage.getItem('portfolio-proj-scroll');
+    if (raw) {
+      try { var d = JSON.parse(raw); d.y = window.scrollY; sessionStorage.setItem('portfolio-proj-scroll', JSON.stringify(d)); } catch(e) {}
+    }
+  });
+
+  // bfcache: browser restores page from memory with scroll already at the right position
+  window.addEventListener('pageshow', function(e) {
+    if (!e.persisted) return;
+    document.body.classList.remove('intro-active');
+    var ov = document.getElementById('introOverlay');
+    if (ov) ov.style.display = 'none';
+    sessionStorage.removeItem('portfolio-proj-scroll');
+    _unblock(0); // ensure root visible; bfcache already preserved scroll
+  });
+
+  // Full load (bfcache miss): wait for React to render, then set scroll + reveal
+  window.addEventListener('load', function() {
+    var y = window.__restoreY || 0;
+    sessionStorage.removeItem('portfolio-proj-scroll');
+    if (!y) { _unblock(0); return; } // normal navigation: just ensure root visible
+    _pollUnblock(y);
+  });
+
   </script>
 
   <!-- ── MODAL TRANSLATION + LANG SYNC ──────────────────────── -->

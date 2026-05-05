@@ -64,6 +64,12 @@ body {
 .nav-link:hover   { color: #fff; background: rgba(255,255,255,0.06); }
 .nav-link.active  { color: #fff; background: rgba(255,255,255,0.08); }
 
+/* ── Mobile nav ────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .nav-links   { display: none !important; }
+  .mob-toggle  { display: flex !important; }
+}
+
 /* ── Page wrapper ───────────────────────────────────────────────── */
 .about-page {
   position: relative;
@@ -118,6 +124,26 @@ body {
   font-size: clamp(52px, 9vw, 150px);
   color: #7B9EC0;
   line-height: 1.0;
+}
+
+@media (max-width: 768px) {
+  .bg-text-layer {
+    padding: 96px 0 0;
+    overflow: visible;
+  }
+  /* Remove overflow:hidden that was clipping the text lines */
+  .bg-text-line {
+    overflow: visible;
+  }
+  .bg-text-line:not(.bg-text-italic) {
+    /* CSS fallback before JS fitBgText() runs. JS will override this
+       with the exact measured value after Anton font loads. */
+    font-size: clamp(20px, 13vw, 80px);
+    white-space: nowrap;
+  }
+  .bg-text-italic {
+    font-size: clamp(18px, 9vw, 52px);
+  }
 }
 
 /* ── Content layer ──────────────────────────────────────────────── */
@@ -416,8 +442,17 @@ body {
   .about-content { padding: 140px 24px 160px; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .stats-grid .stat-cell:last-child { grid-column: 1 / -1; }
-  .sticker-element { width: 240px; }
+  .sticker-element { width: 240px; transform-origin: 120px 28px; }
   .sticker-line { font-size: 30px; }
+}
+@media (max-width: 480px) {
+  .about-content { padding: 100px 18px 120px; }
+  /* 1-column stats on very small phones */
+  .stats-grid { grid-template-columns: 1fr; }
+  .stats-grid .stat-cell:last-child { grid-column: auto; }
+  /* Sticker fits small screens */
+  .sticker-element { width: 200px; transform-origin: 100px 28px; }
+  .sticker-line { font-size: 26px; }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -803,6 +838,13 @@ body {
   .skills-list-items {
     column-count: 1;
     display: flex;
+    align-items: center;
+  }
+  .skills-col-header {
+    justify-content: center;
+  }
+  .skills-list-items li {
+    text-align: center;
   }
 }
 
@@ -1007,4 +1049,67 @@ body {
   width: 100%;
   height: 100%;
   display: block;
+}
+
+/* ── Mobile overrides ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Shader caption: 34vw is ~127px on 375px phone — too narrow for handwritten text */
+  #shaderCaption {
+    width: min(380px, 56vw);
+    bottom: 60px;
+    left: 4%;
+  }
+  /* Shader float canvas: nudge inward so it doesn't clip off-screen */
+  #shaderFloat {
+    right: 3%;
+    width: 140px;
+    height: 162px;
+  }
+}
+@media (max-width: 540px) {
+  /* Canvas: starts as small card, JS expands to full-width bottom rectangle */
+  #shaderFloat {
+    left: 0;
+    right: auto;
+    bottom: 0;
+    width: 100%;
+    height: 62vw;
+    border-radius: 0;
+    transform: none;
+  }
+  /* Caption: fixed above the full-width canvas.
+     Explicit width so Caveat text wraps instead of overflowing. */
+  #shaderCaption {
+    position: fixed;
+    left: 5vw;
+    right: 5vw;
+    width: 90vw;
+    max-width: 90vw;
+    transform: none;
+    bottom: calc(62vw + 16px);
+    text-align: left;
+    overflow: visible;
+  }
+  #shaderCaptionText {
+    font-size: clamp(14px, 3.8vw, 18px);
+    line-height: 1.65;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+  .caption-line {
+    white-space: normal;
+    word-wrap: break-word;
+  }
+}
+
+/* ── iOS Safari: overflow-x:clip on body creates a containing block for
+   position:fixed descendants, breaking their fixed behaviour.
+   overflow-x:hidden on <body> is special-cased by the browser — it
+   propagates to the viewport and does NOT create a scroll container,
+   so position:sticky and position:fixed both continue to work. ── */
+@media (max-width: 767px) {
+  body {
+    overflow-x: hidden;
+  }
 }

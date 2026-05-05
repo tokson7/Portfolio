@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@400;600&family=DM+Sans:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/about.css" />
+  <link rel="stylesheet" href="css/about.css?v=10" />
 </head>
 <body>
 
@@ -29,7 +29,20 @@
       <a href="index.html" onclick="sessionStorage.setItem('openContact','1')" class="nav-link" data-i18n="nav_contact">Kontakt</a>
       <a href="chess.html"           class="nav-link" data-i18n="nav_chess">Schach spielen</a>
     </div>
+    <button class="mob-toggle" id="mob-toggle-btn" aria-label="Menü öffnen"
+      style="display:none;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px 8px;margin-left:12px;line-height:1;">&#9776;</button>
   </nav>
+
+  <!-- ── Mobile nav overlay (matches index.html pattern) ───────── -->
+  <div id="mob-nav-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,10,10,0.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:32px;">
+    <button id="mob-nav-close" aria-label="Menü schließen"
+      style="position:absolute;top:24px;right:24px;background:none;border:none;color:rgba(255,255,255,0.7);font-size:28px;cursor:pointer;line-height:1;">&#10005;</button>
+    <a href="index.html#projects" class="nav-link" data-i18n="nav_proj" style="font-size:24px;font-weight:500;">Projekte</a>
+    <a href="services.html"        class="nav-link" data-i18n="nav_serv" style="font-size:24px;font-weight:500;">Leistungen</a>
+    <a href="about.html"           class="nav-link active" data-i18n="nav_about" style="font-size:24px;font-weight:500;">Über mich</a>
+    <a href="index.html" onclick="sessionStorage.setItem('openContact','1')" class="nav-link" data-i18n="nav_contact" style="font-size:24px;font-weight:500;">Kontakt</a>
+    <a href="chess.html"           class="nav-link" data-i18n="nav_chess" style="font-size:24px;font-weight:500;">Schach spielen</a>
+  </div>
 
   <!-- ── Page ───────────────────────────────────────────────────── -->
   <div class="about-page">
@@ -474,13 +487,63 @@
     </div>
   </div>
 
-  <script src="js/sticker-physics.js"></script>
+  <script src="js/sticker-physics.js?v=3"></script>
   <script>
-    // Nav expand/collapse on hover
+    // ── Fit bg headline text to exactly fill viewport width ──────────────
+    // Runs after fonts load and on resize/language change so both EN and DE
+    // fill 100% of the mobile screen without ever overflowing.
+    (function () {
+      function fitBgText() {
+        var line = document.querySelector('.bg-text-line:not(.bg-text-italic)');
+        if (!line || window.innerWidth >= 769) return;
+        // Set a large reference size, force reflow, then measure actual text width
+        line.style.fontSize = '200px';
+        void line.offsetHeight; // force synchronous layout
+        var textW = line.scrollWidth;
+        if (textW > 0) {
+          // Scale so text = 99% of viewport (1% breathing room at edges)
+          line.style.fontSize = Math.floor(200 * window.innerWidth * 0.99 / textW) + 'px';
+        }
+      }
+      // Wait for Anton font to load before measuring (fallback metrics differ)
+      (document.fonts ? document.fonts.ready : Promise.resolve()).then(fitBgText);
+      window.addEventListener('resize', fitBgText);
+    })();
+
+    // Nav expand/collapse on hover (desktop only)
     (function () {
       var nav = document.getElementById('main-nav');
       nav.addEventListener('mouseenter', function () { nav.classList.add('expanded'); });
       nav.addEventListener('mouseleave', function () { nav.classList.remove('expanded'); });
+    })();
+
+    // Mobile nav toggle — matches index.html burger behaviour
+    (function () {
+      var btn     = document.getElementById('mob-toggle-btn');
+      var overlay = document.getElementById('mob-nav-overlay');
+      var closeBtn = document.getElementById('mob-nav-close');
+      if (!btn || !overlay) return;
+
+      function openNav() {
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        btn.innerHTML = '&#10005;';
+      }
+      function closeNav() {
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+        btn.innerHTML = '&#9776;';
+      }
+
+      btn.addEventListener('click', function () {
+        overlay.style.display === 'flex' ? closeNav() : openNav();
+      });
+      if (closeBtn) closeBtn.addEventListener('click', closeNav);
+
+      // Close on any link click inside the overlay
+      overlay.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', closeNav);
+      });
     })();
 
     // Hide the "drag me" hint after first interaction
@@ -857,9 +920,11 @@
         'assets/4.jpg','assets/5.jpg','assets/6.jpg'
       ];
       // Card dimensions matching reference screenshot Polaroid style
-      var CW = 182, CH = 210;   // card width / height  (px)
+      var isMobileBurst = window.innerWidth <= 768;
+      var CW = isMobileBurst ? 127 : 182;  // 30% smaller on mobile
+      var CH = isMobileBurst ? 147 : 210;
       var PAD_H = 9;            // top + side white border
-      var PAD_B = 34;           // bottom white label strip
+      var PAD_B = isMobileBurst ? 24 : 34;  // bottom white label strip
 
       // Fixed overlay — lives above everything, pointer-events off
       var overlay = document.createElement('div');
@@ -982,11 +1047,14 @@
         if (sfAnimId) { cancelAnimationFrame(sfAnimId); sfAnimId = null; }
 
         // Calculate start position FIRST
-        var startOffset = CARD_H + 120;   // 330px below natural position
+        var isMobSF     = window.innerWidth < 541;
+        var sfW         = isMobSF ? 127 : CARD_W;  // match mobile polaroid card size
+        var sfH         = isMobSF ? 147 : CARD_H;
+        var startOffset = sfH + 120;   // below natural position
         var offsetY     = startOffset;
-        var rotation    = (Math.random() - 0.5) * 22;
+        var rotation    = (Math.random() - 0.5) * 22;   // same as photos on all devices
         var vy          = -(1520 + Math.random() * 320);  // upward launch
-        var va          = (Math.random() - 0.5) * 38;     // initial spin
+        var va          = (Math.random() - 0.5) * 38;     // same spin as photos
         var GRAV        = 1900;
         var last        = performance.now();
         var done        = false;
@@ -994,10 +1062,17 @@
         // Set off-screen transform BEFORE opacity:1 to prevent flash
         sf.style.transition    = 'none';
         sf.style.position      = 'fixed';
-        sf.style.right         = '5%';
         sf.style.bottom        = '80px';
-        sf.style.width         = CARD_W + 'px';
-        sf.style.height        = CARD_H + 'px';
+        if (isMobSF) {
+          // Center horizontally, same bottom as desktop
+          sf.style.left  = Math.round((window.innerWidth - sfW) / 2) + 'px';
+          sf.style.right = 'auto';
+        } else {
+          sf.style.right = '5%';
+          sf.style.left  = 'auto';
+        }
+        sf.style.width         = sfW + 'px';
+        sf.style.height        = sfH + 'px';
         sf.style.borderRadius  = '2px';
         sf.style.transform     = 'translateY(' + offsetY + 'px) rotate(' + rotation.toFixed(2) + 'deg)';
         sf.style.opacity       = '1';
@@ -1021,21 +1096,70 @@
             sf.style.transition = 'transform 0.36s cubic-bezier(0.34,1.56,0.64,1)';
             sf.style.transform  = 'translateY(0) rotate(0deg)';
 
-            // After spring: switch back to absolute and expand to full size
+            // After spring: expand to final size
             setTimeout(function () {
-              var bigW = Math.round(Math.min(580, window.innerWidth  * 0.46));
-              var bigH = Math.round(Math.min(390, window.innerHeight * 0.33));
-              sf.style.transition    = 'none';
-              sf.style.position      = 'absolute';
-              sf.style.transform     = '';
+              sf.style.transition = 'none';
+              sf.style.transform  = '';
               void sf.offsetWidth;   // force reflow before transition
-              sf.style.transition    =
-                'width 0.65s cubic-bezier(0.16,1,0.3,1),' +
-                'height 0.65s cubic-bezier(0.16,1,0.3,1),' +
-                'border-radius 0.65s ease';
-              sf.style.width         = bigW + 'px';
-              sf.style.height        = bigH + 'px';
-              sf.style.borderRadius  = '18px';
+              if (isMobSF) {
+                var bigW = window.innerWidth;
+                var bigH = Math.round(window.innerWidth * 0.62);
+                // Animate from centered-small to full-width-bottom
+                sf.style.transition =
+                  'left 0.65s cubic-bezier(0.16,1,0.3,1),' +
+                  'bottom 0.65s cubic-bezier(0.16,1,0.3,1),' +
+                  'width 0.65s cubic-bezier(0.16,1,0.3,1),' +
+                  'height 0.65s cubic-bezier(0.16,1,0.3,1),' +
+                  'border-radius 0.65s ease';
+                sf.style.position     = 'fixed';
+                sf.style.left         = '0';
+                sf.style.right        = 'auto';
+                sf.style.bottom       = '0';
+                sf.style.width        = bigW + 'px';
+                sf.style.height       = bigH + 'px';
+                sf.style.borderRadius = '0';
+
+                // ── KEY FIX: after expand animation, convert fixed→absolute ──
+                // position:fixed stays glued to the viewport while scrolling,
+                // so scrolling back up shows canvas/caption floating over all
+                // page sections. We read the current visual position via
+                // getBoundingClientRect() (while still fixed), add window.scrollY
+                // to get the document-absolute top, then switch to absolute.
+                // After this, the elements only appear at the document bottom.
+                setTimeout(function () {
+                  var sfRect = sf.getBoundingClientRect();
+                  sf.style.transition = 'none';
+                  sf.style.position   = 'absolute';
+                  sf.style.top        = (window.scrollY + sfRect.top) + 'px';
+                  sf.style.left       = '0';
+                  sf.style.right      = 'auto';
+                  sf.style.bottom     = 'auto';
+
+                  var sc = document.getElementById('shaderCaption');
+                  if (sc) {
+                    var scRect = sc.getBoundingClientRect();
+                    sc.style.transition = 'none';
+                    sc.style.position   = 'absolute';
+                    sc.style.top        = (window.scrollY + scRect.top) + 'px';
+                    sc.style.left       = Math.round(window.innerWidth * 0.05) + 'px';
+                    sc.style.right      = 'auto';
+                    sc.style.bottom     = 'auto';
+                    sc.style.width      = Math.round(window.innerWidth * 0.9) + 'px';
+                    sc.style.maxWidth   = '';
+                  }
+                }, 700); // 650ms expand CSS transition + 50ms buffer
+              } else {
+                var bigW = Math.round(Math.min(580, window.innerWidth  * 0.46));
+                var bigH = Math.round(Math.min(390, window.innerHeight * 0.33));
+                sf.style.position = 'absolute';
+                sf.style.transition =
+                  'width 0.65s cubic-bezier(0.16,1,0.3,1),' +
+                  'height 0.65s cubic-bezier(0.16,1,0.3,1),' +
+                  'border-radius 0.65s ease';
+                sf.style.width        = bigW + 'px';
+                sf.style.height       = bigH + 'px';
+                sf.style.borderRadius = '18px';
+              }
 
               // Start pen typewriter on the opposite side
               if (typeof window.startShaderCaption === 'function') window.startShaderCaption();
@@ -1143,6 +1267,29 @@
       }
 
       window.startShaderCaption = startCaption;
+    })();
+
+    // ── Hide shader elements before view-transition navigation ─────────
+    // CSS view-transition captures the old page snapshot including z:100
+    // fixed elements, making them appear on top of other pages.
+    // Hiding them on any outgoing link click prevents this.
+    (function () {
+      function hideShader() {
+        var sf = document.getElementById('shaderFloat');
+        var sc = document.getElementById('shaderCaption');
+        if (sf) { sf.style.transition = 'opacity 0.15s'; sf.style.opacity = '0'; }
+        if (sc) { sc.style.transition = 'opacity 0.15s'; sc.style.opacity = '0'; }
+      }
+      document.addEventListener('click', function (e) {
+        var a = e.target.closest('a[href]');
+        if (!a) return;
+        var href = a.getAttribute('href') || '';
+        // Only hide on same-origin page navigations (not anchors or external)
+        if (href && !href.startsWith('#') && !href.startsWith('mailto') &&
+            !href.startsWith('http') && !a.target) {
+          hideShader();
+        }
+      });
     })();
 
   </script>

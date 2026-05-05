@@ -13,6 +13,7 @@
   let W, H;
 
   function resize() {
+    GROMMET_X = getGrommetX(); // re-read in case breakpoint changed
     dpr = window.devicePixelRatio || 1;
     W   = window.innerWidth;
     H   = window.innerHeight;
@@ -37,8 +38,16 @@
   const GRAVITY              = 0.52;
   const DAMPING              = 0.988;
   const CONSTRAINT_ITERS     = 10;
-  const STICKER_W            = 280;   // matches CSS width
-  const GROMMET_X            = 140;   // grommet center X within sticker (width/2)
+  const STICKER_W            = 280;   // matches CSS width (desktop)
+  // Read GROMMET_X from viewport breakpoints — matches CSS width rules exactly.
+  // This is instant and correct even before iOS applies CSS breakpoints.
+  function getGrommetX() {
+    var w = window.innerWidth;
+    if (w <= 480) return 100;  // CSS: sticker 200px
+    if (w <= 640) return 120;  // CSS: sticker 240px
+    return 140;                // CSS: sticker 280px
+  }
+  let   GROMMET_X            = getGrommetX();
   const GROMMET_Y            = 28;    // grommet center Y from sticker top
 
   // ── Hardware SVG geometry (viewBox 0 0 60 92) ─────────────────────
@@ -283,8 +292,8 @@
     }
 
     // ── Position sticker DOM element ─────────────────────────────
-    // Grommet center = stickerPoint world coords
-    // sticker top-left = stickerPoint - (GROMMET_X, GROMMET_Y)
+    // stickerPoint = last physics rope point = hardware mouth world position.
+    // (last segment length = HARDWARE_LENGTH = exact SVG distance from pivot to mouth)
     const tx = stickerPoint.x - GROMMET_X;
     const ty = stickerPoint.y - GROMMET_Y;
     sticker.style.transformOrigin = `${GROMMET_X}px ${GROMMET_Y}px`;

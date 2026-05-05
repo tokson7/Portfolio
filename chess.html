@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/chess.css" />
+  <link rel="stylesheet" href="css/chess.css?v=3" />
 </head>
 <body>
 
@@ -32,7 +32,20 @@
       <a href="index.html" onclick="sessionStorage.setItem('openContact','1')" class="nav-link" data-i18n="nav_contact">Kontakt</a>
       <a href="chess.html" class="nav-link active" data-i18n="nav_chess">Schach spielen</a>
     </div>
+    <button class="mob-toggle" id="mob-toggle-btn" aria-label="Menü öffnen"
+      style="display:none;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px 8px;margin-left:12px;line-height:1;">&#9776;</button>
   </nav>
+
+  <!-- Mobile nav overlay -->
+  <div id="mob-nav-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,10,10,0.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:32px;">
+    <button id="mob-nav-close" aria-label="Menü schließen"
+      style="position:absolute;top:24px;right:24px;background:none;border:none;color:rgba(255,255,255,0.7);font-size:28px;cursor:pointer;line-height:1;">&#10005;</button>
+    <a href="index.html#projects" class="nav-link" data-i18n="nav_proj" style="font-size:24px;font-weight:500;">Projekte</a>
+    <a href="index.html#services" class="nav-link" data-i18n="nav_serv" style="font-size:24px;font-weight:500;">Leistungen</a>
+    <a href="about.html" class="nav-link" data-i18n="nav_about" style="font-size:24px;font-weight:500;">Über mich</a>
+    <a href="index.html" onclick="sessionStorage.setItem('openContact','1')" class="nav-link" data-i18n="nav_contact" style="font-size:24px;font-weight:500;">Kontakt</a>
+    <a href="chess.html" class="nav-link active" data-i18n="nav_chess" style="font-size:24px;font-weight:500;">Schach spielen</a>
+  </div>
 
   <!-- Landing screen -->
   <div id="landing">
@@ -212,6 +225,18 @@
       var nav = document.getElementById('main-nav');
       nav.addEventListener('mouseenter', function() { nav.classList.add('expanded'); });
       nav.addEventListener('mouseleave', function() { nav.classList.remove('expanded'); });
+
+      // Mobile burger toggle
+      var btn     = document.getElementById('mob-toggle-btn');
+      var overlay = document.getElementById('mob-nav-overlay');
+      var closeBtn = document.getElementById('mob-nav-close');
+      if (btn && overlay) {
+        function openNav()  { overlay.style.display = 'flex'; document.body.style.overflow = 'hidden'; btn.innerHTML = '&#10005;'; }
+        function closeNav() { overlay.style.display = 'none'; document.body.style.overflow = '';       btn.innerHTML = '&#9776;'; }
+        btn.addEventListener('click', function() { overlay.style.display === 'flex' ? closeNav() : openNav(); });
+        if (closeBtn) closeBtn.addEventListener('click', closeNav);
+        overlay.querySelectorAll('a').forEach(function(a) { a.addEventListener('click', closeNav); });
+      }
     })();
   </script>
 
