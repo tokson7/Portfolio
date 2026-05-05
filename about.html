@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Caveat:wght@400;600&family=DM+Sans:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/about.css?v=10" />
+  <link rel="stylesheet" href="css/about.css?v=13" />
 </head>
 <body>
 
@@ -805,11 +805,9 @@
       if (!section || !table || !logoFrame) return;
 
       var LOGO_Y_FRAC = 0.35;  // logo center = 35% down the sticky viewport
-      var ROW_H       = 64;    // px per row
       var N_ROWS      = 8;
-      var PAD_BASE    = 28;    // base padding (px) — matches CSS
-      var MAX_SIDE    = 54;    // extra px per side at logo center (-20%)
-      var GAP_RADIUS  = ROW_H * 2.0; // rows within 128px of logo Y split
+      var PAD_BASE    = 28;    // base padding (px)
+      var MAX_SIDE    = 54;    // extra px per side at logo center
 
       // Live clock — Europe/Vienna
       function tick() {
@@ -853,6 +851,27 @@
       var coin3d   = logoFrame.querySelector('.coin-3d');
       var ticking = false;
 
+      // Measure actual row heights from DOM (accounts for wrapping labels on mobile)
+      var rowH   = [];   // height of each row in px
+      var rowTop = [];   // cumulative top offset of each row from table top
+      var totalTableH = 0;
+      function measureRows() {
+        var acc = 0;
+        for (var ri = 0; ri < N_ROWS; ri++) {
+          rowTop[ri] = acc;
+          var lh = labels[ri] ? labels[ri].offsetHeight : 64;
+          var vh = values[ri] ? values[ri].offsetHeight : 64;
+          rowH[ri]   = Math.max(lh, vh, 1);
+          acc += rowH[ri];
+        }
+        totalTableH = acc;
+      }
+      measureRows();
+      // Re-measure after fonts load (wrapping labels may be taller)
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function() { measureRows(); });
+      }
+
       function update() {
         ticking = false;
         var H     = window.innerHeight;
@@ -860,8 +879,10 @@
 
         // translateY start: first row is 80px below the logo
         var yStart = logoY + 80;
-        // translateY end: last row is 80px above the logo (logo ends below text)
-        var yEnd   = logoY - 80 - N_ROWS * ROW_H;
+        // Use actual table height each frame (font-load / wrapping may have changed it)
+        var tH     = table.offsetHeight || N_ROWS * 60;
+        // translateY end: last row is 80px above the logo
+        var yEnd   = logoY - 80 - tH;
         // Text moves UP: translateY decreases from yStart → yEnd
         var travelDist = yStart - yEnd;   // always positive
 
@@ -872,13 +893,40 @@
         var translateY = yStart - easeInOut(p) * travelDist;
         table.style.transform = 'translateX(-50%) translateY(' + translateY.toFixed(1) + 'px)';
 
-        // Per-row gap: only the row(s) currently at logo Y level split open
+        // After transform is set, read ACTUAL row center positions via getBoundingClientRect.
+        // This forces a synchronous layout — always accurate regardless of font load state
+        // or whether labels are wrapping. Collect all centers first, then apply padding
+        // (two-pass avoids mid-loop height changes from affecting subsequent measurements).
+        // Mobile: use a wider transition zone (GAP_RADIUS 110) and floor pad at
+        // coin-radius (29px) so the resting gap clears the coin edge but stays
+        // small enough for long labels ("Allgemeine Anfragen") to fit on one line
+        // without wrapping (col 167px − 29px = 138px > ~125px label width).
+        // Desktop stays completely unchanged.
+        var isMobileIdent = window.innerWidth <= 640;
+        var GAP_RADIUS    = isMobileIdent ? 110 : 80;
+        var COIN_R        = 29;   // half of 58px coin width
+        var centers = [];
         for (var i = 0; i < N_ROWS; i++) {
-          var rowCY = translateY + i * ROW_H + ROW_H / 2;
-          var dist  = Math.abs(rowCY - logoY);
+          var cell = labels[i];
+          if (cell) {
+            var br = cell.getBoundingClientRect();
+            centers[i] = br.top + br.height / 2;
+          } else {
+            centers[i] = -9999;
+          }
+        }
+        for (var i = 0; i < N_ROWS; i++) {
+          var dist  = Math.abs(centers[i] - logoY);
           var extra = Math.max(0, 1 - dist / GAP_RADIUS) * MAX_SIDE;
-          if (labels[i]) labels[i].style.paddingRight = (PAD_BASE + extra).toFixed(1) + 'px';
-          if (values[i]) values[i].style.paddingLeft  = (PAD_BASE + extra).toFixed(1) + 'px';
+          var pad;
+          if (isMobileIdent) {
+            // 29px resting (= coin edge) → 83px at logo centre; no wrap.
+            pad = COIN_R + extra;
+          } else {
+            pad = PAD_BASE + extra;
+          }
+          if (labels[i]) labels[i].style.paddingRight = pad.toFixed(1) + 'px';
+          if (values[i]) values[i].style.paddingLeft  = pad.toFixed(1) + 'px';
         }
 
         // 3D + color on logo throughout scroll
@@ -910,7 +958,7 @@
 
       update();
       window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', update,   { passive: true });
+      window.addEventListener('resize', function() { measureRows(); update(); }, { passive: true });
     })();
 
     // ── Photo burst: fires when user reaches bottom of page ────────────────────
@@ -1119,28 +1167,38 @@
                 sf.style.height       = bigH + 'px';
                 sf.style.borderRadius = '0';
 
-                // ── KEY FIX: after expand animation, convert fixed→absolute ──
-                // position:fixed stays glued to the viewport while scrolling,
-                // so scrolling back up shows canvas/caption floating over all
-                // page sections. We read the current visual position via
-                // getBoundingClientRect() (while still fixed), add window.scrollY
-                // to get the document-absolute top, then switch to absolute.
-                // After this, the elements only appear at the document bottom.
+                // After expand animation, convert fixed→absolute so the element
+                // is anchored to the document bottom and never floats over earlier
+                // sections when the user scrolls back up.
                 setTimeout(function () {
-                  var sfRect = sf.getBoundingClientRect();
+                  // Use document height for scroll-position-independent placement.
+                  // window.scrollY + getBoundingClientRect().top is wrong when the
+                  // user has scrolled up (scrollY too small → element lands too high).
+                  var docH  = document.documentElement.scrollHeight;
+                  var bigH  = Math.round(window.innerWidth * 0.62);
+                  var sfTop = docH - bigH;
+
+                  // Caption relative offset: both are still position:fixed here,
+                  // so viewport coords are reliable regardless of scroll position.
+                  var sc = document.getElementById('shaderCaption');
+                  var scTopAbs;
+                  if (sc) {
+                    var sfViewportTop = window.innerHeight - bigH;
+                    var scViewportTop = sc.getBoundingClientRect().top;
+                    scTopAbs = sfTop + (scViewportTop - sfViewportTop);
+                  }
+
                   sf.style.transition = 'none';
                   sf.style.position   = 'absolute';
-                  sf.style.top        = (window.scrollY + sfRect.top) + 'px';
+                  sf.style.top        = sfTop + 'px';
                   sf.style.left       = '0';
                   sf.style.right      = 'auto';
                   sf.style.bottom     = 'auto';
 
-                  var sc = document.getElementById('shaderCaption');
-                  if (sc) {
-                    var scRect = sc.getBoundingClientRect();
+                  if (sc && scTopAbs !== undefined) {
                     sc.style.transition = 'none';
                     sc.style.position   = 'absolute';
-                    sc.style.top        = (window.scrollY + scRect.top) + 'px';
+                    sc.style.top        = scTopAbs + 'px';
                     sc.style.left       = Math.round(window.innerWidth * 0.05) + 'px';
                     sc.style.right      = 'auto';
                     sc.style.bottom     = 'auto';

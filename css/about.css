@@ -974,9 +974,19 @@ body {
 /* ── Identity responsive ─────────────────────────────────────── */
 @media (max-width: 640px) {
   .id-logo-svg  { width: 60px; height: 60px; }
-  .id-label, .id-value { min-height: 52px; font-size: 12px; }
+  .id-label, .id-value {
+    min-height: 52px;
+    font-size: 12px;
+    /* Prevent wrapping: row height stays fixed during avoidance animation,
+       breaking the JS feedback loop (wrap→height change→translateY shift→
+       distance changes→padding changes→rewrap) that causes the shake. */
+    white-space: nowrap;
+    overflow: hidden;
+  }
   .id-label { padding-right: 14px; }
   .id-value  { padding-left:  14px; }
+  /* Equal columns: grid centre stays at 50vw = logo centre. */
+  .id-table { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 }
 
 /* ── Shader Caption (pen typewriter) ── */
