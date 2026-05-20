@@ -31,6 +31,8 @@
       <a href="about.html" class="nav-link" data-i18n="nav_about">Über mich</a>
       <a href="index.html" onclick="sessionStorage.setItem('openContact','1')" class="nav-link" data-i18n="nav_contact">Kontakt</a>
       <a href="chess.html" class="nav-link active" data-i18n="nav_chess">Schach spielen</a>
+      <div style="width:1px;height:32px;background:rgba(255,255,255,0.08);margin:0 6px;flex-shrink:0;"></div>
+      <button id="lang-toggle-nav" class="lang-btn-nav lang-active" onclick="(function(){var c=localStorage.getItem('portfolio-lang')||'de';localStorage.setItem('portfolio-lang',c==='de'?'en':'de');location.reload();})();">DE</button>
     </div>
     <button class="mob-toggle" id="mob-toggle-btn" aria-label="Menü öffnen"
       style="display:none;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px 8px;margin-left:12px;line-height:1;">&#9776;</button>
@@ -45,6 +47,7 @@
     <a href="about.html" class="nav-link" data-i18n="nav_about" style="font-size:24px;font-weight:500;">Über mich</a>
     <a href="index.html" onclick="sessionStorage.setItem('openContact','1')" class="nav-link" data-i18n="nav_contact" style="font-size:24px;font-weight:500;">Kontakt</a>
     <a href="chess.html" class="nav-link active" data-i18n="nav_chess" style="font-size:24px;font-weight:500;">Schach spielen</a>
+    <button id="lang-toggle-mob" class="lang-btn-mob lang-active" onclick="(function(){var c=localStorage.getItem('portfolio-lang')||'de';localStorage.setItem('portfolio-lang',c==='de'?'en':'de');location.reload();})();">DE</button>
   </div>
 
   <!-- Landing screen -->
@@ -215,6 +218,11 @@
       var key = el.getAttribute('data-i18n-ph');
       if (t[key] !== undefined) el.placeholder = t[key];
     });
+    // Set lang toggle button text
+    var navT = document.getElementById('lang-toggle-nav');
+    var mobT = document.getElementById('lang-toggle-mob');
+    if (navT) navT.textContent = lang.toUpperCase();
+    if (mobT) mobT.textContent = lang.toUpperCase();
   })();
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>

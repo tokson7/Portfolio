@@ -296,8 +296,12 @@
     Zurück zum Portfolio
   </a>
   <a href="../index.html" class="nav-logo">Tornike Zaridze</a>
-  <span class="nav-badge">In aktiver Entwicklung</span>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button id="lang-toggle" onclick="(function(){var c=localStorage.getItem('portfolio-lang')||'de';localStorage.setItem('portfolio-lang',c==='de'?'en':'de');location.reload();})();" style="padding:4px 12px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:0.08em;cursor:pointer;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.3);color:#fff;transition:all 0.2s ease;">DE</button>
+    <span class="nav-badge">In aktiver Entwicklung</span>
+  </div>
 </nav>
+<script>(function(){var l=localStorage.getItem('portfolio-lang')||'de';var t=document.getElementById('lang-toggle');if(t)t.textContent=l.toUpperCase();})();</script>
 
 <!-- HERO -->
 <div class="hero">

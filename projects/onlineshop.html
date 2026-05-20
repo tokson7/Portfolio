@@ -303,13 +303,17 @@
     Zurück zum Portfolio
   </a>
   <a href="../index.html" class="nav-logo">Tornike Zaridze</a>
-  <a href="https://suessesausderpfanne.at" target="_blank" rel="noopener noreferrer" class="nav-link-ext">
-    Live-Seite besuchen
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline>
-    </svg>
-  </a>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button id="lang-toggle" onclick="(function(){var c=localStorage.getItem('portfolio-lang')||'de';localStorage.setItem('portfolio-lang',c==='de'?'en':'de');location.reload();})();" style="padding:4px 12px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:0.08em;cursor:pointer;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.3);color:#fff;transition:all 0.2s ease;">DE</button>
+    <a href="https://suessesausderpfanne.at" target="_blank" rel="noopener noreferrer" class="nav-link-ext">
+      Live-Seite besuchen
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline>
+      </svg>
+    </a>
+  </div>
 </nav>
+<script>(function(){var l=localStorage.getItem('portfolio-lang')||'de';var t=document.getElementById('lang-toggle');if(t)t.textContent=l.toUpperCase();})();</script>
 
 <!-- HERO -->
 <div class="hero">

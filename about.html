@@ -23,11 +23,13 @@
       </svg>
     </a>
     <div class="nav-links">
-      <a href="index.html#projects" class="nav-link" data-i18n="nav_proj">Projekte</a>
+      <a href="projects.html" class="nav-link" data-i18n="nav_proj">Projekte</a>
       <a href="services.html"        class="nav-link" data-i18n="nav_serv">Leistungen</a>
       <a href="about.html"           class="nav-link active" data-i18n="nav_about">Über mich</a>
       <a href="index.html" onclick="sessionStorage.setItem('openContact','1')" class="nav-link" data-i18n="nav_contact">Kontakt</a>
       <a href="chess.html"           class="nav-link" data-i18n="nav_chess">Schach spielen</a>
+      <div style="width:1px;height:32px;background:rgba(255,255,255,0.08);margin:0 6px;flex-shrink:0;"></div>
+      <button id="lang-toggle-nav" class="lang-btn-nav lang-active" onclick="(function(){var c=localStorage.getItem('portfolio-lang')||'de';localStorage.setItem('portfolio-lang',c==='de'?'en':'de');location.reload();})();">DE</button>
     </div>
     <button class="mob-toggle" id="mob-toggle-btn" aria-label="Menü öffnen"
       style="display:none;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px 8px;margin-left:12px;line-height:1;">&#9776;</button>
@@ -37,11 +39,12 @@
   <div id="mob-nav-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,10,10,0.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:32px;">
     <button id="mob-nav-close" aria-label="Menü schließen"
       style="position:absolute;top:24px;right:24px;background:none;border:none;color:rgba(255,255,255,0.7);font-size:28px;cursor:pointer;line-height:1;">&#10005;</button>
-    <a href="index.html#projects" class="nav-link" data-i18n="nav_proj" style="font-size:24px;font-weight:500;">Projekte</a>
+    <a href="projects.html" class="nav-link" data-i18n="nav_proj" style="font-size:24px;font-weight:500;">Projekte</a>
     <a href="services.html"        class="nav-link" data-i18n="nav_serv" style="font-size:24px;font-weight:500;">Leistungen</a>
     <a href="about.html"           class="nav-link active" data-i18n="nav_about" style="font-size:24px;font-weight:500;">Über mich</a>
     <a href="index.html" onclick="sessionStorage.setItem('openContact','1')" class="nav-link" data-i18n="nav_contact" style="font-size:24px;font-weight:500;">Kontakt</a>
     <a href="chess.html"           class="nav-link" data-i18n="nav_chess" style="font-size:24px;font-weight:500;">Schach spielen</a>
+    <button id="lang-toggle-mob" class="lang-btn-mob lang-active" onclick="(function(){var c=localStorage.getItem('portfolio-lang')||'de';localStorage.setItem('portfolio-lang',c==='de'?'en':'de');location.reload();})();">DE</button>
   </div>
 
   <!-- ── Page ───────────────────────────────────────────────────── -->
@@ -197,6 +200,7 @@
       </div>
     </div>
 
+      <span class="approach-sentinel" aria-hidden="true"></span>
     </div><!-- /stack-track -->
 
   </section>
@@ -337,12 +341,17 @@
 
         <div class="id-label" data-i18n="id6">LinkedIn</div>
         <div class="id-value">
-          <a href="https://linkedin.com/in/tornike-zaridze" target="_blank" rel="noopener noreferrer">Tornike Zaridze</a>
+          <a href="https://www.linkedin.com/in/tornike-zaridze-48052b36a/" target="_blank" rel="noopener noreferrer">Tornike Zaridze</a>
         </div>
 
         <div class="id-label" data-i18n="id7">Instagram</div>
         <div class="id-value">
           <a href="https://instagram.com/tornike.zaridze." target="_blank" rel="noopener noreferrer">tornike.zaridze.</a>
+        </div>
+
+        <div class="id-label" data-i18n="id9">GitHub</div>
+        <div class="id-value">
+          <a href="https://github.com/tokson7" target="_blank" rel="noopener noreferrer">tokson7</a>
         </div>
 
         <div class="id-label" data-i18n="id8">Ausbildung</div>
@@ -581,6 +590,7 @@
       var n = cards.length;
       if (!n) return;
 
+      var sentinel = document.querySelector('.approach-sentinel');
       var HEADER = 80;
       var STEP   = 80;   // 80px staircase — GIF-measured
       var ticking = false;
@@ -590,7 +600,8 @@
         var shrinkZone = window.innerHeight * 0.4;
 
         for (var i = 0; i < n; i++) {
-          var next = cards[i + 1];
+          // Last card uses sentinel as its "next" reference (same formula as regular cards)
+          var next = i < n - 1 ? cards[i + 1] : sentinel;
           var p = 0;
 
           if (next) {
@@ -599,7 +610,10 @@
             p = Math.max(0, Math.min(1, 1 - remaining / shrinkZone));
           }
 
+          // blur starts only in the last 30% of p — delayed by 70%
+          var blurP = p < 0.7 ? 0 : Math.min(1, (p - 0.7) / 0.3);
           cards[i].style.setProperty('--p', p.toFixed(3));
+          cards[i].style.setProperty('--blur-p', blurP.toFixed(3));
         }
       }
 
@@ -805,7 +819,7 @@
       if (!section || !table || !logoFrame) return;
 
       var LOGO_Y_FRAC = 0.35;  // logo center = 35% down the sticky viewport
-      var N_ROWS      = 8;
+      var N_ROWS      = 9;
       var PAD_BASE    = 28;    // base padding (px)
       var MAX_SIDE    = 54;    // extra px per side at logo center
 
@@ -1411,7 +1425,7 @@
         s2i7: 'Deployment &amp; Hosting', s2i8: 'Animations &amp; Micro-Interactions',
         id1: 'Identity', id2: 'Based in', id3: 'Current time',
         id4: 'General inquiries', id5: 'Collaboration', id5v: 'Freelance &amp; Partners',
-        id6: 'LinkedIn', id7: 'Instagram', id8: 'Education', id8v: "Bachelor's degree",
+        id6: 'LinkedIn', id7: 'Instagram', id9: 'GitHub', id8: 'Education', id8v: "Bachelor's degree",
         sticker_l1: 'ALL THE', sticker_l2: 'IMPOSSIBLE', sticker_l3: 'IS POSSIBLE',
         sticker_hint: 'drag me'
       },
@@ -1452,7 +1466,7 @@
         s2i7: 'Deployment &amp; Hosting', s2i8: 'Animationen &amp; Micro-Interactions',
         id1: 'Identit\u00e4t', id2: 'Wohnhaft in', id3: 'Aktuelle Zeit',
         id4: 'Allgemeine Anfragen', id5: 'Zusammenarbeit', id5v: 'Freiberuflich &amp; Partner',
-        id6: 'LinkedIn', id7: 'Instagram', id8: 'Ausbildung', id8v: 'Bachelorabschluss',
+        id6: 'LinkedIn', id7: 'Instagram', id9: 'GitHub', id8: 'Ausbildung', id8v: 'Bachelorabschluss',
         sticker_l1: 'ALLES', sticker_l2: 'UNM\u00d6GLICHE', sticker_l3: 'IST M\u00d6GLICH',
         sticker_hint: 'zieh mich'
       }
@@ -1475,6 +1489,12 @@
     var lang = localStorage.getItem('portfolio-lang') || 'de';
     applyLang(lang);
     if (window._plusZoomRefit) window._plusZoomRefit();
+
+    // Set lang toggle button text
+    var navT = document.getElementById('lang-toggle-nav');
+    var mobT = document.getElementById('lang-toggle-mob');
+    if (navT) navT.textContent = lang.toUpperCase();
+    if (mobT) mobT.textContent = lang.toUpperCase();
   })();
   </script>
 

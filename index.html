@@ -1975,7 +1975,7 @@ if __name__ == "__main__":
               transition:padding 0.45s cubic-bezier(0.16,1,0.3,1);
             }
             .nav-links{
-              display:flex;justify-content:center;gap:8px;
+              display:flex;justify-content:center;align-items:center;gap:8px;
               max-width:0;opacity:0;overflow:hidden;margin:0;
               transition:max-width 0.45s cubic-bezier(0.16,1,0.3,1),opacity 0.3s ease,margin 0.45s cubic-bezier(0.16,1,0.3,1);
             }
@@ -2324,11 +2324,13 @@ if __name__ == "__main__":
               <TerminalLogo size={36} />
             </div>
             <div className="nav-links">
-              <button className="nav-link" onClick={()=>go("projects")}>{T.nav_projects}</button>
+              <button className="nav-link" onClick={()=>window.location.href="projects.html"}>{T.nav_projects}</button>
               <a className="nav-link" href="services.html">{T.nav_services}</a>
               <a className="nav-link" href="about.html">{T.nav_about}</a>
               <button className="nav-link" onClick={(e)=>{e.preventDefault();if(window.__openContactModal)window.__openContactModal();else go("contact");}}>{T.nav_contact}</button>
               <button className="nav-link" onClick={()=>window.location.href="chess.html"}>{T.nav_chess}</button>
+              <div style={{width:"1px",height:32,background:"rgba(255,255,255,0.08)",margin:"0 6px"}} />
+              <button onClick={()=>switchLang(lang==='de'?'en':'de')} style={{padding:"3px 10px",borderRadius:999,fontSize:10,fontWeight:700,letterSpacing:"0.08em",cursor:"pointer",fontFamily:"var(--f-body)",background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.3)",color:"#fff",transition:"all 0.2s ease",lineHeight:1.6}}>{lang.toUpperCase()}</button>
             </div>
             <button className="mob-toggle" onClick={()=>setMobileNav(!mobileNav)}
               style={{background:"none",border:"none",color:"#fff",fontSize:22,cursor:"pointer",padding:"4px 8px",marginLeft:12,lineHeight:1}}>
@@ -2339,11 +2341,12 @@ if __name__ == "__main__":
           {mobileNav&&(
             <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(10,10,10,0.97)",backdropFilter:"blur(20px)",WebkitBackdropFilter:"blur(20px)",zIndex:9999,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:32}}>
               <button style={{position:"absolute",top:24,right:24,background:"none",border:"none",color:"rgba(255,255,255,0.7)",fontSize:28,cursor:"pointer",lineHeight:1}} onClick={()=>setMobileNav(false)}>✕</button>
-              <button className="nav-link" onClick={()=>{setMobileNav(false);go("projects");}} style={{fontSize:24,fontWeight:500}}>{T.mob_projects}</button>
+              <button className="nav-link" onClick={()=>{setMobileNav(false);window.location.href="projects.html";}} style={{fontSize:24,fontWeight:500}}>{T.mob_projects}</button>
               <a className="nav-link" href="services.html" style={{fontSize:24,fontWeight:500}} onClick={()=>setMobileNav(false)}>{T.mob_services}</a>
               <a className="nav-link" href="about.html" style={{fontSize:24,fontWeight:500}} onClick={()=>setMobileNav(false)}>{T.mob_about}</a>
               <button className="nav-link" style={{fontSize:24,fontWeight:500}} onClick={()=>{setMobileNav(false);if(window.__openContactModal)window.__openContactModal();else go("contact");}}>{T.mob_contact}</button>
               <a className="nav-link" href="chess.html" style={{fontSize:24,fontWeight:500}} onClick={()=>setMobileNav(false)}>{T.mob_chess}</a>
+              <button onClick={()=>{switchLang(lang==='de'?'en':'de');setMobileNav(false);}} style={{padding:"7px 26px",borderRadius:999,fontSize:14,fontWeight:700,letterSpacing:"0.1em",cursor:"pointer",fontFamily:"var(--f-body)",background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.3)",color:"#fff",transition:"all 0.2s ease"}}>{lang.toUpperCase()}</button>
             </div>
           )}
 
@@ -2374,7 +2377,7 @@ if __name__ == "__main__":
                   </Anim>
                   <Anim delay={550}>
                     <div style={{display:"flex",gap:14,flexWrap:"wrap"}}>
-                      <button className="btn-secondary" onClick={()=>go("projects")}>{T.hero_btn1}</button>
+                      <button className="btn-secondary" onClick={()=>window.location.href="projects.html"}>{T.hero_btn1}</button>
                       <button className="btn-primary" onClick={()=>go("contact")}>{T.hero_btn2}</button>
                     </div>
                   </Anim>
@@ -2679,7 +2682,7 @@ if __name__ == "__main__":
                 </Anim>
                 <Anim delay={400}>
                   <div style={{display:"flex",gap:14,flexWrap:"wrap"}}>
-                    <button className="btn-secondary" onClick={()=>go("projects")}>{T.faq_btn1}</button>
+                    <button className="btn-secondary" onClick={()=>window.location.href="projects.html"}>{T.faq_btn1}</button>
                     <button className="btn-primary" onClick={()=>go("contact")}>{T.faq_btn2}</button>
                   </div>
                 </Anim>
@@ -2700,7 +2703,7 @@ if __name__ == "__main__":
             <div id="gravity-footer" className="gravity-section">
               <div className="footer-globe-wrap"><GlobeSpinner /></div>
               <div className="gravity-group gravity-left">
-                <a href="#projects" className="gravity-button" data-x="8" data-y="15" data-rot="-4">{T.foot_proj}</a>
+                <a href="projects.html" className="gravity-button" data-x="8" data-y="15" data-rot="-4">{T.foot_proj}</a>
                 <a href="#about" className="gravity-button" data-x="5" data-y="38" data-rot="-2">{T.foot_about}</a>
                 <a href="services.html" className="gravity-button" data-x="20" data-y="58" data-rot="6">{T.foot_serv}</a>
                 <a href="chess.html" className="gravity-button" data-x="12" data-y="75" data-rot="3">{T.foot_chess}</a>
@@ -2719,7 +2722,6 @@ if __name__ == "__main__":
                   <span style={{color:"rgba(255,255,255,0.28)",fontSize:13}}>zaridze2909@gmail.com</span>
                 </div>
                 <div style={{display:"flex",alignItems:"center",gap:18}}>
-                  <LangSwitcher lang={lang} onSwitch={switchLang} />
                   <span style={{color:"rgba(255,255,255,0.28)",fontSize:13}}>{T.copyright}</span>
                 </div>
               </div>
@@ -3070,72 +3072,72 @@ if __name__ == "__main__":
       /* ── Scene 0: Void (already black overlay, just a beat) ── */
       tl.set(overlay, { opacity: 1 }, 0);
 
-      /* ── Scene 1: The Drop (HEAVY) ── */
+      /* ── Scene 1: The Drop (COMPRESSED — ~0.7s) ── */
       // Apply vertical motion blur at fall start
-      tl.set('.intro-frame', { attr: { filter: 'url(#motionBlur)' } }, 0.3);
+      tl.set('.intro-frame', { attr: { filter: 'url(#motionBlur)' } }, 0.15);
       tl.fromTo('.intro-frame',
         { opacity: 0, y: -600, rotation: -12, scale: 1.1, transformOrigin: '60px 60px' },
-        { opacity: 1, y: 26,   rotation: 0,   scale: 1,
-          duration: 1.05, ease: 'power3.in' },
-        0.3
+        { opacity: 1, y: 16,   rotation: 0,   scale: 1,
+          duration: 0.55, ease: 'power3.in' },
+        0.15
       );
       // Snap sharp just before impact
-      tl.set('.intro-frame', { attr: { filter: 'url(#frameGlow)' } }, 1.25);
+      tl.set('.intro-frame', { attr: { filter: 'url(#frameGlow)' } }, 0.62);
       // Settle with bounce — heavy object landing
       tl.to('.intro-frame', {
         y: 0,
-        duration: 0.32,
+        duration: 0.18,
         ease: 'bounce.out',
       });
       // Shockwave rings fire at moment of impact — use attr r to avoid SVG compositing issues
-      tl.set('.intro-shockwave', { visibility: 'visible' }, 1.25);
+      tl.set('.intro-shockwave', { visibility: 'visible' }, 0.62);
       tl.fromTo('.intro-shockwave-a',
         { opacity: 0.9, attr: { r: 55 } },
-        { opacity: 0, attr: { r: 240 }, duration: 0.6, ease: 'power2.out', immediateRender: false },
-        1.3
+        { opacity: 0, attr: { r: 240 }, duration: 0.40, ease: 'power2.out', immediateRender: false },
+        0.66
       );
       tl.fromTo('.intro-shockwave-b',
         { opacity: 0.7, attr: { r: 55 } },
-        { opacity: 0, attr: { r: 270 }, duration: 0.7, ease: 'power2.out', immediateRender: false },
-        1.38
+        { opacity: 0, attr: { r: 270 }, duration: 0.46, ease: 'power2.out', immediateRender: false },
+        0.72
       );
-      tl.set('.intro-shockwave', { visibility: 'hidden' }, 2.1);
+      tl.set('.intro-shockwave', { visibility: 'hidden' }, 1.2);
 
       /* ── Scene 2: Impact — Radial Crack Explosion ── */
       // Primary cracks explode outward simultaneously
       tl.to('.intro-cracks .primary', {
         opacity: 1,
         strokeDashoffset: 0,
-        duration: 0.5,
+        duration: 0.28,
         ease: 'power4.out',
-        stagger: { each: 0.02, from: 'random' },
+        stagger: { each: 0.012, from: 'random' },
       }, '-=0.18');
 
       // Secondary cracks branch outward
       tl.to('.intro-cracks .secondary', {
         opacity: 1,
         strokeDashoffset: 0,
-        duration: 0.4,
+        duration: 0.20,
         ease: 'power3.out',
-        stagger: { each: 0.04, from: 'random' },
+        stagger: { each: 0.025, from: 'random' },
       }, '-=0.3');
 
       // Micro hairline cracks
       tl.to('.intro-cracks .micro', {
         opacity: 1,
         strokeDashoffset: 0,
-        duration: 0.3,
+        duration: 0.15,
         ease: 'power2.out',
-        stagger: { each: 0.03, from: 'random' },
+        stagger: { each: 0.02, from: 'random' },
       }, '-=0.22');
 
-      // Violent screen shake
+      // Violent screen shake (reduced)
       tl.to(overlay, {
         x: function() { return (Math.random() - 0.5) * 22; },
         y: function() { return (Math.random() - 0.5) * 22; },
         duration: 0.04,
         yoyo: true,
-        repeat: 12,
+        repeat: 7,
         ease: 'none',
       }, '-=0.42');
       tl.set(overlay, { x: 0, y: 0 });
@@ -3150,66 +3152,43 @@ if __name__ == "__main__":
       }, '-=0.28');
 
       // Organic crack flicker begins — cracks breathe faintly from here on
-      tl.add(function() { startCrackFlicker(); }, '+=0.1');
+      tl.add(function() { startCrackFlicker(); }, '+=0.05');
 
       /* ── Scene 3: Symbol Arrival ── */
       tl.fromTo('.intro-symbol-gt',
         { attr: { x: -72 }, opacity: 0 },
         { attr: { x:  38 }, opacity: 1,
-          duration: 0.68, ease: 'power3.out' },
-        '+=0.18'
+          duration: 0.42, ease: 'power3.out' },
+        '+=0.08'
       );
       tl.fromTo('.intro-symbol-us',
         { attr: { x: 192 }, opacity: 0 },
         { attr: { x:  72 }, opacity: 1,
-          duration: 0.68, ease: 'power3.out' },
+          duration: 0.42, ease: 'power3.out' },
         '<'
       );
 
-      /* ── Scene 4: Flex / Breathe ── */
-      tl.to(logoEl, {
-        scale: 1.26,
-        duration: 0.28,
-        ease: 'power2.out',
-        transformOrigin: '50% 50%',
-      }, '+=0.18');
-      tl.to(logoEl, {
-        scale: 1,
-        duration: 0.55,
-        ease: 'elastic.out(1, 0.42)',
-      });
+      /* ── Scene 4 (flex/breathe) — removed ── */
 
-      /* ── Scene 5: The Blink ── */
+      /* ── Scene 5 + 6: Blink & Welcome Reveal — simultaneous ── */
+      // Blink fires at the same moment Welcome appears — both finish together
       tl.add(function() {
         var gt = document.querySelector('.intro-symbol-gt');
         if (!gt) return;
         gt.textContent = '\u2014'; // em-dash (closed eye)
-        setTimeout(function() { gt.textContent = '>'; }, 200);
-      }, '+=0.12');
-      tl.to({}, { duration: 0.42 }); // hold
-
-      /* ── Scene 6: Welcome Reveal — typing ── */
-      tl.to(welcome, {
-        opacity: 1, duration: 0.25, ease: 'power2.out',
-      });
-      tl.to(cursor, { opacity: 1, duration: 0.08 });
-
-      var str = 'Welcome...';
-      str.split('').forEach(function(ch, i) {
-        tl.add(function() {
-          welcomeTxt.textContent = str.substring(0, i + 1);
-        }, '+=' + (i === 0 ? 0 : 0.078));
-      });
-
-      // Cursor stays blinking a moment after typing
-      tl.to({}, { duration: 0.5 });
+        welcomeTxt.textContent = 'Welcome...';
+        setTimeout(function() { gt.textContent = '>'; }, 180);
+      }, '+=0.08');
+      tl.to(welcome, { opacity: 1, duration: 0.18, ease: 'power2.out' }, '<');
+      tl.to(cursor, { opacity: 1, duration: 0.05 });
+      tl.to({}, { duration: 0.18 }); // brief hold
 
       /* ── Scene 7: Fade Out ── */
       tl.to(overlay, {
         opacity: 0,
-        duration: 1.05,
+        duration: 0.88,
         ease: 'power2.inOut',
-      }, '+=0.28');
+      });
 
       /* ── Skip button ── */
       if (skipBtn) {
