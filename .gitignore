@@ -30,4 +30,5 @@ npm-debug.log*
 # Misc
 *.local
 index.html.broken-backup
+index.html.pre-*-backup
 .vercel

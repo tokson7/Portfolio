@@ -8,6 +8,7 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
   <style>
     /* ── Language Switcher (shared across all pages) ── */
@@ -198,6 +199,41 @@
       body.intro-active { overflow: auto; height: auto; }
       body.intro-active > *:not(.intro-overlay) { visibility: visible; }
     }
+    /* ── HERO ROBOT — mobile only (desktop untouched) ──────────── */
+    @media (max-width: 767px) {
+      /* Shorten the hero so the About card's top edge rises to meet the
+         robot's feet — the robot appears to stand on the card, exactly
+         like desktop (instead of floating with cut legs). Structure is
+         untouched; only the hero's own height changes. */
+      .hero-section {
+        height: 86vh !important;
+        min-height: 0 !important;
+      }
+      /* Anchor the robot to the bottom of the (shortened) hero so its
+         feet sit right on the card seam. */
+      .hero-robot-wrap {
+        align-items: flex-end !important;
+      }
+      /* Spline's camera reframes by ASPECT RATIO. Giving the mobile
+         canvas the same landscape ratio as desktop (16:10) reproduces
+         the desktop framing (whole robot visible), just fit to the
+         phone width — no more clipped arms. */
+      .hero-robot {
+        width: 100vw !important;
+        height: 62.5vw !important;   /* 16:10, matches desktop framing */
+        max-width: none !important;
+        transform: scale(1.5) !important;   /* prominent but fully in-frame */
+        transform-origin: center bottom !important; /* keep feet pinned to bottom */
+        /* pointer-events off so vertical swipes scroll the page
+           instead of being captured by the 3D canvas. */
+        pointer-events: none !important;
+      }
+    }
+    @media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+      /* Can't pause Spline's internal animation; the closest honest
+         option is to freeze interaction (already off via pointer-events). */
+      .hero-robot { pointer-events: none !important; }
+    }
   </style>
   <script>/* ── BACK-NAV: block root before first paint ── */
   (function(){try{var r=sessionStorage.getItem('portfolio-proj-scroll');if(!r)return;var d=JSON.parse(r);if(!d.y||Date.now()-d.ts>300000)return;var isBack=false;try{var ne=performance.getEntriesByType('navigation');var nt=ne.length?ne[0].type:(performance.navigation?['navigate','reload','','back_forward'][performance.navigation.type]:'');if(nt==='back_forward')isBack=true;if(!isBack&&nt==='navigate'&&document.referrer){try{if(new URL(document.referrer).origin===location.origin)isBack=true;}catch(e2){}}}catch(e1){}if(!isBack)return;window.__restoreY=d.y;var s=document.createElement('style');s.id='sr-block';s.textContent='#root{visibility:hidden!important}';document.head.appendChild(s);}catch(e){}})();
@@ -361,6 +397,7 @@
         mob_projects:"Projects", mob_contact:"Contact", mob_about:"About Me", mob_services:"Services", mob_chess:"Play Chess",
         hero_pill:"FULLSTACK DEVELOPER",
         hero_desc:"I'm a versatile fullstack developer specializing in frontend, backend, and product development to help grow your business. Let's build something great!",
+        hero_vapor:["I build fast,", "reliable web products,", "end-to-end."],
         hero_btn1:"See All Projects", hero_btn2:"Contact Now",
         test1:'"Working with him was a game changer — delivered beyond expectations!"',
         test2:'"Exceptional quality & communication throughout."',
@@ -425,6 +462,7 @@
         mob_projects:"Projekte", mob_contact:"Kontakt", mob_about:"Über mich", mob_services:"Leistungen", mob_chess:"Schach spielen",
         hero_pill:"FULLSTACK-ENTWICKLER",
         hero_desc:"Ich bin ein vielseitiger Fullstack-Entwickler, spezialisiert auf Frontend, Backend und Produktentwicklung, um Ihr Unternehmen voranzubringen. Lassen Sie uns etwas Großartiges aufbauen!",
+        hero_vapor:["Ich baue schnelle,", "zuverlässige Web-Produkte,", "von A bis Z."],
         hero_btn1:"Alle Projekte ansehen", hero_btn2:"Jetzt kontaktieren",
         test1:'"Die Zusammenarbeit war wegweisend — übertraf alle Erwartungen!"',
         test2:'"Außergewöhnliche Qualität & Kommunikation."',
@@ -1200,119 +1238,683 @@ if __name__ == "__main__":
       );
     }
 
-    /* ─── TURBULENT BACKGROUND ──────────────────────────────── */
-    function TurbulentBackground() {
-      const canvasRef = useRef(null);
+    /* ─── WAVES BACKGROUND ──────────────────────────────────── */
+    /* Ported from the "wave-background" React component. Uses an
+       inlined 2D simplex-noise generator (no bundler available for
+       the `simplex-noise` npm package in this CDN/Babel setup).      */
+    function createNoise2D() {
+      const F2 = 0.5 * (Math.sqrt(3) - 1);
+      const G2 = (3 - Math.sqrt(3)) / 6;
+      const grad2 = new Float64Array([
+        1,1, -1,1, 1,-1, -1,-1, 1,0, -1,0, 1,0, -1,0, 0,1, 0,-1, 0,1, 0,-1
+      ]);
+      const p = new Uint8Array(256);
+      for (let i = 0; i < 256; i++) p[i] = i;
+      for (let i = 255; i > 0; i--) {
+        const n = Math.floor(Math.random() * (i + 1));
+        const q = p[i]; p[i] = p[n]; p[n] = q;
+      }
+      const perm = new Uint8Array(512);
+      const permMod12 = new Uint8Array(512);
+      for (let i = 0; i < 512; i++) {
+        perm[i] = p[i & 255];
+        permMod12[i] = perm[i] % 12;
+      }
+      return function (xin, yin) {
+        const s = (xin + yin) * F2;
+        const i = Math.floor(xin + s);
+        const j = Math.floor(yin + s);
+        const t = (i + j) * G2;
+        const x0 = xin - (i - t);
+        const y0 = yin - (j - t);
+        let i1, j1;
+        if (x0 > y0) { i1 = 1; j1 = 0; } else { i1 = 0; j1 = 1; }
+        const x1 = x0 - i1 + G2, y1 = y0 - j1 + G2;
+        const x2 = x0 - 1 + 2 * G2, y2 = y0 - 1 + 2 * G2;
+        const ii = i & 255, jj = j & 255;
+        let n0 = 0, n1 = 0, n2 = 0;
+        let t0 = 0.5 - x0 * x0 - y0 * y0;
+        if (t0 >= 0) { const gi0 = permMod12[ii + perm[jj]] * 2; t0 *= t0; n0 = t0 * t0 * (grad2[gi0] * x0 + grad2[gi0 + 1] * y0); }
+        let t1 = 0.5 - x1 * x1 - y1 * y1;
+        if (t1 >= 0) { const gi1 = permMod12[ii + i1 + perm[jj + j1]] * 2; t1 *= t1; n1 = t1 * t1 * (grad2[gi1] * x1 + grad2[gi1 + 1] * y1); }
+        let t2 = 0.5 - x2 * x2 - y2 * y2;
+        if (t2 >= 0) { const gi2 = permMod12[ii + 1 + perm[jj + 1]] * 2; t2 *= t2; n2 = t2 * t2 * (grad2[gi2] * x2 + grad2[gi2 + 1] * y2); }
+        return 70 * (n0 + n1 + n2);
+      };
+    }
+
+    function WavesBackground({
+      strokeColor = "rgba(255,255,255,0.28)",
+      backgroundColor = "#0a0a0a",
+      pointerSize = 0.45,
+    }) {
+      const containerRef = useRef(null);
+      const svgRef = useRef(null);
+      const mouseRef = useRef({ x: -10, y: 0, lx: 0, ly: 0, sx: 0, sy: 0, v: 0, vs: 0, a: 0, set: false });
+      const pathsRef = useRef([]);
+      const linesRef = useRef([]);
+      const noiseRef = useRef(null);
+      const rafRef = useRef(null);
+      const boundingRef = useRef(null);
+
       useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-        if (!gl) return;
+        if (!containerRef.current || !svgRef.current) return;
+        const container = containerRef.current;
 
-        const VS = `
-          attribute vec2 a_position;
-          void main() { gl_Position = vec4(a_position, 0.0, 1.0); }
-        `;
-        const FS = `
-          precision mediump float;
-          uniform float iTime;
-          uniform vec2 iResolution;
-          #define TURB_NUM 10.0
-          #define TURB_AMP 0.7
-          #define TURB_SPEED 0.3
-          #define TURB_FREQ 2.0
-          #define TURB_EXP 1.4
-          vec2 turbulence(vec2 p) {
-            float freq = TURB_FREQ;
-            mat2 rot = mat2(0.6, -0.8, 0.8, 0.6);
-            for(float i=0.0; i<TURB_NUM; i++) {
-              float phase = freq * (p * rot).y + TURB_SPEED*iTime + i;
-              p += TURB_AMP * rot[0] * sin(phase) / freq;
-              rot *= mat2(0.6, -0.8, 0.8, 0.6);
-              freq *= TURB_EXP;
+        noiseRef.current = createNoise2D();
+
+        const setSize = () => {
+          if (!containerRef.current || !svgRef.current) return;
+          boundingRef.current = containerRef.current.getBoundingClientRect();
+          const { width, height } = boundingRef.current;
+          svgRef.current.style.width = `${width}px`;
+          svgRef.current.style.height = `${height}px`;
+        };
+
+        const setLines = () => {
+          if (!svgRef.current || !boundingRef.current) return;
+          const { width, height } = boundingRef.current;
+          linesRef.current = [];
+
+          pathsRef.current.forEach(path => path.remove());
+          pathsRef.current = [];
+
+          /* Mobile: thin the grid drastically so the per-frame SVG
+             path recompute stays cheap. Desktop is unchanged (8). */
+          const isMobile = window.matchMedia('(max-width: 767px)').matches;
+          const xGap = isMobile ? 20 : 8;
+          const yGap = isMobile ? 20 : 8;
+          const oWidth = width + 200;
+          const oHeight = height + 30;
+          const totalLines = Math.ceil(oWidth / xGap);
+          const totalPoints = Math.ceil(oHeight / yGap);
+          const xStart = (width - xGap * totalLines) / 2;
+          const yStart = (height - yGap * totalPoints) / 2;
+
+          for (let i = 0; i < totalLines; i++) {
+            const points = [];
+            for (let j = 0; j < totalPoints; j++) {
+              points.push({
+                x: xStart + xGap * i,
+                y: yStart + yGap * j,
+                wave: { x: 0, y: 0 },
+                cursor: { x: 0, y: 0, vx: 0, vy: 0 },
+              });
             }
-            return p;
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.classList.add('a__line', 'js-line');
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke', strokeColor);
+            path.setAttribute('stroke-width', '1');
+            svgRef.current.appendChild(path);
+            pathsRef.current.push(path);
+            linesRef.current.push(points);
           }
-          void main() {
-            vec2 p = 2.0*(gl_FragCoord.xy*2.0-iResolution.xy)/iResolution.y;
-            p = turbulence(p);
-            vec3 col = 0.5*exp(0.1*p.x*vec3(-1.0, 0.0, 2.0));
-            col /= dot(cos(p*3.0), sin(-p.yx*3.0*0.618)) + 2.0;
-            col = 1.0 - exp(-col);
-            col *= 0.60;
-            gl_FragColor = vec4(col, 1.0);
+        };
+
+        const updateMousePosition = (x, y) => {
+          if (!boundingRef.current) return;
+          const mouse = mouseRef.current;
+          mouse.x = x - boundingRef.current.left;
+          mouse.y = y - boundingRef.current.top;
+          if (!mouse.set) {
+            mouse.sx = mouse.x; mouse.sy = mouse.y;
+            mouse.lx = mouse.x; mouse.ly = mouse.y;
+            mouse.set = true;
           }
-        `;
-
-        function compileShader(type, src) {
-          const s = gl.createShader(type);
-          gl.shaderSource(s, src);
-          gl.compileShader(s);
-          return s;
-        }
-        const prog = gl.createProgram();
-        gl.attachShader(prog, compileShader(gl.VERTEX_SHADER, VS));
-        gl.attachShader(prog, compileShader(gl.FRAGMENT_SHADER, FS));
-        gl.linkProgram(prog);
-        gl.useProgram(prog);
-
-        const buf = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-          -1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1
-        ]), gl.STATIC_DRAW);
-        const loc = gl.getAttribLocation(prog, 'a_position');
-        gl.enableVertexAttribArray(loc);
-        gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-
-        const uTime = gl.getUniformLocation(prog, 'iTime');
-        const uRes  = gl.getUniformLocation(prog, 'iResolution');
-
-        function resize() {
-          const dpr = Math.min(window.devicePixelRatio || 1, 2);
-          const w = canvas.clientWidth  * dpr;
-          const h = canvas.clientHeight * dpr;
-          if (canvas.width !== w || canvas.height !== h) {
-            canvas.width  = w;
-            canvas.height = h;
+          if (containerRef.current) {
+            containerRef.current.style.setProperty('--x', `${mouse.sx}px`);
+            containerRef.current.style.setProperty('--y', `${mouse.sy}px`);
           }
-          gl.viewport(0, 0, canvas.width, canvas.height);
-        }
-        resize();
-        window.addEventListener('resize', resize);
+        };
 
-        const start = performance.now();
-        let raf;
-        function render() {
-          raf = requestAnimationFrame(render);
-          resize();
-          const t = (performance.now() - start) / 1000;
-          gl.uniform1f(uTime, t);
-          gl.uniform2f(uRes, canvas.width, canvas.height);
-          gl.drawArrays(gl.TRIANGLES, 0, 6);
+        const onResize = () => { setSize(); setLines(); };
+        const onMouseMove = (e) => updateMousePosition(e.clientX, e.clientY);
+        const onTouchMove = (e) => {
+          const touch = e.touches[0];
+          if (touch) updateMousePosition(touch.clientX, touch.clientY);
+        };
+
+        const movePoints = (time) => {
+          const lines = linesRef.current;
+          const mouse = mouseRef.current;
+          const noise = noiseRef.current;
+          if (!noise) return;
+          lines.forEach((points) => {
+            points.forEach((p) => {
+              const move = noise(
+                (p.x + time * 0.008) * 0.003,
+                (p.y + time * 0.003) * 0.002
+              ) * 8;
+              p.wave.x = Math.cos(move) * 12;
+              p.wave.y = Math.sin(move) * 6;
+
+              const dx = p.x - mouse.sx;
+              const dy = p.y - mouse.sy;
+              const d = Math.hypot(dx, dy);
+              const l = Math.max(175, mouse.vs);
+              if (d < l) {
+                const s = 1 - d / l;
+                const f = Math.cos(d * 0.001) * s;
+                p.cursor.vx += Math.cos(mouse.a) * f * l * mouse.vs * 0.00035;
+                p.cursor.vy += Math.sin(mouse.a) * f * l * mouse.vs * 0.00035;
+              }
+              p.cursor.vx += (0 - p.cursor.x) * 0.01;
+              p.cursor.vy += (0 - p.cursor.y) * 0.01;
+              p.cursor.vx *= 0.95;
+              p.cursor.vy *= 0.95;
+              p.cursor.x += p.cursor.vx;
+              p.cursor.y += p.cursor.vy;
+              p.cursor.x = Math.min(50, Math.max(-50, p.cursor.x));
+              p.cursor.y = Math.min(50, Math.max(-50, p.cursor.y));
+            });
+          });
+        };
+
+        const moved = (point, withCursorForce = true) => ({
+          x: point.x + point.wave.x + (withCursorForce ? point.cursor.x : 0),
+          y: point.y + point.wave.y + (withCursorForce ? point.cursor.y : 0),
+        });
+
+        const drawLines = () => {
+          const lines = linesRef.current;
+          const paths = pathsRef.current;
+          lines.forEach((points, lIndex) => {
+            if (points.length < 2 || !paths[lIndex]) return;
+            const firstPoint = moved(points[0], false);
+            let d = `M ${firstPoint.x} ${firstPoint.y}`;
+            for (let i = 1; i < points.length; i++) {
+              const current = moved(points[i]);
+              d += `L ${current.x} ${current.y}`;
+            }
+            paths[lIndex].setAttribute('d', d);
+          });
+        };
+
+        const tick = (time) => {
+          const mouse = mouseRef.current;
+          mouse.sx += (mouse.x - mouse.sx) * 0.1;
+          mouse.sy += (mouse.y - mouse.sy) * 0.1;
+          const dx = mouse.x - mouse.lx;
+          const dy = mouse.y - mouse.ly;
+          const d = Math.hypot(dx, dy);
+          mouse.v = d;
+          mouse.vs += (d - mouse.vs) * 0.1;
+          mouse.vs = Math.min(100, mouse.vs);
+          mouse.lx = mouse.x;
+          mouse.ly = mouse.y;
+          mouse.a = Math.atan2(dy, dx);
+          if (containerRef.current) {
+            containerRef.current.style.setProperty('--x', `${mouse.sx}px`);
+            containerRef.current.style.setProperty('--y', `${mouse.sy}px`);
+          }
+          movePoints(time);
+          drawLines();
+          rafRef.current = requestAnimationFrame(tick);
+        };
+
+        setSize();
+        setLines();
+
+        window.addEventListener('resize', onResize);
+        window.addEventListener('mousemove', onMouseMove);
+        /* Listen on window (not the container): the container has
+           pointer-events:none as a background, so touch events never
+           land on it. window still receives them. passive:true keeps
+           page scrolling intact — the ripple is purely decorative. */
+        window.addEventListener('touchmove', onTouchMove, { passive: true });
+        window.addEventListener('touchstart', onTouchMove, { passive: true });
+
+        /* Accessibility: if the user prefers reduced motion, draw a
+           single static frame and skip the animation loop entirely. */
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduceMotion) {
+          movePoints(0);
+          drawLines();
+        } else {
+          rafRef.current = requestAnimationFrame(tick);
         }
-        render();
 
         return () => {
-          cancelAnimationFrame(raf);
-          window.removeEventListener('resize', resize);
-          gl.deleteProgram(prog);
-          gl.deleteBuffer(buf);
+          if (rafRef.current) cancelAnimationFrame(rafRef.current);
+          window.removeEventListener('resize', onResize);
+          window.removeEventListener('mousemove', onMouseMove);
+          window.removeEventListener('touchmove', onTouchMove);
+          window.removeEventListener('touchstart', onTouchMove);
         };
       }, []);
 
       return (
-        <canvas
-          ref={canvasRef}
+        <div
+          ref={containerRef}
+          className="waves-component"
           style={{
+            backgroundColor,
             position: 'absolute',
             top: 0, left: 0,
+            margin: 0, padding: 0,
             width: '100%', height: '100%',
-            pointerEvents: 'none', zIndex: 0,
-            opacity: 0.7,
-            display: 'block',
+            overflow: 'hidden',
+            pointerEvents: 'none',
+            zIndex: 0,
+            '--x': '-0.5rem',
+            '--y': '50%',
           }}
-        />
+        >
+          <svg
+            ref={svgRef}
+            style={{ display: 'block', width: '100%', height: '100%' }}
+            xmlns="http://www.w3.org/2000/svg"
+          />
+          <div
+            className="pointer-dot"
+            style={{
+              position: 'absolute',
+              top: 0, left: 0,
+              width: `${pointerSize}rem`,
+              height: `${pointerSize}rem`,
+              background: strokeColor,
+              borderRadius: '50%',
+              transform: 'translate3d(calc(var(--x) - 50%), calc(var(--y) - 50%), 0)',
+              willChange: 'transform',
+            }}
+          />
+        </div>
+      );
+    }
+
+    /* ─── VAPORIZE TEXT EFFECT ──────────────────────────────────
+       Faithful plain-JS port of the "vapour-text-effect" React/TS
+       component (no bundler/TS here). Particle-vaporize algorithm is
+       kept identical so the effect is original on desktop AND mobile. */
+    const VaporTag = { H1:"h1", H2:"h2", H3:"h3", P:"p" };
+
+    function vaporTransformValue(input, inputRange, outputRange, clamp=false){
+      const [inputMin, inputMax] = inputRange;
+      const [outputMin, outputMax] = outputRange;
+      const progress = (input - inputMin) / (inputMax - inputMin);
+      let result = outputMin + progress * (outputMax - outputMin);
+      if (clamp) {
+        if (outputMax > outputMin) result = Math.min(Math.max(result, outputMin), outputMax);
+        else result = Math.min(Math.max(result, outputMax), outputMin);
+      }
+      return result;
+    }
+
+    function useIsInView(ref){
+      /* Start true so the hero effect paints immediately on load; the
+         observer below still pauses it when scrolled out of view. */
+      const [isInView, setIsInView] = useState(true);
+      useEffect(() => {
+        if (!ref.current) return;
+        const observer = new IntersectionObserver(([entry]) => { setIsInView(entry.isIntersecting); }, { threshold: 0, rootMargin: '50px' });
+        observer.observe(ref.current);
+        return () => observer.disconnect();
+      }, [ref]);
+      return isInView;
+    }
+
+    function vaporCalcSpread(fontSize){
+      const size = typeof fontSize === "string" ? parseInt(fontSize) : fontSize;
+      const points = [ { size:20, spread:0.2 }, { size:50, spread:0.5 }, { size:100, spread:1.5 } ];
+      if (size <= points[0].size) return points[0].spread;
+      if (size >= points[points.length-1].size) return points[points.length-1].spread;
+      let i = 0;
+      while (i < points.length - 1 && points[i+1].size < size) i++;
+      const p1 = points[i], p2 = points[i+1];
+      return p1.spread + (size - p1.size) * (p2.spread - p1.spread) / (p2.size - p1.size);
+    }
+
+    function vaporParseColor(color){
+      const rgbMatch = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+      const rgbaMatch = color.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
+      if (rgbaMatch) { const [_, r, g, b, a] = rgbaMatch; return `rgba(${r}, ${g}, ${b}, ${a})`; }
+      else if (rgbMatch) { const [_, r, g, b] = rgbMatch; return `rgba(${r}, ${g}, ${b}, 1)`; }
+      return "rgba(255, 255, 255, 1)";
+    }
+
+    function vaporCreateParticles(ctx, canvas, text, textX, textY, font, color, alignment){
+      const particles = [];
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = color;
+      ctx.font = font;
+      ctx.textAlign = alignment;
+      ctx.textBaseline = "middle";
+      ctx.imageSmoothingQuality = "high";
+      ctx.imageSmoothingEnabled = true;
+      if ('fontKerning' in ctx) ctx.fontKerning = "normal";
+      if ('textRendering' in ctx) ctx.textRendering = "geometricPrecision";
+
+      const metrics = ctx.measureText(text);
+      let textLeft;
+      const textWidth = metrics.width;
+      if (alignment === "center") textLeft = textX - textWidth / 2;
+      else if (alignment === "left") textLeft = textX;
+      else textLeft = textX - textWidth;
+      const textBoundaries = { left: textLeft, right: textLeft + textWidth, width: textWidth };
+
+      ctx.fillText(text, textX, textY);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+
+      const baseDPR = 3;
+      const currentDPR = canvas.width / parseInt(canvas.style.width);
+      const baseSampleRate = Math.max(1, Math.round(currentDPR / baseDPR));
+      const sampleRate = Math.max(1, Math.round(baseSampleRate));
+
+      for (let y = 0; y < canvas.height; y += sampleRate) {
+        for (let x = 0; x < canvas.width; x += sampleRate) {
+          const index = (y * canvas.width + x) * 4;
+          const alpha = data[index + 3];
+          if (alpha > 0) {
+            const originalAlpha = alpha / 255 * (sampleRate / currentDPR);
+            particles.push({
+              x, y, originalX: x, originalY: y,
+              color: `rgba(${data[index]}, ${data[index+1]}, ${data[index+2]}, ${originalAlpha})`,
+              opacity: originalAlpha, originalAlpha,
+              velocityX: 0, velocityY: 0, angle: 0, speed: 0,
+            });
+          }
+        }
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return { particles, textBoundaries };
+    }
+
+    function vaporUpdateParticles(particles, vaporizeX, deltaTime, MULTIPLIED_VAPORIZE_SPREAD, VAPORIZE_DURATION, direction, density){
+      let allParticlesVaporized = true;
+      particles.forEach(particle => {
+        const shouldVaporize = direction === "left-to-right" ? particle.originalX <= vaporizeX : particle.originalX >= vaporizeX;
+        if (shouldVaporize) {
+          if (particle.speed === 0) {
+            particle.angle = Math.random() * Math.PI * 2;
+            particle.speed = (Math.random() * 1 + 0.5) * MULTIPLIED_VAPORIZE_SPREAD;
+            particle.velocityX = Math.cos(particle.angle) * particle.speed;
+            particle.velocityY = Math.sin(particle.angle) * particle.speed;
+            particle.shouldFadeQuickly = Math.random() > density;
+          }
+          if (particle.shouldFadeQuickly) {
+            particle.opacity = Math.max(0, particle.opacity - deltaTime);
+          } else {
+            const dx = particle.originalX - particle.x;
+            const dy = particle.originalY - particle.y;
+            const distanceFromOrigin = Math.sqrt(dx * dx + dy * dy);
+            const dampingFactor = Math.max(0.95, 1 - distanceFromOrigin / (100 * MULTIPLIED_VAPORIZE_SPREAD));
+            const randomSpread = MULTIPLIED_VAPORIZE_SPREAD * 3;
+            const spreadX = (Math.random() - 0.5) * randomSpread;
+            const spreadY = (Math.random() - 0.5) * randomSpread;
+            particle.velocityX = (particle.velocityX + spreadX + dx * 0.002) * dampingFactor;
+            particle.velocityY = (particle.velocityY + spreadY + dy * 0.002) * dampingFactor;
+            const maxVelocity = MULTIPLIED_VAPORIZE_SPREAD * 2;
+            const currentVelocity = Math.sqrt(particle.velocityX * particle.velocityX + particle.velocityY * particle.velocityY);
+            if (currentVelocity > maxVelocity) {
+              const scale = maxVelocity / currentVelocity;
+              particle.velocityX *= scale; particle.velocityY *= scale;
+            }
+            particle.x += particle.velocityX * deltaTime * 20;
+            particle.y += particle.velocityY * deltaTime * 10;
+            const baseFadeRate = 0.25;
+            const durationBasedFadeRate = baseFadeRate * (2000 / VAPORIZE_DURATION);
+            particle.opacity = Math.max(0, particle.opacity - deltaTime * durationBasedFadeRate);
+          }
+          if (particle.opacity > 0.01) allParticlesVaporized = false;
+        } else {
+          allParticlesVaporized = false;
+        }
+      });
+      return allParticlesVaporized;
+    }
+
+    function vaporRenderParticles(ctx, particles, globalDpr){
+      ctx.save();
+      ctx.scale(globalDpr, globalDpr);
+      particles.forEach(particle => {
+        if (particle.opacity > 0) {
+          const color = particle.color.replace(/[\d.]+\)$/, `${particle.opacity})`);
+          ctx.fillStyle = color;
+          ctx.fillRect(particle.x / globalDpr, particle.y / globalDpr, 1, 1);
+        }
+      });
+      ctx.restore();
+    }
+
+    function vaporResetParticles(particles){
+      particles.forEach(particle => {
+        particle.x = particle.originalX; particle.y = particle.originalY;
+        particle.opacity = particle.originalAlpha; particle.speed = 0;
+        particle.velocityX = 0; particle.velocityY = 0;
+      });
+    }
+
+    function vaporRenderCanvas({ framerProps, canvasRef, wrapperSize, particlesRef, globalDpr, currentTextIndex, transformedDensity }){
+      const canvas = canvasRef.current;
+      if (!canvas || !wrapperSize.width || !wrapperSize.height) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      const { width, height } = wrapperSize;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      canvas.width = Math.floor(width * globalDpr);
+      canvas.height = Math.floor(height * globalDpr);
+
+      const fontSize = parseInt(framerProps.font?.fontSize?.replace("px", "") || "50");
+      const font = `${framerProps.font?.fontWeight ?? 400} ${fontSize * globalDpr}px ${framerProps.font?.fontFamily ?? "sans-serif"}`;
+      const color = vaporParseColor(framerProps.color ?? "rgb(255, 255, 255)");
+
+      let textX;
+      const textY = canvas.height / 2;
+      const currentText = framerProps.texts[currentTextIndex] || "";
+      if (framerProps.alignment === "center") textX = canvas.width / 2;
+      else if (framerProps.alignment === "left") textX = 0;
+      else textX = canvas.width;
+
+      const { particles, textBoundaries } = vaporCreateParticles(ctx, canvas, currentText, textX, textY, font, color, framerProps.alignment || "left");
+      particlesRef.current = particles;
+      canvas.textBoundaries = textBoundaries;
+    }
+
+    function vaporCleanup({ canvasRef, particlesRef }){
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext("2d");
+      if (canvas && ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (particlesRef.current) particlesRef.current = [];
+    }
+
+    function vaporHandleFontChange({ currentFont, lastFontRef, canvasRef, wrapperSize, particlesRef, globalDpr, currentTextIndex, transformedDensity, framerProps }){
+      if (currentFont !== lastFontRef.current) {
+        lastFontRef.current = currentFont;
+        const timeoutId = setTimeout(() => {
+          vaporCleanup({ canvasRef, particlesRef });
+          vaporRenderCanvas({ framerProps, canvasRef, wrapperSize, particlesRef, globalDpr, currentTextIndex, transformedDensity });
+        }, 1000);
+        return () => { clearTimeout(timeoutId); vaporCleanup({ canvasRef, particlesRef }); };
+      }
+      return undefined;
+    }
+
+    const VaporSeoElement = React.memo(function VaporSeoElement({ tag, texts }){
+      const style = { position:"absolute", width:"0", height:"0", overflow:"hidden", userSelect:"none", pointerEvents:"none" };
+      const safeTag = Object.values(VaporTag).includes(tag) ? tag : "p";
+      return React.createElement(safeTag, { style }, (texts && texts.join(" ")) || "");
+    });
+
+    function VaporizeTextCycle({
+      texts = ["Next.js", "React"],
+      font = { fontFamily:"sans-serif", fontSize:"50px", fontWeight:400 },
+      color = "rgb(255, 255, 255)",
+      spread = 5,
+      density = 5,
+      animation = { vaporizeDuration:2, fadeInDuration:1, waitDuration:0.5 },
+      direction = "left-to-right",
+      alignment = "center",
+      tag = VaporTag.P,
+    }){
+      const canvasRef = useRef(null);
+      const wrapperRef = useRef(null);
+      const isInView = useIsInView(wrapperRef);
+      const lastFontRef = useRef(null);
+      const particlesRef = useRef([]);
+      const [currentTextIndex, setCurrentTextIndex] = useState(0);
+      const [animationState, setAnimationState] = useState("static");
+      const vaporizeProgressRef = useRef(0);
+      const fadeOpacityRef = useRef(0);
+      const [wrapperSize, setWrapperSize] = useState({ width:0, height:0 });
+      const transformedDensity = vaporTransformValue(density, [0, 10], [0.3, 1], true);
+
+      const globalDpr = React.useMemo(() => (typeof window !== "undefined" ? (window.devicePixelRatio * 1.5 || 1) : 1), []);
+
+      const wrapperStyle = React.useMemo(() => ({ width:"100%", height:"100%", pointerEvents:"none" }), []);
+      const canvasStyle = React.useMemo(() => ({ minWidth:"30px", minHeight:"20px", pointerEvents:"none" }), []);
+
+      const animationDurations = React.useMemo(() => ({
+        VAPORIZE_DURATION: (animation.vaporizeDuration ?? 2) * 1000,
+        FADE_IN_DURATION: (animation.fadeInDuration ?? 1) * 1000,
+        WAIT_DURATION: (animation.waitDuration ?? 0.5) * 1000,
+      }), [animation.vaporizeDuration, animation.fadeInDuration, animation.waitDuration]);
+
+      const fontConfig = React.useMemo(() => {
+        const fontSize = parseInt(font.fontSize?.replace("px", "") || "50");
+        const VAPORIZE_SPREAD = vaporCalcSpread(fontSize);
+        const MULTIPLIED_VAPORIZE_SPREAD = VAPORIZE_SPREAD * spread;
+        return { fontSize, VAPORIZE_SPREAD, MULTIPLIED_VAPORIZE_SPREAD, font: `${font.fontWeight ?? 400} ${fontSize * globalDpr}px ${font.fontFamily}` };
+      }, [font.fontSize, font.fontWeight, font.fontFamily, spread, globalDpr]);
+
+      const memoizedUpdateParticles = useCallback((particles, vaporizeX, deltaTime) =>
+        vaporUpdateParticles(particles, vaporizeX, deltaTime, fontConfig.MULTIPLIED_VAPORIZE_SPREAD, animationDurations.VAPORIZE_DURATION, direction, transformedDensity),
+        [fontConfig.MULTIPLIED_VAPORIZE_SPREAD, animationDurations.VAPORIZE_DURATION, direction, transformedDensity]);
+
+      const memoizedRenderParticles = useCallback((ctx, particles) => vaporRenderParticles(ctx, particles, globalDpr), [globalDpr]);
+
+      useEffect(() => {
+        if (isInView) {
+          const t = setTimeout(() => setAnimationState("vaporizing"), 0);
+          return () => clearTimeout(t);
+        } else {
+          setAnimationState("static");
+        }
+      }, [isInView]);
+
+      useEffect(() => {
+        if (!isInView) return;
+        let lastTime = performance.now();
+        let frameId;
+        const animate = (currentTime) => {
+          const deltaTime = (currentTime - lastTime) / 1000;
+          lastTime = currentTime;
+          const canvas = canvasRef.current;
+          const ctx = canvas && canvas.getContext("2d");
+          if (!canvas || !ctx || !particlesRef.current.length) { frameId = requestAnimationFrame(animate); return; }
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          switch (animationState) {
+            case "static": { memoizedRenderParticles(ctx, particlesRef.current); break; }
+            case "vaporizing": {
+              vaporizeProgressRef.current += deltaTime * 100 / (animationDurations.VAPORIZE_DURATION / 1000);
+              const textBoundaries = canvas.textBoundaries;
+              if (!textBoundaries) break;
+              const progress = Math.min(100, vaporizeProgressRef.current);
+              const vaporizeX = direction === "left-to-right"
+                ? textBoundaries.left + textBoundaries.width * progress / 100
+                : textBoundaries.right - textBoundaries.width * progress / 100;
+              const allVaporized = memoizedUpdateParticles(particlesRef.current, vaporizeX, deltaTime);
+              memoizedRenderParticles(ctx, particlesRef.current);
+              if (vaporizeProgressRef.current >= 100 && allVaporized) {
+                setCurrentTextIndex(prev => (prev + 1) % texts.length);
+                setAnimationState("fadingIn");
+                fadeOpacityRef.current = 0;
+              }
+              break;
+            }
+            case "fadingIn": {
+              fadeOpacityRef.current += deltaTime * 1000 / animationDurations.FADE_IN_DURATION;
+              ctx.save();
+              ctx.scale(globalDpr, globalDpr);
+              particlesRef.current.forEach(particle => {
+                particle.x = particle.originalX; particle.y = particle.originalY;
+                const opacity = Math.min(fadeOpacityRef.current, 1) * particle.originalAlpha;
+                const color = particle.color.replace(/[\d.]+\)$/, `${opacity})`);
+                ctx.fillStyle = color;
+                ctx.fillRect(particle.x / globalDpr, particle.y / globalDpr, 1, 1);
+              });
+              ctx.restore();
+              if (fadeOpacityRef.current >= 1) {
+                setAnimationState("waiting");
+                setTimeout(() => {
+                  setAnimationState("vaporizing");
+                  vaporizeProgressRef.current = 0;
+                  vaporResetParticles(particlesRef.current);
+                }, animationDurations.WAIT_DURATION);
+              }
+              break;
+            }
+            case "waiting": { memoizedRenderParticles(ctx, particlesRef.current); break; }
+          }
+          frameId = requestAnimationFrame(animate);
+        };
+        frameId = requestAnimationFrame(animate);
+        return () => { if (frameId) cancelAnimationFrame(frameId); };
+      }, [animationState, isInView, texts.length, direction, globalDpr, memoizedUpdateParticles, memoizedRenderParticles, animationDurations.FADE_IN_DURATION, animationDurations.WAIT_DURATION, animationDurations.VAPORIZE_DURATION]);
+
+      useEffect(() => {
+        vaporRenderCanvas({ framerProps:{ texts, font, color, alignment }, canvasRef, wrapperSize, particlesRef, globalDpr, currentTextIndex, transformedDensity });
+        const currentFont = font.fontFamily || "sans-serif";
+        return vaporHandleFontChange({ currentFont, lastFontRef, canvasRef, wrapperSize, particlesRef, globalDpr, currentTextIndex, transformedDensity, framerProps:{ texts, font, color, alignment } });
+      }, [texts, font, color, alignment, wrapperSize, currentTextIndex, globalDpr, transformedDensity]);
+
+      useEffect(() => {
+        const container = wrapperRef.current;
+        if (!container) return;
+        const resizeObserver = new ResizeObserver(entries => {
+          for (const entry of entries) { const { width, height } = entry.contentRect; setWrapperSize({ width, height }); }
+          vaporRenderCanvas({ framerProps:{ texts, font, color, alignment }, canvasRef, wrapperSize:{ width:container.clientWidth, height:container.clientHeight }, particlesRef, globalDpr, currentTextIndex, transformedDensity });
+        });
+        resizeObserver.observe(container);
+        return () => resizeObserver.disconnect();
+      }, [wrapperRef.current]);
+
+      useEffect(() => {
+        if (wrapperRef.current) {
+          const rect = wrapperRef.current.getBoundingClientRect();
+          setWrapperSize({ width: rect.width, height: rect.height });
+        }
+      }, []);
+
+      return (
+        <div ref={wrapperRef} style={wrapperStyle}>
+          <canvas ref={canvasRef} style={canvasStyle} />
+          <VaporSeoElement tag={tag} texts={texts} />
+        </div>
+      );
+    }
+
+    /* Positioned wrapper: right of the robot on desktop (never overlaps
+       it), above the robot's head between nav and robot on mobile. */
+    function HeroVapor({ texts }) {
+      const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches);
+      useEffect(() => {
+        const mq = window.matchMedia("(max-width: 767px)");
+        const on = () => setIsMobile(mq.matches);
+        mq.addEventListener ? mq.addEventListener("change", on) : mq.addListener(on);
+        return () => { mq.removeEventListener ? mq.removeEventListener("change", on) : mq.removeListener(on); };
+      }, []);
+
+      const containerStyle = isMobile
+        ? { position:"absolute", zIndex:3, left:"50%", top:"30%", transform:"translate(-50%, -50%)", width:"90%", maxWidth:440, height:64, pointerEvents:"none" }
+        : { position:"absolute", zIndex:3, right:"3%", top:"50%", transform:"translateY(-50%)", width:"30%", maxWidth:470, height:200, pointerEvents:"none" };
+
+      return (
+        <div style={containerStyle}>
+          <VaporizeTextCycle
+            texts={texts}
+            font={{ fontFamily:'"Instrument Serif", Georgia, serif', fontSize: isMobile ? "21px" : "34px", fontWeight:500 }}
+            color="rgba(255,255,255,0.9)"
+            spread={4}
+            density={6}
+            animation={{ vaporizeDuration:2.2, fadeInDuration:1.1, waitDuration:1.3 }}
+            direction="left-to-right"
+            alignment="center"
+            tag={VaporTag.P}
+          />
+        </div>
       );
     }
 
@@ -2351,84 +2953,18 @@ if __name__ == "__main__":
           )}
 
           {/* ── HERO — full-width, no frame ───────────────────────── */}
-          <section className="hero-section" style={{width:"100%",paddingTop:150,paddingBottom:80,position:"relative",overflow:"hidden",marginBottom:0}}>
-            <TurbulentBackground />
+          <section className="hero-section" style={{width:"100%",height:"100vh",minHeight:600,position:"relative",overflow:"hidden",marginBottom:0}}>
+            <WavesBackground />
             <div style={{position:"absolute",inset:0,zIndex:1,pointerEvents:"none",background:"radial-gradient(ellipse at center, transparent 0%, rgba(10,10,10,0.6) 70%, rgba(10,10,10,0.9) 100%)"}}/>
-            <div className="sec-inner" style={{position:"relative",zIndex:2}}>
-              <div className="hero-grid" style={{display:"flex",gap:40,alignItems:"flex-start",width:"100%"}}>
-                <div style={{flex:"1 1 55%",minWidth:0}}>
-                  <Anim delay={100}>
-                    <div style={{...pill,fontSize:12,letterSpacing:"0.09em",textTransform:"uppercase",fontWeight:600}}>
-                      <span style={{width:7,height:7,borderRadius:"50%",background:"rgba(255,255,255,0.45)",display:"inline-block"}}/>
-                      {T.hero_pill}
-                    </div>
-                  </Anim>
-                  <Anim delay={250}>
-                    <h1 style={{fontFamily:"var(--f-display)",fontSize:"clamp(3.2rem,8vw,6.8rem)",fontWeight:400,lineHeight:1.02,marginBottom:8,letterSpacing:"-0.025em"}}>
-                      <span style={{fontWeight:700}}>Tornike</span>{" "}
-                      <span style={{fontWeight:300,color:"rgba(255,255,255,0.7)"}}>Zaridze</span>
-                      <HeroArrowButton label={T.about_label} />
-                    </h1>
-                  </Anim>
-                  <Anim delay={400}>
-                    <p style={{color:"rgba(255,255,255,0.42)",fontSize:16,lineHeight:1.8,maxWidth:520,marginBottom:36,marginTop:22}}>
-                      {T.hero_desc}
-                    </p>
-                  </Anim>
-                  <Anim delay={550}>
-                    <div style={{display:"flex",gap:14,flexWrap:"wrap"}}>
-                      <button className="btn-secondary" onClick={()=>window.location.href="projects.html"}>{T.hero_btn1}</button>
-                      <button className="btn-primary" onClick={()=>go("contact")}>{T.hero_btn2}</button>
-                    </div>
-                  </Anim>
-                </div>
-                <div className="hero-right" style={{flex:"1 1 45%",position:"relative",minHeight:440,minWidth:0}}>
-                  <div className="tcard" style={{top:0,right:0,width:264,animation:"float1 4.5s ease-in-out infinite"}}>
-                    <div style={{display:"flex",gap:2,marginBottom:12}}>
-                      {[...Array(5)].map((_,i)=><span key={i} style={{color:"#c9a84c",fontSize:13}}>★</span>)}
-                    </div>
-                    <p style={{fontFamily:"var(--f-display)",fontStyle:"italic",fontSize:15,color:"rgba(255,255,255,0.8)",lineHeight:1.55,marginBottom:14}}>{T.test1}</p>
-                    <span style={{color:"rgba(255,255,255,0.3)",fontSize:13}}>— Michaela</span>
-                  </div>
-                  <div className="tcard" style={{top:170,left:0,width:244,animation:"float2 5s ease-in-out infinite",zIndex:2}}>
-                    <div style={{display:"flex",gap:2,marginBottom:12,alignItems:"center"}}>
-                      {[...Array(5)].map((_,i)=><span key={i} style={{color:"#c9a84c",fontSize:13}}>★</span>)}
-                    </div>
-                    <p style={{fontFamily:"var(--f-display)",fontStyle:"italic",fontSize:15,color:"rgba(255,255,255,0.8)",lineHeight:1.55,marginBottom:14}}>{T.test2}</p>
-                    <span style={{color:"rgba(255,255,255,0.3)",fontSize:13}}>— Irakli</span>
-                  </div>
-                  <div className="tcard" style={{bottom:0,right:16,width:254,animation:"float3 4s ease-in-out infinite"}}>
-                    <div style={{display:"flex",gap:2,marginBottom:12,alignItems:"center"}}>
-                      {[...Array(5)].map((_,i)=><span key={i} style={{color:"#c9a84c",fontSize:13}}>★</span>)}
-                    </div>
-                    <p style={{fontFamily:"var(--f-display)",fontStyle:"italic",fontSize:15,color:"rgba(255,255,255,0.8)",lineHeight:1.55,marginBottom:14}}>{T.test3}</p>
-                    <span style={{color:"rgba(255,255,255,0.3)",fontSize:13}}>— Georg</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Hero preview cards */}
-              <div className="two-col" style={{display:"grid",gridTemplateColumns:"1.4fr 1fr",gap:24,marginTop:72}}>
-                <Anim delay={200}>
-                  <PoloCard showArrow={true} minHeight={340} hoverable={true}>
-                    <div style={{minHeight:340,position:"relative",overflow:"hidden",display:"flex",alignItems:"flex-end",padding:32}}>
-                      {/* Layer 1 — background video */}
-                      <video autoPlay muted loop playsInline preload="auto" style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",objectFit:"cover",objectPosition:"center",transform:"scale(1.08)",transformOrigin:"center center",zIndex:0,borderRadius:"inherit"}}>
-                        <source src="assets/videos/featured-project.mp4" type="video/mp4" />
-                      </video>
-                      {/* Layer 2 — gradient overlay (masks watermark + improves text readability) */}
-                      <div style={{position:"absolute",bottom:0,left:0,right:0,height:"60%",background:"linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.45) 55%, transparent 100%)",zIndex:1,pointerEvents:"none"}} />
-                      {/* Layer 3 — card text content */}
-                      <div style={{position:"relative",zIndex:2}}>
-                        <h3 style={{fontFamily:"var(--f-display)",fontSize:26,fontWeight:400,lineHeight:1.2}}>
-                          {T.hero_card} <em style={{color:"rgba(255,255,255,0.4)"}}>{T.hero_card_em}</em>
-                        </h3>
-                      </div>
-                    </div>
-                  </PoloCard>
-                </Anim>
-              </div>
+            {/* Centered 3D robot (Spline) */}
+            <div className="hero-robot-wrap" style={{position:"absolute",inset:0,zIndex:2,display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <spline-viewer
+                class="hero-robot"
+                url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+                style={{width:"100%",height:"100%"}}
+              />
             </div>
+            <HeroVapor texts={T.hero_vapor} />
           </section>
 
           {/* ── ABOUT ────────────────────────────────────────────── */}
@@ -3355,6 +3891,61 @@ if __name__ == "__main__":
     };
     /* Set html lang attribute */
     document.documentElement.lang = lang;
+  })();
+  </script>
+
+  <script>
+  /* Remove the "Built with Spline" watermark (lives inside the
+     spline-viewer shadow DOM, so it can't be hidden via plain CSS). */
+  (function(){
+    function stripSplineLogo(){
+      var v = document.querySelector('spline-viewer');
+      if (v && v.shadowRoot){
+        var logo = v.shadowRoot.querySelector('#logo');
+        if (logo){ logo.remove(); return true; }
+      }
+      return false;
+    }
+    var tries = 0;
+    var iv = setInterval(function(){
+      if (stripSplineLogo() || ++tries > 80) clearInterval(iv);
+    }, 200);
+  })();
+  </script>
+
+  <script>
+  /* ── MOBILE TOUCH → robot look-at (desktop untouched) ──────────
+     On mobile the robot keeps pointer-events:none so vertical swipes
+     still scroll the page. To reproduce the desktop "head follows the
+     pointer" behaviour, we read touch position from passive window
+     listeners and synthesize pointer/mouse-move events straight onto
+     the Spline canvas. dispatchEvent bypasses pointer-events, and
+     passive listeners never block scrolling — so we get interaction
+     AND scrolling, with nothing else disturbed. */
+  (function(){
+    if (!('ontouchstart' in window)) return;   // touch devices only
+    var canvasEl = null;
+    function getCanvas(){
+      if (canvasEl && canvasEl.isConnected) return canvasEl;
+      var v = document.querySelector('spline-viewer');
+      canvasEl = (v && v.shadowRoot) ? v.shadowRoot.querySelector('canvas') : null;
+      return canvasEl;
+    }
+    function feed(x, y){
+      var c = getCanvas();
+      if (!c) return;
+      /* composed:true lets the event cross the shadow-DOM boundary so
+         it reaches Spline's listener whether it's on the canvas, the
+         shadow root, the host, or window/document. */
+      try { c.dispatchEvent(new PointerEvent('pointermove', { clientX:x, clientY:y, bubbles:true, cancelable:true, composed:true, pointerType:'touch' })); } catch(e){}
+      try { c.dispatchEvent(new MouseEvent('mousemove',   { clientX:x, clientY:y, bubbles:true, cancelable:true, composed:true })); } catch(e){}
+    }
+    function onTouch(e){
+      var t = e.touches && e.touches[0];
+      if (t) feed(t.clientX, t.clientY);
+    }
+    window.addEventListener('touchstart', onTouch, { passive: true });
+    window.addEventListener('touchmove',  onTouch, { passive: true });
   })();
   </script>
 </body>
