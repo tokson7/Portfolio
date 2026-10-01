@@ -236,7 +236,8 @@
     }
   </style>
   <script>/* ── BACK-NAV: block root before first paint ── */
-  (function(){try{var r=sessionStorage.getItem('portfolio-proj-scroll');if(!r)return;var d=JSON.parse(r);if(!d.y||Date.now()-d.ts>300000)return;var isBack=false;try{var ne=performance.getEntriesByType('navigation');var nt=ne.length?ne[0].type:(performance.navigation?['navigate','reload','','back_forward'][performance.navigation.type]:'');if(nt==='back_forward')isBack=true;if(!isBack&&nt==='navigate'&&document.referrer){try{if(new URL(document.referrer).origin===location.origin)isBack=true;}catch(e2){}}}catch(e1){}if(!isBack)return;window.__restoreY=d.y;var s=document.createElement('style');s.id='sr-block';s.textContent='#root{visibility:hidden!important}';document.head.appendChild(s);}catch(e){}})();
+  (function(){try{if(location.hash!=='#projects')return;window.__restoreSection='projects';var s=document.createElement('style');s.id='sr-block';s.textContent='#root{visibility:hidden!important}';document.head.appendChild(s);}catch(e){}})();
+  (function(){if(window.__restoreSection)return;try{var r=sessionStorage.getItem('portfolio-proj-scroll');if(!r)return;var d=JSON.parse(r);if(!d.y||Date.now()-d.ts>300000)return;var isBack=false;try{var ne=performance.getEntriesByType('navigation');var nt=ne.length?ne[0].type:(performance.navigation?['navigate','reload','','back_forward'][performance.navigation.type]:'');if(nt==='back_forward')isBack=true;if(!isBack&&nt==='navigate'&&document.referrer){try{if(new URL(document.referrer).origin===location.origin)isBack=true;}catch(e2){}}}catch(e1){}if(!isBack)return;window.__restoreY=d.y;var s=document.createElement('style');s.id='sr-block';s.textContent='#root{visibility:hidden!important}';document.head.appendChild(s);}catch(e){}})();
   </script>
 </head>
 <body class="intro-active">
@@ -3798,10 +3799,14 @@ if __name__ == "__main__":
           }
         } catch(e) {}
 
-        if (!isBack) {
+        if (!isBack && !window.__restoreSection) {
           window.scrollTo(0, 0);
           document.documentElement.scrollTop = 0;
           document.body.scrollTop = 0;
+        }
+        // Intro locks scrolling while it plays — redo the #projects jump once it's gone
+        if (window.__restoreSection && typeof _scrollToSection === 'function') {
+          _scrollToSection(window.__restoreSection);
         }
       }
     }
@@ -3862,10 +3867,35 @@ if __name__ == "__main__":
     _unblock(0); // ensure root visible; bfcache already preserved scroll
   });
 
+  // Arriving via index.html#projects (e.g. "Zurück zum Portfolio"): wait for React
+  // to render the section, jump to it, then reveal. Re-align briefly while late
+  // content above it settles, unless the user has started scrolling.
+  function _scrollToSection(id) {
+    var attempts = 0, userMoved = false;
+    function align() {
+      var el = document.getElementById(id);
+      if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY);
+    }
+    ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function(ev) {
+      window.addEventListener(ev, function() { userMoved = true; }, { once: true, passive: true });
+    });
+    (function poll() {
+      if (document.getElementById(id) || attempts >= 100) {
+        align(); _unblock(0);
+        try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
+        [150, 500, 1000].forEach(function(t) { setTimeout(function() { if (!userMoved) align(); }, t); });
+        return;
+      }
+      attempts++;
+      setTimeout(poll, 50);
+    })();
+  }
+
   // Full load (bfcache miss): wait for React to render, then set scroll + reveal
   window.addEventListener('load', function() {
     var y = window.__restoreY || 0;
     sessionStorage.removeItem('portfolio-proj-scroll');
+    if (window.__restoreSection) { _scrollToSection(window.__restoreSection); return; }
     if (!y) { _unblock(0); return; } // normal navigation: just ensure root visible
     _pollUnblock(y);
   });
