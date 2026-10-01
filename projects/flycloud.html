@@ -121,15 +121,14 @@
     }
     .screenshots-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      grid-template-columns: 1fr;
     }
     .shot-detail {
-      border-radius: 16px;
+      border-radius: 20px;
       border: 1px solid var(--border);
       overflow: hidden;
       background: #0d0d0d;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      box-shadow: 0 40px 120px rgba(0,0,0,0.7);
     }
     .shot-detail img {
       width: 100%; display: block;
@@ -298,7 +297,12 @@
   <a href="../index.html" class="nav-logo">Tornike Zaridze</a>
   <div style="display:flex;align-items:center;gap:10px;">
     <button id="lang-toggle" onclick="(function(){var c=localStorage.getItem('portfolio-lang')||'de';localStorage.setItem('portfolio-lang',c==='de'?'en':'de');location.reload();})();" style="padding:4px 12px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:0.08em;cursor:pointer;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.3);color:#fff;transition:all 0.2s ease;">DE</button>
-    <span class="nav-badge">In aktiver Entwicklung</span>
+    <a href="https://flycloud.app/" target="_blank" rel="noopener noreferrer" class="nav-link-ext">
+      Live-Seite besuchen
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline>
+      </svg>
+    </a>
   </div>
 </nav>
 <script>(function(){var l=localStorage.getItem('portfolio-lang')||'de';var t=document.getElementById('lang-toggle');if(t)t.textContent=l.toUpperCase();})();</script>
@@ -316,24 +320,18 @@
     Eine Full-Stack-Travel-Super-App, die soziales Netzwerken, Flughafen-Intelligenz, KI-Assistenz, Entertainment, Marktplatz und Echtzeit-Kommunikation in einer Plattform vereint. 27 Feature-Module, 50+ Datenbankmodelle, 35+ API-Routen — derzeit in aktiver Entwicklung.
   </p>
   <div class="hero-actions">
+    <a href="https://flycloud.app/" target="_blank" rel="noopener noreferrer" class="btn-primary">
+      Live-Seite besuchen ↗
+    </a>
     <a href="../index.html" class="btn-secondary">← Zurück zum Portfolio</a>
   </div>
 </div>
 
-<!-- SCREENSHOTS — 1 main (smaller) left + 3 detail shots right -->
+<!-- SCREENSHOT -->
 <div class="screenshots-wrap">
   <div class="screenshots-grid">
     <div class="shot-detail">
       <img src="../assets/projects/flycloud.png?v=2" alt="FLY.CLOUD — overview" />
-    </div>
-    <div class="shot-detail">
-      <img src="../assets/projects/flycloud-2.png" alt="FLY.CLOUD — entertainment" />
-    </div>
-    <div class="shot-detail">
-      <img src="../assets/projects/flycloud-3.png" alt="FLY.CLOUD — travel map" />
-    </div>
-    <div class="shot-detail">
-      <img src="../assets/projects/flycloud-4.png" alt="FLY.CLOUD — FLY AI" />
     </div>
   </div>
 </div>
@@ -653,7 +651,9 @@
 <!-- FOOTER -->
 <div class="footer">
   <p>FLY.CLOUD — Persönliches Projekt von Tornike Zaridze, 2026 · In aktiver Entwicklung</p>
-  <span style="font-size:13px;color:var(--muted);">No public URL yet</span>
+  <a href="https://flycloud.app/" target="_blank" rel="noopener noreferrer" class="nav-link-ext">
+    flycloud.app ↗
+  </a>
 </div>
 
 <script>
