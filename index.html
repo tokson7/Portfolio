@@ -236,7 +236,7 @@
     }
   </style>
   <script>/* ── BACK-NAV: block root before first paint ── */
-  (function(){try{if(location.hash!=='#projects')return;window.__restoreSection='projects';var s=document.createElement('style');s.id='sr-block';s.textContent='#root{visibility:hidden!important}';document.head.appendChild(s);}catch(e){}})();
+  (function(){try{if(location.hash!=='#projects')return;window.__restoreSection='projects';var s=document.createElement('style');s.id='sr-block';s.textContent='#root{visibility:hidden!important}#introOverlay{display:none!important}';document.head.appendChild(s);}catch(e){}})();
   (function(){if(window.__restoreSection)return;try{var r=sessionStorage.getItem('portfolio-proj-scroll');if(!r)return;var d=JSON.parse(r);if(!d.y||Date.now()-d.ts>300000)return;var isBack=false;try{var ne=performance.getEntriesByType('navigation');var nt=ne.length?ne[0].type:(performance.navigation?['navigate','reload','','back_forward'][performance.navigation.type]:'');if(nt==='back_forward')isBack=true;if(!isBack&&nt==='navigate'&&document.referrer){try{if(new URL(document.referrer).origin===location.origin)isBack=true;}catch(e2){}}}catch(e1){}if(!isBack)return;window.__restoreY=d.y;var s=document.createElement('style');s.id='sr-block';s.textContent='#root{visibility:hidden!important}';document.head.appendChild(s);}catch(e){}})();
   </script>
 </head>
@@ -3574,6 +3574,9 @@ if __name__ == "__main__":
           navType = ['navigate','reload','','back_forward'][performance.navigation.type] || 'navigate';
         }
 
+        // Returning to a section (index.html#projects) — go straight there
+        if (window.__restoreSection) return true;
+
         // Always play on page reload (F5 / Ctrl+R)
         if (navType === 'reload') return false;
 
@@ -3804,10 +3807,6 @@ if __name__ == "__main__":
           document.documentElement.scrollTop = 0;
           document.body.scrollTop = 0;
         }
-        // Intro locks scrolling while it plays — redo the #projects jump once it's gone
-        if (window.__restoreSection && typeof _scrollToSection === 'function') {
-          _scrollToSection(window.__restoreSection);
-        }
       }
     }
   })();
@@ -3876,44 +3875,69 @@ if __name__ == "__main__":
     _unblock(0); // ensure root visible; bfcache already preserved scroll
   });
 
-  // Arriving via index.html#projects (e.g. "Zurück zum Portfolio"): wait for React
-  // to render the section, jump to it, then reveal. Re-align briefly while late
-  // content above it settles, unless the user has started scrolling.
+  // Arriving via index.html#projects (e.g. "Zurück zum Portfolio"): the head script
+  // has hidden #root and the intro overlay. React renders asynchronously, so watch
+  // the DOM and, the moment the section exists and the page is tall enough to
+  // scroll to it, jump there and reveal in the same task — before the next paint,
+  // so the user never sees the hero or a scroll. Afterwards keep the section pinned
+  // while late content above it (fonts, images, 3D robot) changes size, until the
+  // user scrolls themselves.
   function _scrollToSection(id) {
-    var attempts = 0, userMoved = false;
-    function align() {
+    var root = document.getElementById('root');
+    var revealed = false, userMoved = false, mo, ro;
+
+    function sectionTop() {
       var el = document.getElementById(id);
-      if (el) _jumpTo(el.getBoundingClientRect().top + window.scrollY);
+      return el ? el.getBoundingClientRect().top + window.scrollY : null;
     }
+    function align() {
+      var t = sectionTop();
+      if (t !== null && Math.abs(window.scrollY - t) > 1) _jumpTo(t);
+    }
+    function reveal() {
+      if (revealed) return;
+      revealed = true;
+      align();
+      _unblock(0);
+      try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
+    }
+    function check() {
+      if (revealed) { if (!userMoved) align(); return; }
+      var t = sectionTop();
+      if (t === null) return;
+      var h = document.documentElement.scrollHeight;
+      if (h - window.innerHeight >= t - 1) reveal();
+    }
+    function stop() {
+      if (mo) mo.disconnect();
+      if (ro) ro.disconnect();
+    }
+
     ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function(ev) {
-      window.addEventListener(ev, function() { userMoved = true; }, { once: true, passive: true });
+      window.addEventListener(ev, function() { userMoved = true; stop(); }, { once: true, passive: true, capture: true });
     });
-    // Reveal only once the section's position has held steady for a few polls,
-    // so late layout above it doesn't nudge the view after it becomes visible
-    var lastTop = null, stable = 0;
-    (function poll() {
-      var el = document.getElementById(id);
-      if (el) {
-        var t = Math.round(el.getBoundingClientRect().top + window.scrollY);
-        stable = (t === lastTop) ? stable + 1 : 0;
-        lastTop = t;
-      }
-      if (stable >= 4 || attempts >= 100) {
-        align(); _unblock(0);
-        try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
-        [150, 500, 1000].forEach(function(t) { setTimeout(function() { if (!userMoved) align(); }, t); });
-        return;
-      }
-      attempts++;
-      setTimeout(poll, 50);
-    })();
+
+    mo = new MutationObserver(check);
+    mo.observe(root, { childList: true, subtree: true });
+    if (window.ResizeObserver) {
+      ro = new ResizeObserver(check);
+      ro.observe(document.documentElement);
+      ro.observe(root);
+    }
+    check();
+
+    // Never leave the page hidden: reveal by 4s whatever happens; stop pinning
+    // shortly after everything has loaded.
+    setTimeout(reveal, 4000);
+    window.addEventListener('load', function() { setTimeout(function() { check(); stop(); }, 1500); });
   }
+  if (window.__restoreSection) _scrollToSection(window.__restoreSection);
 
   // Full load (bfcache miss): wait for React to render, then set scroll + reveal
   window.addEventListener('load', function() {
     var y = window.__restoreY || 0;
     sessionStorage.removeItem('portfolio-proj-scroll');
-    if (window.__restoreSection) { _scrollToSection(window.__restoreSection); return; }
+    if (window.__restoreSection) return; // handled by _scrollToSection
     if (!y) { _unblock(0); return; } // normal navigation: just ensure root visible
     _pollUnblock(y);
   });

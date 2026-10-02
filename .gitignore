@@ -32,3 +32,7 @@ npm-debug.log*
 index.html.broken-backup
 index.html.pre-*-backup
 .vercel
+
+# Build output (scripts/build.mjs)
+node_modules/
+dist/
