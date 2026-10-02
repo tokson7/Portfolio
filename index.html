@@ -3815,11 +3815,20 @@ if __name__ == "__main__":
 // ── SCROLL RESTORATION — zero visible scroll ──────────────────────────
   history.scrollRestoration = 'manual';
 
+  // Jump without animation — the page CSS sets html{scroll-behavior:smooth},
+  // which would otherwise turn every restore into a visible scroll from the top
+  function _jumpTo(y) {
+    var h = document.documentElement, prev = h.style.scrollBehavior;
+    h.style.scrollBehavior = 'auto';
+    window.scrollTo({ top: y, left: 0, behavior: 'instant' });
+    h.style.scrollBehavior = prev;
+  }
+
   // Remove the head-injected CSS block, set scroll, make root visible — all in one sync call
   function _unblock(y) {
     var s = document.getElementById('sr-block');
     if (s) s.parentNode.removeChild(s);
-    if (y) window.scrollTo(0, y);
+    if (y) _jumpTo(y);
     var r = document.getElementById('root');
     if (r) r.style.visibility = '';
   }
@@ -3874,13 +3883,22 @@ if __name__ == "__main__":
     var attempts = 0, userMoved = false;
     function align() {
       var el = document.getElementById(id);
-      if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY);
+      if (el) _jumpTo(el.getBoundingClientRect().top + window.scrollY);
     }
     ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function(ev) {
       window.addEventListener(ev, function() { userMoved = true; }, { once: true, passive: true });
     });
+    // Reveal only once the section's position has held steady for a few polls,
+    // so late layout above it doesn't nudge the view after it becomes visible
+    var lastTop = null, stable = 0;
     (function poll() {
-      if (document.getElementById(id) || attempts >= 100) {
+      var el = document.getElementById(id);
+      if (el) {
+        var t = Math.round(el.getBoundingClientRect().top + window.scrollY);
+        stable = (t === lastTop) ? stable + 1 : 0;
+        lastTop = t;
+      }
+      if (stable >= 4 || attempts >= 100) {
         align(); _unblock(0);
         try { history.replaceState(null, '', location.pathname + location.search); } catch(e) {}
         [150, 500, 1000].forEach(function(t) { setTimeout(function() { if (!userMoved) align(); }, t); });
