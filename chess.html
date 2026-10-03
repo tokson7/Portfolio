@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/chess.css?v=3" />
+  <link rel="stylesheet" href="css/chess.css?v=4" />
 </head>
 <body>
 
@@ -60,8 +60,8 @@
     <h1 class="landing-title" data-i18n="landing_title">Jedes Spiel erzählt eine Geschichte.</h1>
     <div class="section-label" style="margin-top:8px" data-i18n="side_label">Wähle deine Seite</div>
     <div class="side-selector">
-      <button class="side-option selected" data-side="w"><span style="color:#D4A843">&#9812;</span> <span data-i18n="gold_name">Gold</span> <span data-i18n="gold_first" style="opacity:0.4;font-size:12px">(du fängst an)</span></button>
-      <button class="side-option" data-side="b"><span style="color:#1B3A5C">&#9818;</span> <span data-i18n="blue_name">Blau</span> <span data-i18n="blue_first" style="opacity:0.4;font-size:12px">(Tornike fängt an)</span></button>
+      <button class="side-option selected" data-side="w"><span class="piece mini wK"></span> <span data-i18n="gold_name">Weiß</span> <span data-i18n="gold_first" style="opacity:0.4;font-size:12px">(du fängst an)</span></button>
+      <button class="side-option" data-side="b"><span class="piece mini bK"></span> <span data-i18n="blue_name">Schwarz</span> <span data-i18n="blue_first" style="opacity:0.4;font-size:12px">(Tornike fängt an)</span></button>
     </div>
 
     <button class="btn-primary" id="start-btn" style="margin-top:8px" data-i18n="play_btn">Jetzt spielen</button>
@@ -87,23 +87,44 @@
   <div id="game-screen">
     <div class="game-container">
 
-      <!-- 1. Schaltflächen -->
+      <!-- 1. Actions -->
       <div class="game-buttons">
         <button id="undo-btn" data-i18n="undo_btn">Rückgängig</button>
         <button id="resign-btn" data-i18n="resign_btn">Aufgeben</button>
         <button id="new-game-btn" data-i18n="new_game_btn">Neues Spiel</button>
       </div>
 
-      <!-- 2. Board area with side captures -->
-      <div class="board-area">
-        <!-- LEFT: pieces I captured (blue) -->
-        <div id="captured-by-you" class="captured-column left"></div>
+      <!-- 2. Board + move panel -->
+      <div class="board-area" id="board-area">
+        <div class="board-col">
+          <div class="player-strip">
+            <span class="player-tag"><span class="piece mini side-ai"></span>Tornike</span>
+            <div id="captured-by-ai" class="captured-row"></div>
+          </div>
+          <div class="board-wrap">
+            <div class="board-frame"><div id="board" class="chess-board"></div></div>
+            <div id="promo-picker" class="promo-picker" role="dialog" data-i18n-aria="promo_title" aria-label="Umwandlung wählen"></div>
+          </div>
+          <div class="player-strip">
+            <span class="player-tag"><span class="piece mini side-you"></span><span id="player-label" data-i18n="anon">Du</span></span>
+            <div id="captured-by-you" class="captured-row"></div>
+          </div>
+        </div>
 
-        <!-- Board -->
-        <div id="board" class="chess-board"></div>
-
-        <!-- RIGHT: pieces AI captured (gold) -->
-        <div id="captured-by-ai" class="captured-column right"></div>
+        <aside class="side-panel" aria-label="Züge" data-i18n-aria="moves_title">
+          <div class="panel-head" data-i18n="moves_title">Züge</div>
+          <ol id="move-history-list" class="move-list"></ol>
+          <div id="review-banner" class="review-banner" hidden>
+            <span id="review-label"></span>
+            <button type="button" id="review-live" data-i18n="review_live">Zurück zum Spiel</button>
+          </div>
+          <div class="move-nav">
+            <button type="button" id="nav-start" data-i18n-title="nav_start" title="Zum Anfang"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h2v14H6zM19 6.4 17.6 5 10.6 12l7 7 1.4-1.4L13.4 12z"/></svg></button>
+            <button type="button" id="nav-prev" data-i18n-title="nav_prev" title="Vorheriger Zug"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 6.4 14 5l-7 7 7 7 1.4-1.4L9.8 12z"/></svg></button>
+            <button type="button" id="nav-next" data-i18n-title="nav_next" title="Nächster Zug"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.6 17.6 10 19l7-7-7-7-1.4 1.4 5.6 5.6z"/></svg></button>
+            <button type="button" id="nav-end" data-i18n-title="nav_end" title="Zur aktuellen Stellung"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5h2v14h-2zM5 17.6 6.4 19l7-7-7-7L5 6.4 10.6 12z"/></svg></button>
+          </div>
+        </aside>
       </div>
 
       <!-- 3. Status -->
@@ -118,6 +139,7 @@
     <p id="game-over-sub"></p>
     <div class="game-over-actions">
       <button class="btn-primary" id="rematch-btn" data-i18n="rematch_btn">Revanche</button>
+      <button class="btn-secondary" id="review-btn" type="button" data-i18n="review_btn">Partie ansehen</button>
       <a href="index.html" onclick="sessionStorage.setItem('openContact','1')" class="btn-secondary" data-i18n="hire_btn">Lieber mich einstellen</a>
     </div>
     <p style="color:rgba(255,255,255,0.28);font-size:13px;margin-top:4px" data-i18n="game_footer">Hat dir das Spiel gefallen? Stell dir vor, was ich für dich bauen kann.</p>
@@ -134,8 +156,8 @@
         nav_contact: 'Contact', nav_chess: 'Play Chess',
         landing_title: 'Every game tells a story.',
         side_label: 'Choose your side',
-        gold_name: 'Gold', gold_first: '(you go first)',
-        blue_name: 'Blue', blue_first: '(Tornike goes first)',
+        gold_name: 'White', gold_first: '(you go first)',
+        blue_name: 'Black', blue_first: '(Tornike goes first)',
         play_btn: 'Play now',
         history_title: 'Game history',
         name_label: 'Enter your name',
@@ -166,7 +188,12 @@
         gameover_better: 'Better luck next time.',
         gameover_draw: 'Draw.', gameover_stale: 'Stalemate.', gameover_draw_sub: 'The game ended in a draw.',
         resign_suf: ' resigned.',
-        resign_tornike: 'Tornike wins. Another round?'
+        resign_tornike: 'Tornike wins. Another round?',
+        threefold_status: 'Threefold repetition — draw.', insufficient_status: 'Insufficient material — draw.', fifty_status: '50-move rule — draw.',
+        moves_title: 'Moves', moves_empty: 'No moves yet',
+        review_btn: 'Review game', review_live: 'Back to game', review_move: 'Move', review_start: 'Starting position',
+        nav_start: 'First move', nav_prev: 'Previous move', nav_next: 'Next move', nav_end: 'Current position',
+        promo_title: 'Choose promotion', promo_q: 'Queen', promo_r: 'Rook', promo_b: 'Bishop', promo_n: 'Knight'
       },
       de: {
         page_title: 'Schach — Tornike Zaridze',
@@ -174,8 +201,8 @@
         nav_contact: 'Kontakt', nav_chess: 'Schach spielen',
         landing_title: 'Jedes Spiel erzählt eine Geschichte.',
         side_label: 'Wähle deine Seite',
-        gold_name: 'Gold', gold_first: '(du fängst an)',
-        blue_name: 'Blau', blue_first: '(Tornike fängt an)',
+        gold_name: 'Weiß', gold_first: '(du fängst an)',
+        blue_name: 'Schwarz', blue_first: '(Tornike fängt an)',
         play_btn: 'Jetzt spielen',
         history_title: 'Spielverlauf',
         name_label: 'Gib deinen Namen ein',
@@ -206,7 +233,12 @@
         gameover_better: 'Beim nächsten Mal klappt es.',
         gameover_draw: 'Remis.', gameover_stale: 'Patt.', gameover_draw_sub: 'Das Spiel endete remis.',
         resign_suf: ' hat aufgegeben.',
-        resign_tornike: 'Tornike gewinnt. Noch eine Runde?'
+        resign_tornike: 'Tornike gewinnt. Noch eine Runde?',
+        threefold_status: 'Dreifache Stellungswiederholung — Remis.', insufficient_status: 'Ungenügendes Material — Remis.', fifty_status: '50-Züge-Regel — Remis.',
+        moves_title: 'Züge', moves_empty: 'Noch keine Züge',
+        review_btn: 'Partie ansehen', review_live: 'Zurück zum Spiel', review_move: 'Zug', review_start: 'Startposition',
+        nav_start: 'Zum Anfang', nav_prev: 'Vorheriger Zug', nav_next: 'Nächster Zug', nav_end: 'Zur aktuellen Stellung',
+        promo_title: 'Umwandlung wählen', promo_q: 'Dame', promo_r: 'Turm', promo_b: 'Läufer', promo_n: 'Springer'
       }
     };
     var t = TRANSLATIONS[lang] || TRANSLATIONS.de;
@@ -216,6 +248,14 @@
     document.querySelectorAll('[data-i18n]').forEach(function (el) {
       var key = el.getAttribute('data-i18n');
       if (t[key] !== undefined) el.textContent = t[key];
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(function (el) {
+      var key = el.getAttribute('data-i18n-title');
+      if (t[key] !== undefined) { el.title = t[key]; el.setAttribute('aria-label', t[key]); }
+    });
+    document.querySelectorAll('[data-i18n-aria]').forEach(function (el) {
+      var key = el.getAttribute('data-i18n-aria');
+      if (t[key] !== undefined) el.setAttribute('aria-label', t[key]);
     });
     document.querySelectorAll('[data-i18n-ph]').forEach(function (el) {
       var key = el.getAttribute('data-i18n-ph');
@@ -229,7 +269,8 @@
   })();
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-  <script src="js/chess-game.js"></script>
+  <script src="js/chess-ai.js?v=4"></script>
+  <script src="js/chess-game.js?v=4"></script>
   <script src="js/shader-bg.js"></script>
   <script>
     (function() {

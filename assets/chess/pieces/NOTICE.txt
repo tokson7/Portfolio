@@ -1,0 +1,3 @@
+Chess piece set "Chessnut" by Alexis Luengas
+https://github.com/LexLuengas/chessnut-pieces
+Licensed under the Apache License 2.0 (see LICENSE.txt). Files taken unmodified from lichess-org/lila public/piece/chessnut.
