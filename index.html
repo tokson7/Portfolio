@@ -994,69 +994,15 @@ if __name__ == "__main__":
     }
 
     /* ─── POLO CARD ─────────────────────────────────────────── */
-    /* ─── LIQUID REVEAL PHOTO ────────────────────────────── */
-    function LiquidRevealPhoto({ baseImage, revealImage }) {
-      const containerRef = useRef(null);
-      const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
-      const [isHovering, setIsHovering] = useState(false);
-      const [revealOpacity, setRevealOpacity] = useState(0);
-
-      function handleMouseMove(e) {
-        const rect = containerRef.current?.getBoundingClientRect();
-        if (!rect) return;
-        setMousePos({
-          x: ((e.clientX - rect.left) / rect.width) * 100,
-          y: ((e.clientY - rect.top)  / rect.height) * 100,
-        });
-      }
-
+    /* ─── PROFILE PHOTO ─────────────────────────────────── */
+    function ProfilePhoto({ src }) {
       return (
-        <div
-          ref={containerRef}
-          onMouseMove={handleMouseMove}
-          onMouseEnter={() => { setIsHovering(true);  setRevealOpacity(1); }}
-          onMouseLeave={() => { setIsHovering(false); setRevealOpacity(0); }}
-          style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", borderRadius: "inherit", cursor: "crosshair" }}
-        >
-          {/* SVG turbulence filter for liquid edges */}
-          <svg style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}>
-            <defs>
-              <filter id="lwf" x="-12%" y="-12%" width="124%" height="124%" colorInterpolationFilters="sRGB">
-                <feTurbulence type="fractalNoise" baseFrequency="0.022 0.032" numOctaves="3" seed="5">
-                  <animate attributeName="baseFrequency" dur="6s"
-                    values="0.022 0.032;0.032 0.018;0.022 0.032" repeatCount="indefinite" />
-                </feTurbulence>
-                <feDisplacementMap in="SourceGraphic" scale="10" xChannelSelector="R" yChannelSelector="G" />
-              </filter>
-            </defs>
-          </svg>
-
-          {/* Base portrait — always visible */}
-          <img src={baseImage} alt="" style={{
+        <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", borderRadius: "inherit" }}>
+          <img src={src} alt="" style={{
             position: "absolute", top: 0, left: 0,
             width: "118%", height: "112%",
             objectFit: "cover", objectPosition: "left top", display: "block",
           }} />
-
-          {/* Radial reveal overlay — follows cursor */}
-          <div style={{
-            position: "absolute", top: 0, left: 0,
-            width: "100%", height: "100%",
-            opacity: revealOpacity,
-            transition: "opacity 1.5s cubic-bezier(0.4,0,0.2,1)",
-            maskImage: `radial-gradient(circle 200px at ${mousePos.x}% ${mousePos.y}%, black 0%, black 60%, transparent 95%)`,
-            WebkitMaskImage: `radial-gradient(circle 200px at ${mousePos.x}% ${mousePos.y}%, black 0%, black 60%, transparent 95%)`,
-            filter: isHovering ? "url(#lwf)" : "none",
-            willChange: "mask-image, opacity",
-          }}>
-            <img src={revealImage} alt="" style={{
-              position: "absolute", top: 0, left: 0,
-              width: "118%", height: "112%",
-              objectFit: "cover", objectPosition: "left top", display: "block",
-              opacity: 1,
-              transform: "translateX(-1.8%)",
-            }} />
-          </div>
         </div>
       );
     }
@@ -2985,7 +2931,7 @@ if __name__ == "__main__":
                 <div style={{background:"rgba(255,255,255,0.01)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:20,padding:20,display:"flex",flexDirection:"column",gap:20}}>
                   {/* Photo */}
                   <div style={{width:"100%",aspectRatio:"4/3.5",borderRadius:14,overflow:"hidden",position:"relative",border:"1px solid rgba(255,255,255,0.05)"}}>
-                    <LiquidRevealPhoto baseImage="/Tornike.PNG" revealImage="/baiker2.png" />
+                    <ProfilePhoto src="/Tornike.PNG" />
                     <div style={{position:"absolute",bottom:16,left:"50%",transform:"translateX(-50%)",display:"inline-flex",alignItems:"center",gap:8,background:"rgba(0,0,0,0.7)",backdropFilter:"blur(8px)",padding:"7px 16px",borderRadius:999,fontSize:13,whiteSpace:"nowrap",zIndex:10}}>
                       <span style={{width:8,height:8,borderRadius:"50%",background:"#4ade80",animation:"pulse 2s infinite",display:"inline-block"}}/>
                       {T.available}
